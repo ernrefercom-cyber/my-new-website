@@ -43,8 +43,6 @@
     </script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Pure-JS QR Code Decoder (jsQR) for reliable cross-browser QR extraction -->
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -93,6 +91,10 @@
             -webkit-text-fill-color: transparent;
         }
 
+        button, [role="button"], input, label {
+            touch-action: manipulation;
+        }
+
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -110,7 +112,7 @@
     <!-- TOP NAVBAR -->
     <header class="glass-card sticky top-0 z-40 px-4 py-3.5 border-b border-slate-800/80">
         <div class="max-w-md mx-auto flex items-center justify-between w-full">
-            <div class="flex items-center gap-2.5 cursor-pointer group p-1" onclick="openAdminModal()" title="Admin Access">
+            <div id="brandLogoTrigger" role="button" tabindex="0" class="flex items-center gap-2.5 cursor-pointer group p-1.5 select-none" onclick="window.openAdminModal && window.openAdminModal()" title="Admin Access">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">
                     <i class="fa-solid fa-users-viewfinder"></i>
                 </div>
@@ -121,7 +123,7 @@
             </div>
             
             <div class="flex items-center gap-2">
-                <button id="logoutBtn" onclick="logout()" class="hidden px-3 py-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 text-xs font-semibold border border-rose-500/20 transition-all active:scale-95">
+                <button type="button" id="logoutBtn" onclick="window.logout && window.logout()" class="hidden px-3 py-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 text-xs font-semibold border border-rose-500/20 transition-all active:scale-95">
                     <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
                 </button>
             </div>
@@ -146,10 +148,10 @@
 
             <!-- TABS SWITCHER -->
             <div class="flex p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-md">
-                <button id="tabRegisterBtn" onclick="switchAuthTab('deposit')" class="w-1/2 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md">
+                <button type="button" id="tabRegisterBtn" onclick="window.switchAuthTab && window.switchAuthTab('deposit')" class="w-1/2 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md">
                     <i class="fa-solid fa-wallet"></i> Register & Deposit
                 </button>
-                <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2">
+                <button type="button" id="tabLoginBtn" onclick="window.switchAuthTab && window.switchAuthTab('login')" class="w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2">
                     <i class="fa-solid fa-right-to-bracket"></i> Login
                 </button>
             </div>
@@ -177,7 +179,7 @@
                     <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Create Password</label>
                     <div class="relative">
                         <input type="password" id="regPassword" placeholder="Create your password" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-4 pr-10 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 text-sm font-mono tracking-widest transition-all">
-                        <button type="button" onclick="togglePassVisibility('regPassword', this)" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 p-2">
+                        <button type="button" id="toggleRegPassBtn" onclick="window.togglePassVisibility && window.togglePassVisibility('regPassword', this)" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 p-2">
                             <i class="fa-regular fa-eye text-xs"></i>
                         </button>
                     </div>
@@ -203,7 +205,7 @@
                     </p>
                 </div>
 
-                <button onclick="openPaymentModal()" class="w-full gradient-btn text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all flex items-center justify-center gap-2 active:scale-95">
+                <button type="button" id="openPayModalBtn" onclick="window.openPaymentModal && window.openPaymentModal()" class="w-full gradient-btn text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all flex items-center justify-center gap-2 active:scale-95">
                     <i class="fa-solid fa-mobile-screen-button text-sm"></i> Pay via PhonePe / GPay / Paytm
                 </button>
             </div>
@@ -231,13 +233,13 @@
                     <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
                     <div class="relative">
                         <input type="password" id="loginPassword" placeholder="Enter your password" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-4 pr-10 text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 text-sm font-mono tracking-widest transition-all">
-                        <button type="button" onclick="togglePassVisibility('loginPassword', this)" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 p-2">
+                        <button type="button" id="toggleLoginPassBtn" onclick="window.togglePassVisibility && window.togglePassVisibility('loginPassword', this)" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 p-2">
                             <i class="fa-regular fa-eye text-xs"></i>
                         </button>
                     </div>
                 </div>
 
-                <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all flex items-center justify-center gap-2 active:scale-95">
+                <button type="button" id="loginSubmitBtn" onclick="window.handleLogin && window.handleLogin()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all flex items-center justify-center gap-2 active:scale-95">
                     <i class="fa-solid fa-lock"></i> Login to Dashboard
                 </button>
             </div>
@@ -260,7 +262,7 @@
                 <p class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Your 10-Digit Referral ID</p>
                 <div class="flex items-center justify-between gap-2 mt-2">
                     <span id="user10DigitId" class="text-2xl font-black tracking-widest text-white font-mono">----------</span>
-                    <button onclick="copyOnlyReferralId()" class="p-2.5 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 rounded-xl border border-indigo-500/30 transition-all active:scale-95 flex items-center gap-1.5 text-xs font-bold">
+                    <button type="button" id="copyIdBtn" onclick="window.copyOnlyReferralId && window.copyOnlyReferralId()" class="p-2.5 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 rounded-xl border border-indigo-500/30 transition-all active:scale-95 flex items-center gap-1.5 text-xs font-bold">
                         <i class="fa-regular fa-copy text-sm"></i> Copy ID
                     </button>
                 </div>
@@ -293,7 +295,7 @@
                 <p class="text-xs text-slate-400">Earn ₹100 instantly for every new referral.</p>
                 
                 <div class="pt-2 border-t border-slate-800/80 space-y-1.5">
-                    <button id="bonusWithdrawBtn" onclick="initiateWithdrawal('bonus')" class="w-full bg-slate-800 text-slate-500 py-2.5 rounded-xl font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2 cursor-not-allowed">
+                    <button type="button" id="bonusWithdrawBtn" onclick="window.initiateWithdrawal && window.initiateWithdrawal('bonus')" class="w-full bg-slate-800 text-slate-500 py-2.5 rounded-xl font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2 cursor-not-allowed">
                         <i class="fa-solid fa-lock"></i> Withdraw Bonus
                     </button>
                     <p id="bonusWithdrawStatus" class="text-[11px] text-amber-400 font-medium text-center">Withdrawal unlocks at ₹500 bonus balance</p>
@@ -314,7 +316,7 @@
                 <p class="text-xs text-slate-400">Includes Deposit + 40% Commission.</p>
 
                 <div class="pt-2 border-t border-slate-800/80 space-y-2">
-                    <button id="mainWithdrawBtn" onclick="initiateWithdrawal('main')" class="w-full bg-slate-800 text-slate-500 py-2.5 rounded-xl font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2 cursor-not-allowed">
+                    <button type="button" id="mainWithdrawBtn" onclick="window.initiateWithdrawal && window.initiateWithdrawal('main')" class="w-full bg-slate-800 text-slate-500 py-2.5 rounded-xl font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2 cursor-not-allowed">
                         <i class="fa-solid fa-lock"></i> Withdraw Main Balance
                     </button>
                     <p id="mainWithdrawStatus" class="text-[11px] text-amber-400 font-medium text-center">Withdrawal unlocks at ₹30,000 main balance</p>
@@ -374,11 +376,11 @@
                 <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Share Referral Link</label>
                 <div class="flex gap-2">
                     <input type="text" id="shareUrlInput" readonly class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-3 text-xs text-slate-300 font-mono focus:outline-none select-all">
-                    <button onclick="copyReferralLink()" class="px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition-all flex items-center gap-1.5 whitespace-nowrap active:scale-95">
+                    <button type="button" id="copyLinkBtn" onclick="window.copyReferralLink && window.copyReferralLink()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition-all flex items-center gap-1.5 whitespace-nowrap active:scale-95">
                         <i class="fa-regular fa-copy"></i> Copy
                     </button>
                 </div>
-                <button onclick="shareOnWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-extrabold text-xs shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 active:scale-95">
+                <button type="button" id="whatsappShareBtn" onclick="window.shareOnWhatsApp && window.shareOnWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-extrabold text-xs shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 active:scale-95">
                     <i class="fa-brands fa-whatsapp text-lg"></i> Share Link on WhatsApp
                 </button>
             </div>
@@ -393,52 +395,45 @@
                     </div>
                     <div>
                         <h2 class="font-extrabold text-slate-100 text-sm">Owner Control Panel</h2>
-                        <p class="text-[10px] text-slate-400">QR Settings, Withdrawals & User Management</p>
+                        <p class="text-[10px] text-slate-400">UPI Settings, Withdrawals & User Management</p>
                     </div>
                 </div>
-                <button onclick="closeAdminPanel()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-all">
+                <button type="button" id="exitAdminBtn" onclick="window.closeAdminPanel && window.closeAdminPanel()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-all">
                     Exit Admin
                 </button>
             </div>
 
-            <!-- QR SETTINGS SECTION -->
+            <!-- PAYMENT UPI SETTINGS SECTION -->
             <div class="glass-card p-4 rounded-2xl space-y-3 border-indigo-500/40 bg-indigo-950/10">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                     <h3 class="font-extrabold text-xs text-indigo-400 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-gear"></i> Payment QR Settings
+                        <i class="fa-solid fa-gear"></i> Payment UPI Settings
                     </h3>
-                    <span id="adminQrStatusBadge" class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-bold">Checking...</span>
+                    <span id="adminUpiStatusBadge" class="text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2 py-0.5 rounded-full font-bold">Missing (Blocked)</span>
                 </div>
 
-                <div class="flex items-center gap-4">
-                    <div id="adminQrBox" class="bg-white p-2 rounded-xl border border-slate-700 shrink-0 flex items-center justify-center w-28 h-28">
-                        <img id="adminPreviewQr" src="" alt="Current QR" class="w-24 h-24 object-contain rounded-lg hidden">
-                        <span id="adminNoQrPlaceholder" class="text-[10px] font-bold text-slate-500 text-center px-1">No QR Uploaded</span>
+                <div class="space-y-2.5 text-left">
+                    <p class="text-[11px] text-slate-300 leading-snug">Jo UPI ID aap yahan save ya change karenge, users ka Direct App Launch payment seedha usi UPI ID par jayega. UPI ID na hone par payment block rahega.</p>
+                    
+                    <div class="p-3 rounded-xl bg-slate-950/90 border border-slate-800 flex items-center justify-between gap-2">
+                        <span class="text-[11px] text-slate-400 font-semibold flex items-center gap-1.5">
+                            <i class="fa-solid fa-at text-indigo-400"></i> Active UPI ID:
+                        </span>
+                        <span id="adminActiveUpiDisplay" class="font-mono font-bold text-xs text-rose-400 truncate max-w-[190px]">Not Set</span>
                     </div>
-                    <div class="flex-1 space-y-2 text-left">
-                        <p class="text-[11px] text-slate-300 leading-snug">Jo QR aap yahan upload/change karenge, Direct App Launch usi QR ke payment detail par update ho jayega. QR na hone par payment block rahega.</p>
-                        <!-- Linked UPI ID Display & Manual Override Input -->
-                        <div class="p-2 rounded-xl bg-slate-950/90 border border-slate-800 space-y-1.5">
-                            <div class="flex items-center justify-between text-[10px]">
-                                <span class="text-slate-400 font-semibold">Linked UPI ID:</span>
-                                <span id="adminLinkedUpiBadge" class="font-mono font-bold text-emerald-400 truncate max-w-[150px]">8825354587@ybl</span>
-                            </div>
-                            <div class="flex gap-1.5">
-                                <input type="text" id="adminManualUpiInput" placeholder="Enter / Edit UPI ID (e.g. name@upi)" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-1.5 px-2 text-[11px] text-white font-mono focus:outline-none focus:border-indigo-500">
-                                <button type="button" onclick="saveManualAdminUpi()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold shrink-0 transition-all active:scale-95">
-                                    Save
-                                </button>
-                            </div>
-                        </div>
-                        <input type="file" id="qrUploadInput" accept="image/*" class="hidden" onchange="handleQrFileUpload(event)">
-                        <div class="flex gap-2">
-                            <button type="button" onclick="document.getElementById('qrUploadInput').click()" class="flex-1 py-2.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg transition-all active:scale-95">
-                                <i class="fa-solid fa-cloud-arrow-up"></i> <span id="qrActionBtnText">Upload QR</span>
-                            </button>
-                            <button type="button" onclick="removeUploadedQr()" class="py-2.5 px-3 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white rounded-xl font-bold text-xs border border-rose-500/30 transition-all" title="Remove QR">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
+
+                    <div class="space-y-1.5">
+                        <label for="adminUpiInput" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Enter or Change Receiver UPI ID</label>
+                        <input type="text" id="adminUpiInput" placeholder="e.g. yourname@okaxis or 9876543210@ybl" class="w-full bg-slate-950 border border-slate-700 rounded-xl py-2.5 px-3 text-xs text-white font-mono placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-all">
+                    </div>
+
+                    <div class="flex gap-2 pt-0.5">
+                        <button type="button" id="saveUpiBtn" onclick="window.saveOwnerUpiId && window.saveOwnerUpiId()" class="flex-1 py-2.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-600/20 transition-all active:scale-95">
+                            <i class="fa-solid fa-floppy-disk"></i> <span id="upiSaveBtnText">Save / Update UPI ID</span>
+                        </button>
+                        <button type="button" id="clearUpiBtn" onclick="window.clearOwnerUpiId && window.clearOwnerUpiId()" class="py-2.5 px-3 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white rounded-xl font-bold text-xs border border-rose-500/30 transition-all flex items-center justify-center gap-1 active:scale-95" title="Clear / Remove UPI ID">
+                            <i class="fa-solid fa-trash"></i> Clear
+                        </button>
                     </div>
                 </div>
             </div>
@@ -498,8 +493,8 @@
     </main>
 
     <!-- DIRECT APP LAUNCH PAYMENT MODAL -->
-    <div id="paymentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
-        <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-emerald-500/30 shadow-2xl relative overflow-hidden text-center max-h-[90vh] overflow-y-auto">
+    <div id="paymentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 pointer-events-none">
+        <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-emerald-500/30 shadow-2xl relative overflow-hidden text-center max-h-[90vh] overflow-y-auto pointer-events-auto">
             <div class="space-y-1.5">
                 <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto text-xl border border-indigo-500/30">
                     <i class="fa-solid fa-mobile-screen"></i>
@@ -514,14 +509,11 @@
             <!-- ACTIVE UPLOADED QR PREVIEW & LINKED UPI DISPLAY (HIDDEN AS REQUESTED) -->
             <div id="activeQrBanner" class="hidden bg-slate-950/90 p-3 rounded-2xl border border-slate-800 space-y-2">
                 <div id="missingQrAlert" class="hidden p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-bold">
-                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> QR uploaded nahi hai! Payment band hai.
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> UPI ID set nahi hai! Payment band hai.
                 </div>
                 <div id="linkedQrDisplay" class="hidden flex items-center gap-3 text-left">
-                    <div class="bg-white p-1.5 rounded-xl shrink-0">
-                        <img id="modalActiveQrImg" src="" alt="Uploaded QR" class="w-14 h-14 object-contain rounded">
-                    </div>
                     <div class="overflow-hidden flex-1">
-                        <p class="text-[10px] text-emerald-400 font-bold uppercase">Active QR Linked</p>
+                        <p class="text-[10px] text-emerald-400 font-bold uppercase">Active UPI Linked</p>
                         <p class="text-xs font-mono font-bold text-white truncate">UPI: <span id="activeLinkedUpiText">--</span></p>
                     </div>
                 </div>
@@ -529,7 +521,7 @@
 
             <!-- DIRECT UPI APP LAUNCH BUTTONS -->
             <div id="payAppsSection" class="space-y-2.5 pt-1">
-                <button id="btnPayPhonepe" onclick="redirectToUPI('phonepe')" class="w-full bg-purple-700/80 hover:bg-purple-600 text-white py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-between border border-purple-500/40 shadow-lg transition-all active:scale-95">
+                <button type="button" id="btnPayPhonepe" onclick="window.redirectToUPI && window.redirectToUPI('phonepe')" class="w-full bg-purple-700/80 hover:bg-purple-600 text-white py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-between border border-purple-500/40 shadow-lg transition-all active:scale-95">
                     <span class="flex items-center gap-2.5">
                         <div class="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-purple-700 font-black text-sm">P</div>
                         <span>Pay via PhonePe</span>
@@ -537,7 +529,7 @@
                     <i class="fa-solid fa-chevron-right text-purple-300 text-xs"></i>
                 </button>
 
-                <button id="btnPayGpay" onclick="redirectToUPI('gpay')" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-between border border-slate-600/40 shadow-lg transition-all active:scale-95">
+                <button type="button" id="btnPayGpay" onclick="window.redirectToUPI && window.redirectToUPI('gpay')" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-between border border-slate-600/40 shadow-lg transition-all active:scale-95">
                     <span class="flex items-center gap-2.5">
                         <div class="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-blue-600 font-black text-xs">G</div>
                         <span>Pay via Google Pay</span>
@@ -545,7 +537,7 @@
                     <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
                 </button>
 
-                <button id="btnPayPaytm" onclick="redirectToUPI('paytm')" class="w-full bg-cyan-900/60 hover:bg-cyan-800/80 text-white py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-between border border-cyan-500/40 shadow-lg transition-all active:scale-95">
+                <button type="button" id="btnPayPaytm" onclick="window.redirectToUPI && window.redirectToUPI('paytm')" class="w-full bg-cyan-900/60 hover:bg-cyan-800/80 text-white py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-between border border-cyan-500/40 shadow-lg transition-all active:scale-95">
                     <span class="flex items-center gap-2.5">
                         <div class="w-7 h-7 rounded-lg bg-cyan-400 text-slate-950 flex items-center justify-center font-black text-[10px]">PAYTM</div>
                         <span>Pay via Paytm</span>
@@ -553,7 +545,7 @@
                     <i class="fa-solid fa-chevron-right text-cyan-300 text-xs"></i>
                 </button>
 
-                <button id="btnPayGeneric" onclick="redirectToUPI('generic')" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-200 py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-between border border-slate-700 shadow-lg transition-all active:scale-95">
+                <button type="button" id="btnPayGeneric" onclick="window.redirectToUPI && window.redirectToUPI('generic')" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-200 py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-between border border-slate-700 shadow-lg transition-all active:scale-95">
                     <span class="flex items-center gap-2.5">
                         <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs">
                             <i class="fa-solid fa-arrow-up-right-from-square"></i>
@@ -572,13 +564,13 @@
                 <input type="text" id="regUtrNumber" maxlength="12" placeholder="e.g. 401234567890" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 text-sm font-mono tracking-wider">
                 <p class="text-[10px] text-slate-400">Payment karne ke baad 12 ank ka UTR number darj karke register submit karein.</p>
                 
-                <button onclick="completeRegistrationAfterPayment()" class="w-full gradient-btn text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-lg shadow-indigo-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 mt-2">
+                <button type="button" id="completeRegBtn" onclick="window.completeRegistrationAfterPayment && window.completeRegistrationAfterPayment()" class="w-full gradient-btn text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-lg shadow-indigo-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 mt-2">
                     <i class="fa-solid fa-circle-check"></i> Verify UTR & Complete Registration
                 </button>
             </div>
 
             <div class="space-y-2 pt-1">
-                <button onclick="closePaymentModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 font-bold text-xs">
+                <button type="button" id="closePayModalBtn" onclick="window.closePaymentModal && window.closePaymentModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 font-bold text-xs">
                     Cancel
                 </button>
             </div>
@@ -586,8 +578,8 @@
     </div>
 
     <!-- BANK DETAILS & WITHDRAWAL MODAL -->
-    <div id="bankDetailsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
-        <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-cyan-500/30 shadow-2xl relative">
+    <div id="bankDetailsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 pointer-events-none">
+        <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-cyan-500/30 shadow-2xl relative pointer-events-auto">
             <div class="text-center space-y-1.5">
                 <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto text-xl border border-cyan-500/30">
                     <i class="fa-solid fa-building-columns"></i>
@@ -616,15 +608,15 @@
             </div>
 
             <div class="flex gap-2 pt-2">
-                <button onclick="closeBankModal()" class="w-1/2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs">Cancel</button>
-                <button onclick="submitWithdrawalRequest()" class="w-1/2 bg-cyan-600 hover:bg-cyan-500 text-white py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-cyan-600/20">Submit Payout</button>
+                <button type="button" id="closeBankModalBtn" onclick="window.closeBankModal && window.closeBankModal()" class="w-1/2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs">Cancel</button>
+                <button type="button" id="submitWithdrawBtn" onclick="window.submitWithdrawalRequest && window.submitWithdrawalRequest()" class="w-1/2 bg-cyan-600 hover:bg-cyan-500 text-white py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-cyan-600/20">Submit Payout</button>
             </div>
         </div>
     </div>
 
     <!-- ADMIN PASSWORD MODAL -->
-    <div id="adminAuthModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
-        <div class="glass-card w-full max-w-xs rounded-3xl p-6 space-y-4 border-amber-500/30 shadow-2xl">
+    <div id="adminAuthModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 pointer-events-none">
+        <div class="glass-card w-full max-w-xs rounded-3xl p-6 space-y-4 border-amber-500/30 shadow-2xl pointer-events-auto">
             <div class="text-center space-y-1.5">
                 <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-xl border border-amber-500/30">
                     <i class="fa-solid fa-lock"></i>
@@ -638,1222 +630,1036 @@
             </div>
 
             <div class="flex gap-2">
-                <button onclick="closeAdminModal()" class="w-1/2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs">Cancel</button>
-                <button onclick="verifyAdminPassword()" class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-amber-600/20">Enter</button>
+                <button type="button" id="closeAdminModalBtn" onclick="window.closeAdminModal && window.closeAdminModal()" class="w-1/2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs">Cancel</button>
+                <button type="button" id="verifyAdminBtn" onclick="window.verifyAdminPassword && window.verifyAdminPassword()" class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-amber-600/20">Enter</button>
             </div>
         </div>
     </div>
 
     <!-- LOGIC SCRIPT -->
     <script>
-        // Safe storage helpers to prevent errors in restricted/sandboxed contexts
-        function safeGetItem(storage, key) {
-            try {
-                return storage.getItem(key);
-            } catch (e) {
-                return null;
+        (function() {
+            // Safe storage helpers so restricted iframes or storage limits never throw errors
+            function safeGetItem(storage, key) {
+                try {
+                    return storage.getItem(key);
+                } catch (e) {
+                    return null;
+                }
             }
-        }
 
-        function safeSetItem(storage, key, value) {
-            try {
-                storage.setItem(key, value);
-            } catch (e) {
-                // Ignore storage quota or sandbox restriction errors
+            function safeSetItem(storage, key, value) {
+                try {
+                    storage.setItem(key, value);
+                } catch (e) {
+                    // Ignore storage quota or sandbox restriction errors
+                }
             }
-        }
 
-        function safeRemoveItem(storage, key) {
-            try {
-                storage.removeItem(key);
-            } catch (e) {
-                // Ignore storage restriction errors
+            function safeRemoveItem(storage, key) {
+                try {
+                    storage.removeItem(key);
+                } catch (e) {
+                    // Ignore storage restriction errors
+                }
             }
-        }
 
-        let users = {};
-        let loginLogs = [];
-        let withdrawalRequests = [];
-        let customQrImage = "";
-        let activeQrUpiId = "";
-        let allUsersStartTs = null;
+            let users = {};
+            let loginLogs = [];
+            let withdrawalRequests = [];
+            let activeUpiId = "";
+            let allUsersStartTs = null;
 
-        try {
-            users = JSON.parse(safeGetItem(localStorage, 'er_users')) || {};
-            loginLogs = JSON.parse(safeGetItem(localStorage, 'er_login_logs')) || [];
-            withdrawalRequests = JSON.parse(safeGetItem(localStorage, 'er_withdrawals')) || [];
-            customQrImage = safeGetItem(localStorage, 'er_custom_qr') || "";
-            activeQrUpiId = customQrImage ? (safeGetItem(localStorage, 'er_qr_upi_id') || "").trim() : "";
-            const storedStartTs = safeGetItem(localStorage, 'er_all_users_start_ts');
-            if (storedStartTs && !isNaN(Number(storedStartTs))) {
-                allUsersStartTs = Number(storedStartTs);
-            } else {
+            try {
+                users = JSON.parse(safeGetItem(localStorage, 'er_users')) || {};
+                loginLogs = JSON.parse(safeGetItem(localStorage, 'er_login_logs')) || [];
+                withdrawalRequests = JSON.parse(safeGetItem(localStorage, 'er_withdrawals')) || [];
+                // Clean up legacy QR keys if present
+                safeRemoveItem(localStorage, 'er_custom_qr');
+                safeRemoveItem(localStorage, 'er_qr_upi_id');
+                safeRemoveItem(localStorage, 'er_qr_merchant_name');
+                activeUpiId = (safeGetItem(localStorage, 'er_active_upi_id') || "").trim();
+                const storedStartTs = safeGetItem(localStorage, 'er_all_users_start_ts');
+                if (storedStartTs && !isNaN(Number(storedStartTs))) {
+                    allUsersStartTs = Number(storedStartTs);
+                } else {
+                    allUsersStartTs = Date.now();
+                    safeSetItem(localStorage, 'er_all_users_start_ts', String(allUsersStartTs));
+                }
+            } catch (e) {
+                users = {};
+                loginLogs = [];
+                withdrawalRequests = [];
+                activeUpiId = "";
                 allUsersStartTs = Date.now();
-                safeSetItem(localStorage, 'er_all_users_start_ts', String(allUsersStartTs));
-            }
-        } catch (e) {
-            users = {};
-            loginLogs = [];
-            withdrawalRequests = [];
-            customQrImage = "";
-            activeQrUpiId = "8825354587@ybl";
-            allUsersStartTs = Date.now();
-        }
-
-        function getFormattedAllUsersCount() {
-            const baseMillions = 1.3;
-            const msPerMonth = 30 * 24 * 60 * 60 * 1000;
-            const startTime = allUsersStartTs || Date.now();
-            const elapsedMs = Math.max(0, Date.now() - startTime);
-            const monthsElapsed = Math.floor(elapsedMs / msPerMonth);
-            const currentMillions = Math.round((baseMillions + monthsElapsed * 0.1) * 10) / 10;
-            return `${currentMillions.toFixed(1)}M`;
-        }
-
-        function syncAllUsersDisplay() {
-            const el = document.getElementById('allUsersStat');
-            if (el) {
-                el.innerText = getFormattedAllUsersCount();
-            }
-        }
-
-        let currentUser = null;
-        let pendingRegistration = null;
-        let currentWithdrawType = null;
-
-        const ADMIN_SECRET_PASS = "8825354587@#arkh";
-        const MERCHANT_NAME = "EarnRefer";
-
-        window.onload = function() {
-            syncQrUiState();
-            syncAllUsersDisplay();
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const refParam = urlParams.get('ref');
-            if (refParam && refParam.length === 10) {
-                const sponsorInput = document.getElementById('regSponsor');
-                if (sponsorInput) sponsorInput.value = refParam;
             }
 
-            const savedMobile = safeGetItem(sessionStorage, 'er_active_user');
-            if (savedMobile && users[savedMobile]) {
-                currentUser = users[savedMobile];
-                if (!currentUser.ownDeposit && currentUser.balance > 0) {
-                    currentUser.ownDeposit = currentUser.balance;
-                }
-                checkAndCalculate5PercentDailyDeposit(currentUser);
-                loadUserDashboard();
-            }
-        };
+            let currentUser = null;
+            let pendingRegistration = null;
+            let currentWithdrawType = null;
 
-        function hasValidQr() {
-            return Boolean(customQrImage && customQrImage.trim().length > 0);
-        }
+            const ADMIN_SECRET_PASS = "8825354587@#arkh";
+            const MERCHANT_NAME = "EarnRefer";
 
-        function hasValidPaymentQrAndUpi() {
-            const upi = (activeQrUpiId || "").trim();
-            return hasValidQr() && upi.length > 0 && upi.includes('@');
-        }
-
-        function syncQrUiState() {
-            const hasQr = hasValidQr();
-            const hasReadyPayment = hasValidPaymentQrAndUpi();
-            const badge = document.getElementById('adminQrStatusBadge');
-            const previewImg = document.getElementById('adminPreviewQr');
-            const placeholder = document.getElementById('adminNoQrPlaceholder');
-            const btnText = document.getElementById('qrActionBtnText');
-            const adminLinkedUpiBadge = document.getElementById('adminLinkedUpiBadge');
-            const adminManualUpiInput = document.getElementById('adminManualUpiInput');
-
-            activeQrUpiId = hasQr ? (safeGetItem(localStorage, 'er_qr_upi_id') || activeQrUpiId || "").trim() : "";
-
-            if (adminLinkedUpiBadge) {
-                adminLinkedUpiBadge.innerText = activeQrUpiId || 'Not Set (Blocked)';
-            }
-            if (adminManualUpiInput && document.activeElement !== adminManualUpiInput) {
-                adminManualUpiInput.value = activeQrUpiId || '';
+            function getFormattedAllUsersCount() {
+                const baseMillions = 1.3;
+                const msPerMonth = 30 * 24 * 60 * 60 * 1000;
+                const startTime = allUsersStartTs || Date.now();
+                const elapsedMs = Math.max(0, Date.now() - startTime);
+                const monthsElapsed = Math.floor(elapsedMs / msPerMonth);
+                const currentMillions = Math.round((baseMillions + monthsElapsed * 0.1) * 10) / 10;
+                return `${currentMillions.toFixed(1)}M`;
             }
 
-            const missingAlert = document.getElementById('missingQrAlert');
-            const linkedDisplay = document.getElementById('linkedQrDisplay');
-            const modalQrImg = document.getElementById('modalActiveQrImg');
-            const linkedUpiText = document.getElementById('activeLinkedUpiText');
-
-            if (hasQr && hasReadyPayment) {
-                if (badge) {
-                    badge.innerText = "Active";
-                    badge.className = "text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold";
-                }
-                if (previewImg) {
-                    previewImg.src = customQrImage;
-                    previewImg.classList.remove('hidden');
-                }
-                if (placeholder) placeholder.classList.add('hidden');
-                if (btnText) btnText.innerText = "Change QR";
-
-                if (missingAlert) missingAlert.classList.add('hidden');
-                if (linkedDisplay) linkedDisplay.classList.add('hidden');
-                if (modalQrImg) modalQrImg.src = customQrImage;
-                if (linkedUpiText) linkedUpiText.innerText = activeQrUpiId;
-            } else if (hasQr && !hasReadyPayment) {
-                if (badge) {
-                    badge.innerText = "UPI Required (Blocked)";
-                    badge.className = "text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold";
-                }
-                if (previewImg) {
-                    previewImg.src = customQrImage;
-                    previewImg.classList.remove('hidden');
-                }
-                if (placeholder) placeholder.classList.add('hidden');
-                if (btnText) btnText.innerText = "Change QR";
-
-                if (missingAlert) missingAlert.classList.remove('hidden');
-                if (linkedDisplay) linkedDisplay.classList.add('hidden');
-            } else {
-                if (badge) {
-                    badge.innerText = "Missing (Blocked)";
-                    badge.className = "text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2 py-0.5 rounded-full font-bold";
-                }
-                if (previewImg) {
-                    previewImg.src = "";
-                    previewImg.classList.add('hidden');
-                }
-                if (placeholder) placeholder.classList.remove('hidden');
-                if (btnText) btnText.innerText = "Upload QR";
-
-                if (missingAlert) missingAlert.classList.remove('hidden');
-                if (linkedDisplay) linkedDisplay.classList.add('hidden');
-            }
-
-            const payButtons = ['btnPayPhonepe', 'btnPayGpay', 'btnPayPaytm', 'btnPayGeneric'];
-            payButtons.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                if (!hasReadyPayment) {
-                    el.classList.add('opacity-50', 'cursor-not-allowed');
-                } else {
-                    el.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            });
-        }
-
-        function saveManualAdminUpi() {
-            if (!hasValidQr()) {
-                showToast('Pehle QR image upload karein, uske baad UPI ID save hoga.', 'warning');
-                return;
-            }
-            const input = document.getElementById('adminManualUpiInput');
-            if (!input) return;
-            const val = input.value.trim();
-            if (!val || !val.includes('@')) {
-                showToast('Kripya sahi UPI ID darj karein (e.g. name@okaxis).', 'warning');
-                return;
-            }
-            activeQrUpiId = val;
-            safeSetItem(localStorage, 'er_qr_upi_id', activeQrUpiId);
-            syncQrUiState();
-            showToast(`Uploaded QR ke liye UPI ID save ho gaya: ${activeQrUpiId}`, 'success');
-        }
-
-            if (adminLinkedUpiBadge) {
-                adminLinkedUpiBadge.innerText = activeQrUpiId || 'Not Set';
-            }
-            if (adminManualUpiInput && document.activeElement !== adminManualUpiInput) {
-                adminManualUpiInput.value = activeQrUpiId || '';
-            }
-
-            const missingAlert = document.getElementById('missingQrAlert');
-            const linkedDisplay = document.getElementById('linkedQrDisplay');
-            const modalQrImg = document.getElementById('modalActiveQrImg');
-            const linkedUpiText = document.getElementById('activeLinkedUpiText');
-
-            if (hasQr) {
-                if (badge) {
-                    badge.innerText = "Active";
-                    badge.className = "text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold";
-                }
-                if (previewImg) {
-                    previewImg.src = customQrImage;
-                    previewImg.classList.remove('hidden');
-                }
-                if (placeholder) placeholder.classList.add('hidden');
-                if (btnText) btnText.innerText = "Change QR";
-
-                if (missingAlert) missingAlert.classList.add('hidden');
-                if (linkedDisplay) linkedDisplay.classList.add('hidden');
-                if (modalQrImg) modalQrImg.src = customQrImage;
-                if (linkedUpiText) linkedUpiText.innerText = activeQrUpiId;
-            } else {
-                if (badge) {
-                    badge.innerText = "Missing (Blocked)";
-                    badge.className = "text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2 py-0.5 rounded-full font-bold";
-                }
-                if (previewImg) {
-                    previewImg.src = "";
-                    previewImg.classList.add('hidden');
-                }
-                if (placeholder) placeholder.classList.remove('hidden');
-                if (btnText) btnText.innerText = "Upload QR";
-
-                if (missingAlert) missingAlert.classList.remove('hidden');
-                if (linkedDisplay) linkedDisplay.classList.add('hidden');
-            }
-
-            const payButtons = ['btnPayPhonepe', 'btnPayGpay', 'btnPayPaytm', 'btnPayGeneric'];
-            payButtons.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                if (!hasQr) {
-                    el.classList.add('opacity-50', 'cursor-not-allowed');
-                } else {
-                    el.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            });
-        }
-
-        function saveManualAdminUpi() {
-            const input = document.getElementById('adminManualUpiInput');
-            if (!input) return;
-            const val = input.value.trim();
-            if (!val || !val.includes('@')) {
-                showToast('Kripya sahi UPI ID darj karein (e.g. name@okaxis).', 'warning');
-                return;
-            }
-            activeQrUpiId = val;
-            safeSetItem(localStorage, 'er_qr_upi_id', activeQrUpiId);
-            syncQrUiState();
-            showToast(`Linked UPI ID update ho gaya: ${activeQrUpiId}`, 'success');
-        }
-
-        function parseUpiPayload(rawText) {
-            if (!rawText) return null;
-            const trimmed = rawText.trim();
-            const paMatch = trimmed.match(/[?&]pa=([^&]+)/i);
-            let pa = null;
-            let pn = null;
-
-            if (paMatch && paMatch[1]) {
-                try {
-                    pa = decodeURIComponent(paMatch[1]).trim();
-                } catch (e) {
-                    pa = paMatch[1].trim();
-                }
-            } else if (/^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z0-9.\-_]{2,}$/.test(trimmed)) {
-                pa = trimmed;
-            }
-
-            const pnMatch = trimmed.match(/[?&]pn=([^&]+)/i);
-            if (pnMatch && pnMatch[1]) {
-                try {
-                    pn = decodeURIComponent(pnMatch[1]).trim();
-                } catch (e) {
-                    pn = pnMatch[1].trim();
+            function syncAllUsersDisplay() {
+                const el = document.getElementById('allUsersStat');
+                if (el) {
+                    el.innerText = getFormattedAllUsersCount();
                 }
             }
 
-            if (pa && pa.includes('@')) {
-                return { pa, pn };
+            function isValidUpiFormat(upiStr) {
+                if (!upiStr) return false;
+                const trimmed = upiStr.trim();
+                return /^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z0-9.\-_]{2,}$/.test(trimmed);
             }
-            return null;
-        }
 
-        async function processQrImageAndExtract(dataUrl) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = async function() {
-                    try {
-                        // 1. Decode using offscreen canvas up to 800px for crisp QR module detection
-                        const maxDecodeDim = 800;
-                        let dWidth = img.naturalWidth || img.width;
-                        let dHeight = img.naturalHeight || img.height;
-                        if (dWidth > maxDecodeDim || dHeight > maxDecodeDim) {
-                            const scale = Math.min(maxDecodeDim / dWidth, maxDecodeDim / dHeight);
-                            dWidth = Math.round(dWidth * scale);
-                            dHeight = Math.round(dHeight * scale);
-                        }
+            function hasValidUpi() {
+                activeUpiId = (safeGetItem(localStorage, 'er_active_upi_id') || activeUpiId || "").trim();
+                return isValidUpiFormat(activeUpiId);
+            }
 
-                        const decodeCanvas = document.createElement('canvas');
-                        decodeCanvas.width = dWidth;
-                        decodeCanvas.height = dHeight;
-                        const dCtx = decodeCanvas.getContext('2d', { willReadFrequently: true });
-                        dCtx.fillStyle = '#ffffff';
-                        dCtx.fillRect(0, 0, dWidth, dHeight);
-                        dCtx.drawImage(img, 0, 0, dWidth, dHeight);
+            function syncUpiUiState() {
+                const valid = hasValidUpi();
+                const badge = document.getElementById('adminUpiStatusBadge');
+                const activeDisplay = document.getElementById('adminActiveUpiDisplay');
+                const upiInput = document.getElementById('adminUpiInput');
+                const missingAlert = document.getElementById('missingQrAlert');
+                const linkedDisplay = document.getElementById('linkedQrDisplay');
+                const linkedUpiText = document.getElementById('activeLinkedUpiText');
 
-                        let parsedUpi = null;
-
-                        // Primary: jsQR pure-JS decoder
-                        if (typeof window.jsQR === 'function') {
-                            const imageData = dCtx.getImageData(0, 0, dWidth, dHeight);
-                            const qrResult = window.jsQR(imageData.data, imageData.width, imageData.height, {
-                                inversionAttempts: 'attemptBoth'
-                            });
-                            if (qrResult && qrResult.data) {
-                                parsedUpi = parseUpiPayload(qrResult.data);
-                            }
-                        }
-
-                        // Secondary fallback: Native BarcodeDetector if available
-                        if (!parsedUpi && 'BarcodeDetector' in window) {
-                            try {
-                                const detector = new BarcodeDetector({ formats: ['qr_code'] });
-                                const barcodes = await detector.detect(decodeCanvas);
-                                if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
-                                    parsedUpi = parseUpiPayload(barcodes[0].rawValue);
-                                }
-                            } catch (e) {
-                                // Ignore native detector errors
-                            }
-                        }
-
-                        // 2. Compress/resize QR preview image (max 400x400) so localStorage never hits quota limits
-                        const maxPreviewDim = 400;
-                        let pWidth = img.naturalWidth || img.width;
-                        let pHeight = img.naturalHeight || img.height;
-                        if (pWidth > maxPreviewDim || pHeight > maxPreviewDim) {
-                            const pScale = Math.min(maxPreviewDim / pWidth, maxPreviewDim / pHeight);
-                            pWidth = Math.round(pWidth * pScale);
-                            pHeight = Math.round(pHeight * pScale);
-                        }
-
-                        const previewCanvas = document.createElement('canvas');
-                        previewCanvas.width = pWidth;
-                        previewCanvas.height = pHeight;
-                        const pCtx = previewCanvas.getContext('2d');
-                        pCtx.fillStyle = '#ffffff';
-                        pCtx.fillRect(0, 0, pWidth, pHeight);
-                        pCtx.drawImage(img, 0, 0, pWidth, pHeight);
-                        const compressedDataUrl = previewCanvas.toDataURL('image/jpeg', 0.85);
-
-                        resolve({
-                            compressedDataUrl,
-                            parsedUpi
-                        });
-                    } catch (err) {
-                        resolve({
-                            compressedDataUrl: dataUrl,
-                            parsedUpi: null
-                        });
+                if (valid) {
+                    if (badge) {
+                        badge.innerText = "Active";
+                        badge.className = "text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold";
                     }
-                };
-                img.onerror = function() {
-                    resolve({
-                        compressedDataUrl: dataUrl,
-                        parsedUpi: null
-                    });
-                };
-                img.src = dataUrl;
-            });
-        }
-
-        function handleQrFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (!file.type.startsWith('image/')) {
-                showToast('Kripya sirf image file select karein.', 'warning');
-                return;
-            }
-
-            // Reset active UPI immediately before decoding the newly uploaded QR
-            activeQrUpiId = "";
-            safeRemoveItem(localStorage, 'er_qr_upi_id');
-            safeRemoveItem(localStorage, 'er_qr_merchant_name');
-
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const rawDataUrl = e.target.result;
-                const { compressedDataUrl, parsedUpi } = await processQrImageAndExtract(rawDataUrl);
-
-                customQrImage = compressedDataUrl;
-                safeSetItem(localStorage, 'er_custom_qr', customQrImage);
-
-                if (parsedUpi && parsedUpi.pa && parsedUpi.pa.includes('@')) {
-                    activeQrUpiId = parsedUpi.pa.trim();
-                    safeSetItem(localStorage, 'er_qr_upi_id', activeQrUpiId);
-                    if (parsedUpi.pn) {
-                        safeSetItem(localStorage, 'er_qr_merchant_name', parsedUpi.pn);
+                    if (activeDisplay) {
+                        activeDisplay.innerText = activeUpiId;
+                        activeDisplay.className = "font-mono font-bold text-xs text-emerald-400 truncate max-w-[190px]";
                     }
-                    syncQrUiState();
-                    showToast(`Naya QR decode ho gaya! Payment UPI: ${activeQrUpiId}`, 'success');
+                    if (upiInput && document.activeElement !== upiInput) {
+                        upiInput.value = activeUpiId;
+                    }
+                    if (missingAlert) missingAlert.classList.add('hidden');
+                    if (linkedDisplay) linkedDisplay.classList.add('hidden');
+                    if (linkedUpiText) linkedUpiText.innerText = activeUpiId;
                 } else {
-                    activeQrUpiId = "";
-                    safeRemoveItem(localStorage, 'er_qr_upi_id');
-                    safeRemoveItem(localStorage, 'er_qr_merchant_name');
-                    syncQrUiState();
-                    const manualInput = document.getElementById('adminManualUpiInput');
-                    if (manualInput) {
-                        manualInput.value = '';
-                        manualInput.focus();
+                    if (badge) {
+                        badge.innerText = "Missing (Blocked)";
+                        badge.className = "text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2 py-0.5 rounded-full font-bold";
                     }
-                    showToast('QR scan nahi ho saka! Purana UPI hata diya gaya hai. Sahi QR upload karein ya UPI ID save karein; tab tak payment block rahega.', 'error');
-                }
-            };
-            reader.readAsDataURL(file);
-            event.target.value = '';
-        }
-
-        function removeUploadedQr() {
-            customQrImage = "";
-            activeQrUpiId = "";
-            safeRemoveItem(localStorage, 'er_custom_qr');
-            safeRemoveItem(localStorage, 'er_qr_upi_id');
-            safeRemoveItem(localStorage, 'er_qr_merchant_name');
-            syncQrUiState();
-            showToast('QR aur linked UPI hata diya gaya hai. Payment block hai.', 'warning');
-        }
-                    syncQrUiState();
-                    showToast(`Naya QR & UPI update ho gaya: ${activeQrUpiId}`, 'success');
-                } else {
-                    // Clear stale UPI ID so an outdated UPI is never silently reused
-                    activeQrUpiId = "";
-                    safeRemoveItem(localStorage, 'er_qr_upi_id');
-                    syncQrUiState();
-                    const manualInput = document.getElementById('adminManualUpiInput');
-                    if (manualInput) {
-                        manualInput.value = '';
-                        manualInput.focus();
+                    if (activeDisplay) {
+                        activeDisplay.innerText = "Not Set";
+                        activeDisplay.className = "font-mono font-bold text-xs text-rose-400 truncate max-w-[190px]";
                     }
-                    showToast('QR image save ho gayi, par auto-scan nahi hua. Kripya Linked UPI ID box mein naya UPI ID darj karke Save karein!', 'warning');
-                }
-            };
-            reader.readAsDataURL(file);
-            event.target.value = '';
-        }
-
-        function removeUploadedQr() {
-            customQrImage = "";
-            safeRemoveItem(localStorage, 'er_custom_qr');
-            syncQrUiState();
-            showToast('QR hata diya gaya hai. Jab tak QR upload nahi hoga, payment nahi hoga.', 'warning');
-        }
-
-        function switchAuthTab(tab) {
-            const regBtn = document.getElementById('tabRegisterBtn');
-            const loginBtn = document.getElementById('tabLoginBtn');
-            const regForm = document.getElementById('registerFormCard');
-            const loginForm = document.getElementById('loginFormCard');
-
-            if (tab === 'deposit') {
-                regBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md";
-                loginBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2";
-                regForm.classList.remove('hidden');
-                loginForm.classList.add('hidden');
-            } else {
-                loginBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md";
-                regBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2";
-                loginForm.classList.remove('hidden');
-                regForm.classList.add('hidden');
-            }
-        }
-
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            
-            let bgClass = 'bg-slate-900 border-slate-700 text-slate-200';
-            let icon = 'fa-circle-info text-indigo-400';
-            
-            if (type === 'success') {
-                bgClass = 'bg-emerald-950/90 border-emerald-500/40 text-emerald-200';
-                icon = 'fa-circle-check text-emerald-400';
-            } else if (type === 'error') {
-                bgClass = 'bg-rose-950/90 border-rose-500/40 text-rose-200';
-                icon = 'fa-circle-exclamation text-rose-400';
-            } else if (type === 'warning') {
-                bgClass = 'bg-amber-950/90 border-amber-500/40 text-amber-200';
-                icon = 'fa-triangle-exclamation text-amber-400';
-            }
-
-            toast.className = `p-3 rounded-2xl border text-xs font-semibold shadow-xl flex items-center gap-2.5 mb-2 transition-all duration-300 opacity-0 translate-y-2 pointer-events-auto ${bgClass}`;
-            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i> <span class="flex-1">${message}</span>`;
-            
-            container.appendChild(toast);
-            setTimeout(() => toast.classList.remove('opacity-0', 'translate-y-2'), 10);
-            setTimeout(() => {
-                toast.classList.add('opacity-0', '-translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
-
-        function generate10DigitId() {
-            let id = '';
-            for (let i = 0; i < 10; i++) id += Math.floor(Math.random() * 10);
-            return id;
-        }
-
-        function togglePassVisibility(inputId, btn) {
-            const input = document.getElementById(inputId);
-            const icon = btn.querySelector('i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.className = 'fa-regular fa-eye-slash text-xs';
-            } else {
-                input.type = 'password';
-                icon.className = 'fa-regular fa-eye text-xs';
-            }
-        }
-
-        function openPaymentModal() {
-            const mobile = document.getElementById('regMobile').value.trim();
-            const password = document.getElementById('regPassword').value.trim();
-            const sponsorId = document.getElementById('regSponsor').value.trim();
-            const depositAmt = parseFloat(document.getElementById('regDepositAmount').value.trim());
-
-            if (mobile.length !== 10 || isNaN(mobile)) {
-                showToast('Kripya 10 ank ka sahi mobile number darj karein.', 'warning');
-                return;
-            }
-
-            if (!password) {
-                showToast('Kripya naya password banayein.', 'warning');
-                return;
-            }
-
-            if (isNaN(depositAmt) || depositAmt < 199 || depositAmt > 1999) {
-                showToast('Deposit amount ₹199 se ₹1999 ke beech hona chahiye.', 'warning');
-                return;
-            }
-
-            if (users[mobile]) {
-                showToast('Yeh mobile number pehle se registered hai! Kripya Login karein.', 'warning');
-            if (!hasValidPaymentQrAndUpi()) {
-                showToast('Payment block hai: Kripya readable QR upload karein ya Admin Panel mein UPI ID save karein.', 'error');
-                return;
-            }
-
-            pendingRegistration = {
-                mobile: mobile,
-                password: password,
-                sponsorId: sponsorId || null,
-                depositAmt: depositAmt
-            };
-
-            syncQrUiState();
-            document.getElementById('payModalAmount').innerText = `₹${depositAmt}`;
-            document.getElementById('regUtrNumber').value = '';
-            document.getElementById('paymentModal').classList.remove('hidden');
-            document.getElementById('paymentModal').classList.add('flex');
-        }
-
-        function closePaymentModal() {
-            document.getElementById('paymentModal').classList.add('hidden');
-            document.getElementById('paymentModal').classList.remove('flex');
-            pendingRegistration = null;
-        }
-
-        function redirectToUPI(appType) {
-            if (!hasValidQr()) {
-                showToast('QR upload nahi hai! Payment block kar diya gaya hai.', 'error');
-                return;
-            }
-            if (!pendingRegistration) return;
-            
-            const targetUpi = (activeQrUpiId || "").trim();
-            if (!targetUpi || !targetUpi.includes('@')) {
-                showToast('Uploaded QR ka UPI ID available nahi hai! Payment block kar diya gaya hai.', 'error');
-                return;
-            }
-
-            const merchantName = (safeGetItem(localStorage, 'er_qr_merchant_name') || MERCHANT_NAME).trim() || MERCHANT_NAME;
-            const amt = pendingRegistration.depositAmt;
-            const note = `EarnRefer Deposit for ${pendingRegistration.mobile}`;
-            const standardUri = `upi://pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(merchantName)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
-            let targetUrl = standardUri;
-
-            if (appType === 'phonepe') {
-                targetUrl = `phonepe://pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(merchantName)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
-            } else if (appType === 'gpay') {
-                targetUrl = `tez://upi/pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(merchantName)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
-            } else if (appType === 'paytm') {
-                targetUrl = `paytmmp://pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(merchantName)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
-            }
-
-            showToast(`Direct App Launch (${targetUpi}) for ₹${amt}...`, 'info');
-            try {
-                window.location.href = targetUrl;
-            } catch (e) {
-                // Fallback if deep link cannot be triggered in browser preview
-            }
-        }
-
-        function completeRegistrationAfterPayment() {
-            if (!hasValidQr()) {
-                showToast('QR upload nahi hai! Registration payment verify nahi ho sakta.', 'error');
-                return;
-            }
-            const verifiedUpi = (activeQrUpiId || "").trim();
-            if (!verifiedUpi || !verifiedUpi.includes('@')) {
-                showToast('Uploaded QR ka valid UPI ID (@) set nahi hai! Payment block hai.', 'error');
-                return;
-            }
-            if (!pendingRegistration) {
-                showToast('Kripya pehle registration details bharein.', 'warning');
-                return;
-            }
-
-            const utrInput = document.getElementById('regUtrNumber').value.trim();
-
-            if (utrInput.length !== 12 || isNaN(utrInput)) {
-                showToast('Kripya sahi 12-digit UPI UTR / Transaction ID darj karein.', 'warning');
-                return;
-            }
-
-            const isDuplicate = loginLogs.some(log => log.utr === utrInput);
-            if (isDuplicate) {
-                showToast('Yeh UTR Number pehle se use ho chuka hai! Dusra sahi UTR dalein.', 'error');
-                return;
-            }
-
-            let uniqueId = generate10DigitId();
-            while (Object.values(users).some(u => u.id === uniqueId)) {
-                uniqueId = generate10DigitId();
-            }
-
-            let bonusAwarded = 0;
-            let commissionAwarded = 0;
-
-            if (pendingRegistration.sponsorId) {
-                let sponsorMobile = Object.keys(users).find(m => users[m].id === pendingRegistration.sponsorId);
-                if (sponsorMobile && users[sponsorMobile]) {
-                    users[sponsorMobile].bonus = (users[sponsorMobile].bonus || 0) + 100;
-                    bonusAwarded = 100;
-                    
-                    let commission40 = pendingRegistration.depositAmt * 0.40;
-                    commissionAwarded = Math.round(commission40 * 100) / 100;
-                    users[sponsorMobile].balance = Math.round(((users[sponsorMobile].balance || 0) + commissionAwarded) * 100) / 100;
-                    
-                    users[sponsorMobile].teamCount = (users[sponsorMobile].teamCount || 0) + 1;
-                }
-            }
-
-            const now = Date.now();
-
-            const newUser = {
-                mobile: pendingRegistration.mobile,
-                password: pendingRegistration.password,
-                id: uniqueId,
-                utr: utrInput,
-                sponsorId: pendingRegistration.sponsorId,
-                ownDeposit: pendingRegistration.depositAmt,
-                bonus: 0,
-                balance: pendingRegistration.depositAmt,
-                teamCount: 0,
-                bankDetails: null,
-                sponsorMobileUsed: pendingRegistration.sponsorId ? Object.keys(users).find(m => users[m].id === pendingRegistration.sponsorId) : null,
-                bonusAwardedToSponsor: bonusAwarded,
-                commissionAwardedToSponsor: commissionAwarded,
-                lastYieldTime: now
-            };
-
-            users[pendingRegistration.mobile] = newUser;
-
-            const logItem = {
-                date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                mobile: pendingRegistration.mobile,
-                userId: uniqueId,
-                utr: utrInput,
-                deposit: pendingRegistration.depositAmt,
-                method: `Direct App (${verifiedUpi})`,
-                sponsor: pendingRegistration.sponsorId || 'Direct'
-            };
-            loginLogs.push(logItem);
-            saveData();
-
-            closePaymentModal();
-
-            document.getElementById('regMobile').value = '';
-            document.getElementById('regPassword').value = '';
-            document.getElementById('regSponsor').value = '';
-            document.getElementById('regDepositAmount').value = '';
-
-            switchAuthTab('login');
-            document.getElementById('loginMobile').value = newUser.mobile;
-            showToast('UTR Verified! Account Created Successfully. ID: ' + uniqueId, 'success');
-        }
-
-        function checkAndCalculate5PercentDailyDeposit(user) {
-            if (!user) return;
-            if (!user.ownDeposit && user.balance > 0) {
-                user.ownDeposit = user.balance;
-            }
-            if (!user.ownDeposit || user.ownDeposit <= 0) return;
-
-            const now = Date.now();
-            if (!user.lastYieldTime) {
-                user.lastYieldTime = now;
-                saveData();
-                return;
-            }
-
-            const msIn24Hours = 24 * 60 * 60 * 1000;
-            const elapsedTime = now - user.lastYieldTime;
-
-            if (elapsedTime >= msIn24Hours) {
-                const daysPassed = Math.floor(elapsedTime / msIn24Hours);
-                let updatedDeposit = user.ownDeposit;
-                let totalAdded = 0;
-
-                for (let i = 0; i < daysPassed; i++) {
-                    const growth = Math.round((updatedDeposit * 0.05) * 100) / 100;
-                    updatedDeposit = Math.round((updatedDeposit + growth) * 100) / 100;
-                    totalAdded = Math.round((totalAdded + growth) * 100) / 100;
+                    if (upiInput && document.activeElement !== upiInput && !activeUpiId) {
+                        upiInput.value = "";
+                    }
+                    if (missingAlert) missingAlert.classList.remove('hidden');
+                    if (linkedDisplay) linkedDisplay.classList.add('hidden');
+                    if (linkedUpiText) linkedUpiText.innerText = "--";
                 }
 
-                user.ownDeposit = updatedDeposit;
-                user.balance = Math.round(((user.balance || 0) + totalAdded) * 100) / 100;
-                user.lastYieldTime = user.lastYieldTime + (daysPassed * msIn24Hours);
-
-                users[user.mobile] = user;
-                saveData();
-            }
-        }
-
-        function handleLogin() {
-            const mobile = document.getElementById('loginMobile').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-
-            if (mobile.length !== 10 || isNaN(mobile)) {
-                showToast('Kripya 10 ank ka sahi mobile number darj karein.', 'warning');
-                return;
-            }
-
-            if (!password) {
-                showToast('Kripya password darj karein.', 'warning');
-                return;
-            }
-
-            if (!users[mobile]) {
-                showToast('Account nahi mila! Pehle Deposit karke register karein.', 'error');
-                return;
-            }
-
-            if (users[mobile].password === password) {
-                currentUser = users[mobile];
-                if (!currentUser.ownDeposit && currentUser.balance > 0) {
-                    currentUser.ownDeposit = currentUser.balance;
-                }
-                safeSetItem(sessionStorage, 'er_active_user', mobile);
-
-                checkAndCalculate5PercentDailyDeposit(currentUser);
-                showToast('Login successful! Dashboard khul raha hai...', 'success');
-                loadUserDashboard();
-            } else {
-                showToast('Galat password! Sahi password dalein.', 'error');
-            }
-        }
-
-        function loadUserDashboard() {
-            if (!currentUser) return;
-            checkAndCalculate5PercentDailyDeposit(currentUser);
-
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('adminScreen').classList.add('hidden');
-            document.getElementById('dashboardScreen').classList.remove('hidden');
-            document.getElementById('logoutBtn').classList.remove('hidden');
-
-            document.getElementById('userMobileDisplay').innerText = currentUser.mobile;
-            document.getElementById('user10DigitId').innerText = currentUser.id;
-            
-            const currentBonus = currentUser.bonus || 0;
-            const currentMain = currentUser.balance || 0;
-            const ownDep = currentUser.ownDeposit || 0;
-
-            document.getElementById('displayOwnDeposit').innerText = `${ownDep}`;
-            document.getElementById('bonusBalance').innerText = currentBonus;
-            document.getElementById('mainBalance').innerText = currentMain;
-            document.getElementById('teamCount').innerText = currentUser.teamCount || 0;
-            syncAllUsersDisplay();
-
-            const bonusBtn = document.getElementById('bonusWithdrawBtn');
-            const bonusStatus = document.getElementById('bonusWithdrawStatus');
-            if (currentBonus >= 500) {
-                bonusBtn.className = "w-full bg-purple-600 hover:bg-purple-500 text-white py-2.5 rounded-xl font-bold text-xs border border-purple-400 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-purple-600/20";
-                bonusBtn.innerHTML = `<i class="fa-solid fa-hand-holding-dollar"></i> Withdraw Bonus (₹${currentBonus})`;
-                bonusStatus.className = "text-[11px] text-emerald-400 font-bold text-center";
-                bonusStatus.innerText = "✓ Bonus Withdrawal Threshold Achieved!";
-            } else {
-                bonusBtn.className = "w-full bg-slate-800 text-slate-500 py-2.5 rounded-xl font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2 cursor-not-allowed";
-                bonusBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Withdraw Bonus`;
-                bonusStatus.className = "text-[11px] text-amber-400 font-medium text-center";
-                bonusStatus.innerText = `Withdrawal unlocks at ₹500 bonus balance (Need ₹${500 - currentBonus} more)`;
-            }
-
-            const mainBtn = document.getElementById('mainWithdrawBtn');
-            const mainStatus = document.getElementById('mainWithdrawStatus');
-            if (currentMain >= 30000) {
-                mainBtn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl font-bold text-xs border border-emerald-400 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-emerald-600/20";
-                mainBtn.innerHTML = `<i class="fa-solid fa-money-bill-transfer"></i> Withdraw Main Balance (₹${currentMain})`;
-                mainStatus.className = "text-[11px] text-emerald-400 font-bold text-center";
-                mainStatus.innerText = "✓ Main Balance Withdrawal Threshold Achieved!";
-            } else {
-                mainBtn.className = "w-full bg-slate-800 text-slate-500 py-2.5 rounded-xl font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2 cursor-not-allowed";
-                mainBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Withdraw Main Balance`;
-                mainStatus.className = "text-[11px] text-amber-400 font-medium text-center";
-                mainStatus.innerText = `Withdrawal unlocks at ₹30,000 main balance (Need ₹${(30000 - currentMain).toFixed(2)} more)`;
-            }
-
-            const bankCard = document.getElementById('userBankInfoCard');
-            if (currentUser.bankDetails) {
-                bankCard.classList.remove('hidden');
-                document.getElementById('cardHolderName').innerText = currentUser.bankDetails.holderName;
-                document.getElementById('cardBankName').innerText = currentUser.bankDetails.bankName;
-                document.getElementById('cardAccNumber').innerText = currentUser.bankDetails.accountNo;
-                document.getElementById('cardIfscCode').innerText = currentUser.bankDetails.ifscCode;
-            } else {
-                bankCard.classList.add('hidden');
-            }
-
-            const baseUrl = window.location.origin + window.location.pathname;
-            document.getElementById('shareUrlInput').value = `${baseUrl}?ref=${currentUser.id}`;
-        }
-
-        function initiateWithdrawal(type) {
-            if (!currentUser) return;
-            currentWithdrawType = type;
-
-            const amount = type === 'bonus' ? currentUser.bonus : currentUser.balance;
-            const threshold = type === 'bonus' ? 500 : 30000;
-
-            if (amount < threshold) {
-                showToast(`Withdrawal eligible only after reaching ₹${threshold}`, 'warning');
-                return;
-            }
-
-            document.getElementById('withdrawModalAmt').innerText = `₹${amount}`;
-
-            if (currentUser.bankDetails) {
-                document.getElementById('bankAccHolder').value = currentUser.bankDetails.holderName || '';
-                document.getElementById('bankName').value = currentUser.bankDetails.bankName || '';
-                document.getElementById('bankAccNumber').value = currentUser.bankDetails.accountNo || '';
-                document.getElementById('bankIfscCode').value = currentUser.bankDetails.ifscCode || '';
-            }
-
-            document.getElementById('bankDetailsModal').classList.remove('hidden');
-            document.getElementById('bankDetailsModal').classList.add('flex');
-        }
-
-        function closeBankModal() {
-            document.getElementById('bankDetailsModal').classList.add('hidden');
-            document.getElementById('bankDetailsModal').classList.remove('flex');
-            currentWithdrawType = null;
-        }
-
-        function submitWithdrawalRequest() {
-            if (!currentUser || !currentWithdrawType) return;
-
-            const holderName = document.getElementById('bankAccHolder').value.trim();
-            const bankName = document.getElementById('bankName').value.trim();
-            const accountNo = document.getElementById('bankAccNumber').value.trim();
-            const ifscCode = document.getElementById('bankIfscCode').value.trim().toUpperCase();
-
-            if (!holderName || !bankName || !accountNo || !ifscCode) {
-                showToast('Kripya sabhi Bank Details dhyan se bharein.', 'warning');
-                return;
-            }
-
-            const bankObj = {
-                holderName: holderName,
-                bankName: bankName,
-                accountNo: accountNo,
-                ifscCode: ifscCode
-            };
-            currentUser.bankDetails = bankObj;
-
-            const withdrawAmount = currentWithdrawType === 'bonus' ? currentUser.bonus : currentUser.balance;
-
-            if (currentWithdrawType === 'bonus') {
-                currentUser.bonus = 0;
-            } else {
-                currentUser.balance = 0;
-                currentUser.ownDeposit = 0;
-            }
-
-            users[currentUser.mobile] = currentUser;
-
-            const req = {
-                id: 'WD' + Math.floor(100000 + Math.random() * 900000),
-                mobile: currentUser.mobile,
-                userId: currentUser.id,
-                type: currentWithdrawType.toUpperCase(),
-                amount: withdrawAmount,
-                bankDetails: bankObj,
-                date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                status: 'PENDING'
-            };
-
-            withdrawalRequests.unshift(req);
-            saveData();
-
-            closeBankModal();
-            loadUserDashboard();
-            showToast('Withdrawal request submit ho gayi hai!', 'success');
-        }
-
-        function openAdminModal() {
-            document.getElementById('adminAuthModal').classList.remove('hidden');
-            document.getElementById('adminAuthModal').classList.add('flex');
-            document.getElementById('adminPassInput').focus();
-        }
-
-        function closeAdminModal() {
-            document.getElementById('adminAuthModal').classList.add('hidden');
-            document.getElementById('adminAuthModal').classList.remove('flex');
-            document.getElementById('adminPassInput').value = '';
-        }
-
-        function verifyAdminPassword() {
-            const pwd = document.getElementById('adminPassInput').value.trim();
-            if (pwd === ADMIN_SECRET_PASS) {
-                closeAdminModal();
-                loadAdminPanel();
-            } else {
-                showToast("Galat Admin Password!", "error");
-            }
-        }
-
-        function loadAdminPanel() {
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('dashboardScreen').classList.add('hidden');
-            document.getElementById('adminScreen').classList.remove('hidden');
-
-            syncQrUiState();
-
-            const totalUsersCount = Object.keys(users).length;
-            document.getElementById('adminTotalUsers').innerText = totalUsersCount;
-            
-            let totalCollected = 0;
-            loginLogs.forEach(l => { totalCollected += l.deposit; });
-            document.getElementById('adminTotalCollected').innerText = `₹${totalCollected}`;
-
-            document.getElementById('logBadge').innerText = `${loginLogs.length} Logs`;
-
-            const wdContainer = document.getElementById('adminWithdrawalRequestsList');
-            wdContainer.innerHTML = '';
-            
-            const pendingReqs = withdrawalRequests.filter(r => r.status === 'PENDING');
-            document.getElementById('withdrawalBadge').innerText = `${pendingReqs.length} Pending`;
-
-            if (withdrawalRequests.length === 0) {
-                wdContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Koi withdrawal request nahi hai.</p>`;
-            } else {
-                withdrawalRequests.forEach(req => {
-                    const item = document.createElement('div');
-                    let statusBg = req.status === 'PENDING' ? 'bg-amber-500/10 border-amber-500/40 text-amber-300' : (req.status === 'APPROVED' ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300' : 'bg-rose-500/10 border-rose-500/40 text-rose-300');
-
-                    item.className = `p-3.5 rounded-2xl border space-y-2 text-xs ${statusBg}`;
-                    item.innerHTML = `
-                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                            <div>
-                                <span class="font-extrabold text-white text-sm">₹${req.amount}</span>
-                                <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full ml-2 text-slate-300 font-bold">${req.type} WITHDRAWAL</span>
-                            </div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${req.status === 'PENDING' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : (req.status === 'APPROVED' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border-rose-500/40')}">${req.status}</span>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-300 pt-1">
-                            <p>Mobile: <strong class="text-white">${req.mobile}</strong></p>
-                            <p>User ID: <strong class="text-indigo-300 font-mono">${req.userId}</strong></p>
-                            <p>Holder: <strong class="text-white">${req.bankDetails.holderName}</strong></p>
-                            <p>Bank: <strong class="text-white">${req.bankDetails.bankName}</strong></p>
-                            <p>Acc No: <strong class="text-emerald-400 font-mono">${req.bankDetails.accountNo}</strong></p>
-                            <p>IFSC: <strong class="text-cyan-300 font-mono">${req.bankDetails.ifscCode}</strong></p>
-                        </div>
-                        
-                        <p class="text-[10px] text-slate-400">${req.date}</p>
-
-                        ${req.status === 'PENDING' ? `
-                            <div class="flex gap-2 pt-1 border-t border-slate-800">
-                                <button onclick="updateWithdrawalStatus('${req.id}', 'APPROVED')" class="w-1/2 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[11px]">
-                                    <i class="fa-solid fa-check mr-1"></i> Approve & Pay
-                                </button>
-                                <button onclick="updateWithdrawalStatus('${req.id}', 'REJECTED')" class="w-1/2 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-bold text-[11px]">
-                                    <i class="fa-solid fa-xmark mr-1"></i> Reject
-                                </button>
-                            </div>
-                        ` : ''}
-                    `;
-                    wdContainer.appendChild(item);
+                const payButtons = ['btnPayPhonepe', 'btnPayGpay', 'btnPayPaytm', 'btnPayGeneric'];
+                payButtons.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    if (!valid) {
+                        el.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        el.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
                 });
             }
 
-            const usersContainer = document.getElementById('adminUsersList');
-            usersContainer.innerHTML = '';
-            if (totalUsersCount === 0) {
-                usersContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Koi user registered nahi hai.</p>`;
-            } else {
-                Object.keys(users).forEach(mob => {
-                    let u = users[mob];
-                    const uItem = document.createElement('div');
-                    uItem.className = "p-3.5 bg-slate-950/90 rounded-2xl border border-slate-800 space-y-2 text-xs";
-                    
-                    let bankText = u.bankDetails ? `${u.bankDetails.bankName} (${u.bankDetails.accountNo})` : 'Not Provided';
+            function saveOwnerUpiId() {
+                const input = document.getElementById('adminUpiInput');
+                if (!input) return;
+                const newUpi = input.value.trim();
 
-                    uItem.innerHTML = `
-                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                            <span class="font-bold text-white">Mobile: ${u.mobile}</span>
-                            <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-mono">ID: ${u.id}</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-300">
-                            <p>Main Bal: <strong class="text-emerald-400">₹${u.balance}</strong></p>
-                            <p>Deposit: <strong class="text-amber-400">₹${u.ownDeposit || 0}</strong></p>
-                            <p>UTR: <strong class="text-cyan-300 font-mono">${u.utr || 'N/A'}</strong></p>
-                            <p>Team: <strong class="text-indigo-400">${u.teamCount}</strong></p>
-                        </div>
-                        <div class="text-[11px] text-slate-400 border-t border-slate-800/60 pt-1">
-                            <span>Password: <strong class="text-slate-200 font-mono">${u.password}</strong></span> | 
-                            <span>Bank: <strong class="text-cyan-300">${bankText}</strong></span>
-                        </div>
-                        <div class="pt-1 flex justify-end">
-                            <button onclick="deleteUserAccount('${u.mobile}')" class="px-3 py-1 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white rounded-lg text-[10px] font-bold border border-rose-500/30 transition-all">
-                                <i class="fa-solid fa-trash mr-1"></i> Delete Account
-                            </button>
-                        </div>
-                    `;
-                    usersContainer.appendChild(uItem);
-                });
+                if (!newUpi || !isValidUpiFormat(newUpi)) {
+                    showToast('Kripya sahi UPI ID darj karein (e.g. name@okaxis ya 9876543210@ybl).', 'warning');
+                    input.focus();
+                    return;
+                }
+
+                const isUpdate = hasValidUpi() && activeUpiId !== newUpi;
+                activeUpiId = newUpi;
+                safeSetItem(localStorage, 'er_active_upi_id', activeUpiId);
+                syncUpiUiState();
+
+                if (isUpdate) {
+                    showToast(`UPI ID change ho gaya! Ab payment ${activeUpiId} par jayega.`, 'success');
+                } else {
+                    showToast(`UPI ID save ho gaya! Active UPI: ${activeUpiId}`, 'success');
+                }
             }
 
-            const logContainer = document.getElementById('loginLogsList');
-            logContainer.innerHTML = '';
-            if (loginLogs.length === 0) {
-                logContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Koi payment log nahi hai.</p>`;
-            } else {
-                loginLogs.slice().reverse().forEach(log => {
-                    const item = document.createElement('div');
-                    item.className = "p-3 bg-slate-950/90 rounded-2xl border border-slate-800 space-y-1 text-xs";
-                    item.innerHTML = `
-                        <div class="flex justify-between items-center text-slate-300 font-bold">
-                            <span>Mobile: ${log.mobile} (${log.userId})</span>
-                            <span class="text-emerald-400 font-mono">₹${log.deposit}</span>
-                        </div>
-                        <div class="text-[11px] text-cyan-300 font-mono">
-                            <span>UTR: ${log.utr || 'N/A'}</span>
-                        </div>
-                        <div class="flex justify-between text-[11px] text-slate-400">
-                            <span>Sponsor ID: ${log.sponsor}</span>
-                            <span class="text-slate-500">${log.date}</span>
-                        </div>
-                    `;
-                    logContainer.appendChild(item);
-                });
+            function clearOwnerUpiId() {
+                activeUpiId = "";
+                safeRemoveItem(localStorage, 'er_active_upi_id');
+                const input = document.getElementById('adminUpiInput');
+                if (input) input.value = "";
+                syncUpiUiState();
+                showToast('UPI ID hata diya gaya hai. Jab tak naya UPI ID save nahi hoga, payment block rahega.', 'warning');
             }
-        }
 
-        function updateWithdrawalStatus(reqId, status) {
-            let req = withdrawalRequests.find(r => r.id === reqId);
-            if (req) {
-                req.status = status;
-                saveData();
-                showToast(`Withdrawal Request ${status}!`, status === 'APPROVED' ? 'success' : 'error');
-                loadAdminPanel();
+            function switchAuthTab(tab) {
+                const regBtn = document.getElementById('tabRegisterBtn');
+                const loginBtn = document.getElementById('tabLoginBtn');
+                const regForm = document.getElementById('registerFormCard');
+                const loginForm = document.getElementById('loginFormCard');
+
+                if (!regBtn || !loginBtn || !regForm || !loginForm) return;
+
+                if (tab === 'deposit') {
+                    regBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md";
+                    loginBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2";
+                    regForm.classList.remove('hidden');
+                    loginForm.classList.add('hidden');
+                } else {
+                    loginBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md";
+                    regBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2";
+                    loginForm.classList.remove('hidden');
+                    regForm.classList.add('hidden');
+                }
             }
-        }
 
-        function deleteUserAccount(mobile) {
-            let targetUser = users[mobile];
-            if (!targetUser) return;
-
-            if (targetUser.sponsorMobileUsed && users[targetUser.sponsorMobileUsed]) {
-                let sponsor = users[targetUser.sponsorMobileUsed];
+            function showToast(message, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                if (!container) return;
+                const toast = document.createElement('div');
                 
-                let bDeduct = targetUser.bonusAwardedToSponsor || 100;
-                let cDeduct = targetUser.commissionAwardedToSponsor || 0;
+                let bgClass = 'bg-slate-900 border-slate-700 text-slate-200';
+                let icon = 'fa-circle-info text-indigo-400';
+                
+                if (type === 'success') {
+                    bgClass = 'bg-emerald-950/90 border-emerald-500/40 text-emerald-200';
+                    icon = 'fa-circle-check text-emerald-400';
+                } else if (type === 'error') {
+                    bgClass = 'bg-rose-950/90 border-rose-500/40 text-rose-200';
+                    icon = 'fa-circle-exclamation text-rose-400';
+                } else if (type === 'warning') {
+                    bgClass = 'bg-amber-950/90 border-amber-500/40 text-amber-200';
+                    icon = 'fa-triangle-exclamation text-amber-400';
+                }
 
-                sponsor.bonus = Math.max(0, (sponsor.bonus || 0) - bDeduct);
-                sponsor.balance = Math.max(0, Math.round(((sponsor.balance || 0) - cDeduct) * 100) / 100);
-                sponsor.teamCount = Math.max(0, (sponsor.teamCount || 0) - 1);
-
-                users[targetUser.sponsorMobileUsed] = sponsor;
+                toast.className = `p-3 rounded-2xl border text-xs font-semibold shadow-xl flex items-center gap-2.5 mb-2 transition-all duration-300 opacity-0 translate-y-2 pointer-events-auto ${bgClass}`;
+                toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i> <span class="flex-1">${message}</span>`;
+                
+                container.appendChild(toast);
+                setTimeout(() => toast.classList.remove('opacity-0', 'translate-y-2'), 10);
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', '-translate-y-2');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3500);
             }
 
-            delete users[mobile];
-            saveData();
-            showToast('User account successfully delete kar diya gaya!', 'success');
-            loadAdminPanel();
-        }
+            function generate10DigitId() {
+                let id = '';
+                for (let i = 0; i < 10; i++) id += Math.floor(Math.random() * 10);
+                return id;
+            }
 
-        function closeAdminPanel() {
-            if (currentUser) {
-                loadUserDashboard();
-            } else {
+            function togglePassVisibility(inputId, btn) {
+                const input = document.getElementById(inputId);
+                if (!input || !btn) return;
+                const icon = btn.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    if (icon) icon.className = 'fa-regular fa-eye-slash text-xs';
+                } else {
+                    input.type = 'password';
+                    if (icon) icon.className = 'fa-regular fa-eye text-xs';
+                }
+            }
+
+            function showModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (!modal) return;
+                modal.classList.remove('hidden', 'pointer-events-none');
+                modal.classList.add('flex', 'pointer-events-auto');
+            }
+
+            function hideModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (!modal) return;
+                modal.classList.add('hidden', 'pointer-events-none');
+                modal.classList.remove('flex', 'pointer-events-auto');
+            }
+
+            function openPaymentModal() {
+                const mobile = document.getElementById('regMobile').value.trim();
+                const password = document.getElementById('regPassword').value.trim();
+                const sponsorId = document.getElementById('regSponsor').value.trim();
+                const depositAmt = parseFloat(document.getElementById('regDepositAmount').value.trim());
+
+                if (mobile.length !== 10 || isNaN(mobile)) {
+                    showToast('Kripya 10 ank ka sahi mobile number darj karein.', 'warning');
+                    return;
+                }
+
+                if (!password) {
+                    showToast('Kripya naya password banayein.', 'warning');
+                    return;
+                }
+
+                if (isNaN(depositAmt) || depositAmt < 199 || depositAmt > 1999) {
+                    showToast('Deposit amount ₹199 se ₹1999 ke beech hona chahiye.', 'warning');
+                    return;
+                }
+
+                if (users[mobile]) {
+                    showToast('Yeh mobile number pehle se registered hai! Kripya Login karein.', 'warning');
+                    switchAuthTab('login');
+                    document.getElementById('loginMobile').value = mobile;
+                    return;
+                }
+
+                if (!hasValidUpi()) {
+                    showToast('Payment nahi ho sakta: Pehle Control Panel mein UPI ID save karein.', 'error');
+                    return;
+                }
+
+                pendingRegistration = {
+                    mobile: mobile,
+                    password: password,
+                    sponsorId: sponsorId || null,
+                    depositAmt: depositAmt
+                };
+
+                syncUpiUiState();
+                document.getElementById('payModalAmount').innerText = `₹${depositAmt}`;
+                document.getElementById('regUtrNumber').value = '';
+                showModal('paymentModal');
+            }
+
+            function closePaymentModal() {
+                hideModal('paymentModal');
+                pendingRegistration = null;
+            }
+
+            function redirectToUPI(appType) {
+                if (!hasValidUpi()) {
+                    showToast('Payment nahi ho sakta: Pehle Control Panel mein UPI ID save karein.', 'error');
+                    return;
+                }
+                if (!pendingRegistration) return;
+                
+                const targetUpi = activeUpiId;
+                const amt = pendingRegistration.depositAmt;
+                const note = `EarnRefer Deposit for ${pendingRegistration.mobile}`;
+                const standardUri = `upi://pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
+                let targetUrl = standardUri;
+
+                if (appType === 'phonepe') {
+                    targetUrl = `phonepe://pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
+                } else if (appType === 'gpay') {
+                    targetUrl = `tez://upi/pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
+                } else if (appType === 'paytm') {
+                    targetUrl = `paytmmp://pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
+                }
+
+                showToast(`Direct App Launch (${targetUpi}) for ₹${amt}...`, 'info');
+                try {
+                    window.location.href = targetUrl;
+                } catch (e) {
+                    // Fallback if deep link cannot be triggered in browser preview
+                }
+            }
+
+            function completeRegistrationAfterPayment() {
+                if (!hasValidUpi()) {
+                    showToast('Payment nahi ho sakta: Pehle Control Panel mein UPI ID save karein.', 'error');
+                    return;
+                }
+                const verifiedUpi = activeUpiId;
+                if (!pendingRegistration) {
+                    showToast('Kripya pehle registration details bharein.', 'warning');
+                    return;
+                }
+
+                const utrInput = document.getElementById('regUtrNumber').value.trim();
+
+                if (utrInput.length !== 12 || isNaN(utrInput)) {
+                    showToast('Kripya sahi 12-digit UPI UTR / Transaction ID darj karein.', 'warning');
+                    return;
+                }
+
+                const isDuplicate = loginLogs.some(log => log.utr === utrInput);
+                if (isDuplicate) {
+                    showToast('Yeh UTR Number pehle se use ho chuka hai! Dusra sahi UTR dalein.', 'error');
+                    return;
+                }
+
+                let uniqueId = generate10DigitId();
+                while (Object.values(users).some(u => u.id === uniqueId)) {
+                    uniqueId = generate10DigitId();
+                }
+
+                let bonusAwarded = 0;
+                let commissionAwarded = 0;
+
+                if (pendingRegistration.sponsorId) {
+                    let sponsorMobile = Object.keys(users).find(m => users[m].id === pendingRegistration.sponsorId);
+                    if (sponsorMobile && users[sponsorMobile]) {
+                        users[sponsorMobile].bonus = (users[sponsorMobile].bonus || 0) + 100;
+                        bonusAwarded = 100;
+                        
+                        let commission40 = pendingRegistration.depositAmt * 0.40;
+                        commissionAwarded = Math.round(commission40 * 100) / 100;
+                        users[sponsorMobile].balance = Math.round(((users[sponsorMobile].balance || 0) + commissionAwarded) * 100) / 100;
+                        
+                        users[sponsorMobile].teamCount = (users[sponsorMobile].teamCount || 0) + 1;
+                    }
+                }
+
+                const now = Date.now();
+
+                const newUser = {
+                    mobile: pendingRegistration.mobile,
+                    password: pendingRegistration.password,
+                    id: uniqueId,
+                    utr: utrInput,
+                    sponsorId: pendingRegistration.sponsorId,
+                    ownDeposit: pendingRegistration.depositAmt,
+                    bonus: 0,
+                    balance: pendingRegistration.depositAmt,
+                    teamCount: 0,
+                    bankDetails: null,
+                    sponsorMobileUsed: pendingRegistration.sponsorId ? Object.keys(users).find(m => users[m].id === pendingRegistration.sponsorId) : null,
+                    bonusAwardedToSponsor: bonusAwarded,
+                    commissionAwardedToSponsor: commissionAwarded,
+                    lastYieldTime: now
+                };
+
+                users[pendingRegistration.mobile] = newUser;
+
+                const logItem = {
+                    date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                    mobile: pendingRegistration.mobile,
+                    userId: uniqueId,
+                    utr: utrInput,
+                    deposit: pendingRegistration.depositAmt,
+                    method: `Direct App (${verifiedUpi})`,
+                    sponsor: pendingRegistration.sponsorId || 'Direct'
+                };
+                loginLogs.push(logItem);
+                saveData();
+
+                closePaymentModal();
+
+                document.getElementById('regMobile').value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regSponsor').value = '';
+                document.getElementById('regDepositAmount').value = '';
+
+                switchAuthTab('login');
+                document.getElementById('loginMobile').value = newUser.mobile;
+                showToast('UTR Verified! Account Created Successfully. ID: ' + uniqueId, 'success');
+            }
+
+            function checkAndCalculate5PercentDailyDeposit(user) {
+                if (!user) return;
+                if (!user.ownDeposit && user.balance > 0) {
+                    user.ownDeposit = user.balance;
+                }
+                if (!user.ownDeposit || user.ownDeposit <= 0) return;
+
+                const now = Date.now();
+                if (!user.lastYieldTime) {
+                    user.lastYieldTime = now;
+                    saveData();
+                    return;
+                }
+
+                const msIn24Hours = 24 * 60 * 60 * 1000;
+                const elapsedTime = now - user.lastYieldTime;
+
+                if (elapsedTime >= msIn24Hours) {
+                    const daysPassed = Math.floor(elapsedTime / msIn24Hours);
+                    let updatedDeposit = user.ownDeposit;
+                    let totalAdded = 0;
+
+                    for (let i = 0; i < daysPassed; i++) {
+                        const growth = Math.round((updatedDeposit * 0.05) * 100) / 100;
+                        updatedDeposit = Math.round((updatedDeposit + growth) * 100) / 100;
+                        totalAdded = Math.round((totalAdded + growth) * 100) / 100;
+                    }
+
+                    user.ownDeposit = updatedDeposit;
+                    user.balance = Math.round(((user.balance || 0) + totalAdded) * 100) / 100;
+                    user.lastYieldTime = user.lastYieldTime + (daysPassed * msIn24Hours);
+
+                    users[user.mobile] = user;
+                    saveData();
+                }
+            }
+
+            function handleLogin() {
+                const mobile = document.getElementById('loginMobile').value.trim();
+                const password = document.getElementById('loginPassword').value.trim();
+
+                if (mobile.length !== 10 || isNaN(mobile)) {
+                    showToast('Kripya 10 ank ka sahi mobile number darj karein.', 'warning');
+                    return;
+                }
+
+                if (!password) {
+                    showToast('Kripya password darj karein.', 'warning');
+                    return;
+                }
+
+                if (!users[mobile]) {
+                    showToast('Account nahi mila! Pehle Deposit karke register karein.', 'error');
+                    return;
+                }
+
+                if (users[mobile].password === password) {
+                    currentUser = users[mobile];
+                    if (!currentUser.ownDeposit && currentUser.balance > 0) {
+                        currentUser.ownDeposit = currentUser.balance;
+                    }
+                    safeSetItem(sessionStorage, 'er_active_user', mobile);
+
+                    checkAndCalculate5PercentDailyDeposit(currentUser);
+                    showToast('Login successful! Dashboard khul raha hai...', 'success');
+                    loadUserDashboard();
+                } else {
+                    showToast('Galat password! Sahi password dalein.', 'error');
+                }
+            }
+
+            function loadUserDashboard() {
+                if (!currentUser) return;
+                checkAndCalculate5PercentDailyDeposit(currentUser);
+
+                document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('adminScreen').classList.add('hidden');
+                document.getElementById('dashboardScreen').classList.remove('hidden');
+                document.getElementById('logoutBtn').classList.remove('hidden');
+
+                document.getElementById('userMobileDisplay').innerText = currentUser.mobile;
+                document.getElementById('user10DigitId').innerText = currentUser.id;
+                
+                const currentBonus = currentUser.bonus || 0;
+                const currentMain = currentUser.balance || 0;
+                const ownDep = currentUser.ownDeposit || 0;
+
+                document.getElementById('displayOwnDeposit').innerText = `${ownDep}`;
+                document.getElementById('bonusBalance').innerText = currentBonus;
+                document.getElementById('mainBalance').innerText = currentMain;
+                document.getElementById('teamCount').innerText = currentUser.teamCount || 0;
+                syncAllUsersDisplay();
+
+                const bonusBtn = document.getElementById('bonusWithdrawBtn');
+                const bonusStatus = document.getElementById('bonusWithdrawStatus');
+                if (currentBonus >= 500) {
+                    bonusBtn.className = "w-full bg-purple-600 hover:bg-purple-500 text-white py-2.5 rounded-xl font-bold text-xs border border-purple-400 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-purple-600/20";
+                    bonusBtn.innerHTML = `<i class="fa-solid fa-hand-holding-dollar"></i> Withdraw Bonus (₹${currentBonus})`;
+                    bonusStatus.className = "text-[11px] text-emerald-400 font-bold text-center";
+                    bonusStatus.innerText = "✓ Bonus Withdrawal Threshold Achieved!";
+                } else {
+                    bonusBtn.className = "w-full bg-slate-800 text-slate-500 py-2.5 rounded-xl font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2 cursor-not-allowed";
+                    bonusBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Withdraw Bonus`;
+                    bonusStatus.className = "text-[11px] text-amber-400 font-medium text-center";
+                    bonusStatus.innerText = `Withdrawal unlocks at ₹500 bonus balance (Need ₹${500 - currentBonus} more)`;
+                }
+
+                const mainBtn = document.getElementById('mainWithdrawBtn');
+                const mainStatus = document.getElementById('mainWithdrawStatus');
+                if (currentMain >= 30000) {
+                    mainBtn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl font-bold text-xs border border-emerald-400 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-emerald-600/20";
+                    mainBtn.innerHTML = `<i class="fa-solid fa-money-bill-transfer"></i> Withdraw Main Balance (₹${currentMain})`;
+                    mainStatus.className = "text-[11px] text-emerald-400 font-bold text-center";
+                    mainStatus.innerText = "✓ Main Balance Withdrawal Threshold Achieved!";
+                } else {
+                    mainBtn.className = "w-full bg-slate-800 text-slate-500 py-2.5 rounded-xl font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2 cursor-not-allowed";
+                    mainBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Withdraw Main Balance`;
+                    mainStatus.className = "text-[11px] text-amber-400 font-medium text-center";
+                    mainStatus.innerText = `Withdrawal unlocks at ₹30,000 main balance (Need ₹${(30000 - currentMain).toFixed(2)} more)`;
+                }
+
+                const bankCard = document.getElementById('userBankInfoCard');
+                if (currentUser.bankDetails) {
+                    bankCard.classList.remove('hidden');
+                    document.getElementById('cardHolderName').innerText = currentUser.bankDetails.holderName;
+                    document.getElementById('cardBankName').innerText = currentUser.bankDetails.bankName;
+                    document.getElementById('cardAccNumber').innerText = currentUser.bankDetails.accountNo;
+                    document.getElementById('cardIfscCode').innerText = currentUser.bankDetails.ifscCode;
+                } else {
+                    bankCard.classList.add('hidden');
+                }
+
+                const baseUrl = window.location.origin + window.location.pathname;
+                document.getElementById('shareUrlInput').value = `${baseUrl}?ref=${currentUser.id}`;
+            }
+
+            function initiateWithdrawal(type) {
+                if (!currentUser) return;
+                currentWithdrawType = type;
+
+                const amount = type === 'bonus' ? currentUser.bonus : currentUser.balance;
+                const threshold = type === 'bonus' ? 500 : 30000;
+
+                if (amount < threshold) {
+                    showToast(`Withdrawal eligible only after reaching ₹${threshold}`, 'warning');
+                    return;
+                }
+
+                document.getElementById('withdrawModalAmt').innerText = `₹${amount}`;
+
+                if (currentUser.bankDetails) {
+                    document.getElementById('bankAccHolder').value = currentUser.bankDetails.holderName || '';
+                    document.getElementById('bankName').value = currentUser.bankDetails.bankName || '';
+                    document.getElementById('bankAccNumber').value = currentUser.bankDetails.accountNo || '';
+                    document.getElementById('bankIfscCode').value = currentUser.bankDetails.ifscCode || '';
+                }
+
+                showModal('bankDetailsModal');
+            }
+
+            function closeBankModal() {
+                hideModal('bankDetailsModal');
+                currentWithdrawType = null;
+            }
+
+            function submitWithdrawalRequest() {
+                if (!currentUser || !currentWithdrawType) return;
+
+                const holderName = document.getElementById('bankAccHolder').value.trim();
+                const bankName = document.getElementById('bankName').value.trim();
+                const accountNo = document.getElementById('bankAccNumber').value.trim();
+                const ifscCode = document.getElementById('bankIfscCode').value.trim().toUpperCase();
+
+                if (!holderName || !bankName || !accountNo || !ifscCode) {
+                    showToast('Kripya sabhi Bank Details dhyan se bharein.', 'warning');
+                    return;
+                }
+
+                const bankObj = {
+                    holderName: holderName,
+                    bankName: bankName,
+                    accountNo: accountNo,
+                    ifscCode: ifscCode
+                };
+                currentUser.bankDetails = bankObj;
+
+                const withdrawAmount = currentWithdrawType === 'bonus' ? currentUser.bonus : currentUser.balance;
+
+                if (currentWithdrawType === 'bonus') {
+                    currentUser.bonus = 0;
+                } else {
+                    currentUser.balance = 0;
+                    currentUser.ownDeposit = 0;
+                }
+
+                users[currentUser.mobile] = currentUser;
+
+                const req = {
+                    id: 'WD' + Math.floor(100000 + Math.random() * 900000),
+                    mobile: currentUser.mobile,
+                    userId: currentUser.id,
+                    type: currentWithdrawType.toUpperCase(),
+                    amount: withdrawAmount,
+                    bankDetails: bankObj,
+                    date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                    status: 'PENDING'
+                };
+
+                withdrawalRequests.unshift(req);
+                saveData();
+
+                closeBankModal();
+                loadUserDashboard();
+                showToast('Withdrawal request submit ho gayi hai!', 'success');
+            }
+
+            function openAdminModal() {
+                showModal('adminAuthModal');
+                const passInput = document.getElementById('adminPassInput');
+                if (passInput) {
+                    passInput.value = '';
+                    setTimeout(() => passInput.focus(), 50);
+                }
+            }
+
+            function closeAdminModal() {
+                hideModal('adminAuthModal');
+                const passInput = document.getElementById('adminPassInput');
+                if (passInput) passInput.value = '';
+            }
+
+            function verifyAdminPassword() {
+                const pwd = document.getElementById('adminPassInput').value.trim();
+                if (pwd === ADMIN_SECRET_PASS) {
+                    closeAdminModal();
+                    loadAdminPanel();
+                } else {
+                    showToast("Galat Admin Password!", "error");
+                }
+            }
+
+            function loadAdminPanel() {
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('dashboardScreen').classList.add('hidden');
+                document.getElementById('adminScreen').classList.remove('hidden');
+
+                syncUpiUiState();
+
+                const totalUsersCount = Object.keys(users).length;
+                document.getElementById('adminTotalUsers').innerText = totalUsersCount;
+                
+                let totalCollected = 0;
+                loginLogs.forEach(l => { totalCollected += l.deposit; });
+                document.getElementById('adminTotalCollected').innerText = `₹${totalCollected}`;
+
+                document.getElementById('logBadge').innerText = `${loginLogs.length} Logs`;
+
+                const wdContainer = document.getElementById('adminWithdrawalRequestsList');
+                wdContainer.innerHTML = '';
+                
+                const pendingReqs = withdrawalRequests.filter(r => r.status === 'PENDING');
+                document.getElementById('withdrawalBadge').innerText = `${pendingReqs.length} Pending`;
+
+                if (withdrawalRequests.length === 0) {
+                    wdContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Koi withdrawal request nahi hai.</p>`;
+                } else {
+                    withdrawalRequests.forEach(req => {
+                        const item = document.createElement('div');
+                        let statusBg = req.status === 'PENDING' ? 'bg-amber-500/10 border-amber-500/40 text-amber-300' : (req.status === 'APPROVED' ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300' : 'bg-rose-500/10 border-rose-500/40 text-rose-300');
+
+                        item.className = `p-3.5 rounded-2xl border space-y-2 text-xs ${statusBg}`;
+                        item.innerHTML = `
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                <div>
+                                    <span class="font-extrabold text-white text-sm">₹${req.amount}</span>
+                                    <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full ml-2 text-slate-300 font-bold">${req.type} WITHDRAWAL</span>
+                                </div>
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${req.status === 'PENDING' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : (req.status === 'APPROVED' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border-rose-500/40')}">${req.status}</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-300 pt-1">
+                                <p>Mobile: <strong class="text-white">${req.mobile}</strong></p>
+                                <p>User ID: <strong class="text-indigo-300 font-mono">${req.userId}</strong></p>
+                                <p>Holder: <strong class="text-white">${req.bankDetails.holderName}</strong></p>
+                                <p>Bank: <strong class="text-white">${req.bankDetails.bankName}</strong></p>
+                                <p>Acc No: <strong class="text-emerald-400 font-mono">${req.bankDetails.accountNo}</strong></p>
+                                <p>IFSC: <strong class="text-cyan-300 font-mono">${req.bankDetails.ifscCode}</strong></p>
+                            </div>
+                            
+                            <p class="text-[10px] text-slate-400">${req.date}</p>
+
+                            ${req.status === 'PENDING' ? `
+                                <div class="flex gap-2 pt-1 border-t border-slate-800">
+                                    <button type="button" data-wd-id="${req.id}" data-wd-status="APPROVED" class="wd-action-btn w-1/2 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[11px]">
+                                        <i class="fa-solid fa-check mr-1"></i> Approve & Pay
+                                    </button>
+                                    <button type="button" data-wd-id="${req.id}" data-wd-status="REJECTED" class="wd-action-btn w-1/2 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-bold text-[11px]">
+                                        <i class="fa-solid fa-xmark mr-1"></i> Reject
+                                    </button>
+                                </div>
+                            ` : ''}
+                        `;
+                        wdContainer.appendChild(item);
+                    });
+
+                    wdContainer.querySelectorAll('.wd-action-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            updateWithdrawalStatus(this.getAttribute('data-wd-id'), this.getAttribute('data-wd-status'));
+                        });
+                    });
+                }
+
+                const usersContainer = document.getElementById('adminUsersList');
+                usersContainer.innerHTML = '';
+                if (totalUsersCount === 0) {
+                    usersContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Koi user registered nahi hai.</p>`;
+                } else {
+                    Object.keys(users).forEach(mob => {
+                        let u = users[mob];
+                        const uItem = document.createElement('div');
+                        uItem.className = "p-3.5 bg-slate-950/90 rounded-2xl border border-slate-800 space-y-2 text-xs";
+                        
+                        let bankText = u.bankDetails ? `${u.bankDetails.bankName} (${u.bankDetails.accountNo})` : 'Not Provided';
+
+                        uItem.innerHTML = `
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                <span class="font-bold text-white">Mobile: ${u.mobile}</span>
+                                <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-mono">ID: ${u.id}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-300">
+                                <p>Main Bal: <strong class="text-emerald-400">₹${u.balance}</strong></p>
+                                <p>Deposit: <strong class="text-amber-400">₹${u.ownDeposit || 0}</strong></p>
+                                <p>UTR: <strong class="text-cyan-300 font-mono">${u.utr || 'N/A'}</strong></p>
+                                <p>Team: <strong class="text-indigo-400">${u.teamCount}</strong></p>
+                            </div>
+                            <div class="text-[11px] text-slate-400 border-t border-slate-800/60 pt-1">
+                                <span>Password: <strong class="text-slate-200 font-mono">${u.password}</strong></span> | 
+                                <span>Bank: <strong class="text-cyan-300">${bankText}</strong></span>
+                            </div>
+                            <div class="pt-1 flex justify-end">
+                                <button type="button" data-del-mobile="${u.mobile}" class="del-user-btn px-3 py-1 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white rounded-lg text-[10px] font-bold border border-rose-500/30 transition-all">
+                                    <i class="fa-solid fa-trash mr-1"></i> Delete Account
+                                </button>
+                            </div>
+                        `;
+                        usersContainer.appendChild(uItem);
+                    });
+
+                    usersContainer.querySelectorAll('.del-user-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            deleteUserAccount(this.getAttribute('data-del-mobile'));
+                        });
+                    });
+                }
+
+                const logContainer = document.getElementById('loginLogsList');
+                logContainer.innerHTML = '';
+                if (loginLogs.length === 0) {
+                    logContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Koi payment log nahi hai.</p>`;
+                } else {
+                    loginLogs.slice().reverse().forEach(log => {
+                        const item = document.createElement('div');
+                        item.className = "p-3 bg-slate-950/90 rounded-2xl border border-slate-800 space-y-1 text-xs";
+                        item.innerHTML = `
+                            <div class="flex justify-between items-center text-slate-300 font-bold">
+                                <span>Mobile: ${log.mobile} (${log.userId})</span>
+                                <span class="text-emerald-400 font-mono">₹${log.deposit}</span>
+                            </div>
+                            <div class="text-[11px] text-cyan-300 font-mono">
+                                <span>UTR: ${log.utr || 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between text-[11px] text-slate-400">
+                                <span>Sponsor ID: ${log.sponsor}</span>
+                                <span class="text-slate-500">${log.date}</span>
+                            </div>
+                        `;
+                        logContainer.appendChild(item);
+                    });
+                }
+            }
+
+            function updateWithdrawalStatus(reqId, status) {
+                let req = withdrawalRequests.find(r => r.id === reqId);
+                if (req) {
+                    req.status = status;
+                    saveData();
+                    showToast(`Withdrawal Request ${status}!`, status === 'APPROVED' ? 'success' : 'error');
+                    loadAdminPanel();
+                }
+            }
+
+            function deleteUserAccount(mobile) {
+                let targetUser = users[mobile];
+                if (!targetUser) return;
+
+                if (targetUser.sponsorMobileUsed && users[targetUser.sponsorMobileUsed]) {
+                    let sponsor = users[targetUser.sponsorMobileUsed];
+                    
+                    let bDeduct = targetUser.bonusAwardedToSponsor || 100;
+                    let cDeduct = targetUser.commissionAwardedToSponsor || 0;
+
+                    sponsor.bonus = Math.max(0, (sponsor.bonus || 0) - bDeduct);
+                    sponsor.balance = Math.max(0, Math.round(((sponsor.balance || 0) - cDeduct) * 100) / 100);
+                    sponsor.teamCount = Math.max(0, (sponsor.teamCount || 0) - 1);
+
+                    users[targetUser.sponsorMobileUsed] = sponsor;
+                }
+
+                delete users[mobile];
+                saveData();
+                showToast('User account successfully delete kar diya gaya!', 'success');
+                loadAdminPanel();
+            }
+
+            function closeAdminPanel() {
+                if (currentUser) {
+                    loadUserDashboard();
+                } else {
+                    document.getElementById('adminScreen').classList.add('hidden');
+                    document.getElementById('authScreen').classList.remove('hidden');
+                }
+            }
+
+            function saveData() {
+                safeSetItem(localStorage, 'er_users', JSON.stringify(users));
+                safeSetItem(localStorage, 'er_login_logs', JSON.stringify(loginLogs));
+                safeSetItem(localStorage, 'er_withdrawals', JSON.stringify(withdrawalRequests));
+            }
+
+            function copyToClipboardFallback(text) {
+                const tempInput = document.createElement('input');
+                tempInput.value = text;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                try {
+                    document.execCommand('copy');
+                } catch (e) {
+                    // Ignore if execCommand is unavailable
+                }
+                document.body.removeChild(tempInput);
+            }
+
+            function copyOnlyReferralId() {
+                if (!currentUser) return;
+                const idStr = currentUser.id;
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(idStr).catch(() => copyToClipboardFallback(idStr));
+                } else {
+                    copyToClipboardFallback(idStr);
+                }
+                showToast('Referral ID (' + idStr + ') copy ho gaya hai!', 'success');
+            }
+
+            function copyReferralLink() {
+                const shareInput = document.getElementById('shareUrlInput');
+                if (!shareInput) return;
+                shareInput.select();
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(shareInput.value).catch(() => copyToClipboardFallback(shareInput.value));
+                } else {
+                    copyToClipboardFallback(shareInput.value);
+                }
+                showToast('Referral link copy ho gaya hai!', 'success');
+            }
+
+            function shareOnWhatsApp() {
+                if (!currentUser) return;
+                const shareUrl = document.getElementById('shareUrlInput').value;
+                const text = `🔥 *EarnRefer Dhamakedar Offer!* 🔥\n\n` +
+                             `💰 5% Daily Growth on Deposit (₹199 - ₹1999)\n` +
+                             `🎁 ₹100 Instant Bonus + 40% Commission\n` +
+                             `⚡ Fast & Secure Withdrawals!\n\n` +
+                             `Mera Referral ID hai: *${currentUser.id}*\n\n` +
+                             `Aaj hi Join Karein: ${shareUrl}`;
+                
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+            }
+
+            function logout() {
+                currentUser = null;
+                safeRemoveItem(sessionStorage, 'er_active_user');
+                document.getElementById('dashboardScreen').classList.add('hidden');
+                document.getElementById('adminScreen').classList.add('hidden');
+                document.getElementById('logoutBtn').classList.add('hidden');
                 document.getElementById('authScreen').classList.remove('hidden');
+                
+                document.getElementById('regMobile').value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regDepositAmount').value = '';
+                document.getElementById('regSponsor').value = '';
+                document.getElementById('loginMobile').value = '';
+                document.getElementById('loginPassword').value = '';
+                
+                switchAuthTab('deposit');
+                showToast('Logged out successfully', 'info');
             }
-        }
 
-        function saveData() {
-            safeSetItem(localStorage, 'er_users', JSON.stringify(users));
-            safeSetItem(localStorage, 'er_login_logs', JSON.stringify(loginLogs));
-            safeSetItem(localStorage, 'er_withdrawals', JSON.stringify(withdrawalRequests));
-        }
+            // Explicitly attach all functions to window for inline onclick attributes
+            window.openAdminModal = openAdminModal;
+            window.closeAdminModal = closeAdminModal;
+            window.verifyAdminPassword = verifyAdminPassword;
+            window.closeAdminPanel = closeAdminPanel;
+            window.switchAuthTab = switchAuthTab;
+            window.togglePassVisibility = togglePassVisibility;
+            window.openPaymentModal = openPaymentModal;
+            window.closePaymentModal = closePaymentModal;
+            window.redirectToUPI = redirectToUPI;
+            window.completeRegistrationAfterPayment = completeRegistrationAfterPayment;
+            window.handleLogin = handleLogin;
+            window.initiateWithdrawal = initiateWithdrawal;
+            window.closeBankModal = closeBankModal;
+            window.submitWithdrawalRequest = submitWithdrawalRequest;
+            window.saveOwnerUpiId = saveOwnerUpiId;
+            window.clearOwnerUpiId = clearOwnerUpiId;
+            window.updateWithdrawalStatus = updateWithdrawalStatus;
+            window.deleteUserAccount = deleteUserAccount;
+            window.copyOnlyReferralId = copyOnlyReferralId;
+            window.copyReferralLink = copyReferralLink;
+            window.shareOnWhatsApp = shareOnWhatsApp;
+            window.logout = logout;
 
-        function copyToClipboardFallback(text) {
-            const tempInput = document.createElement('input');
-            tempInput.value = text;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            try {
-                document.execCommand('copy');
-            } catch (e) {
-                // Ignore if execCommand is unavailable
+            function bindListeners() {
+                const adminUpiInput = document.getElementById('adminUpiInput');
+                if (adminUpiInput && !adminUpiInput.dataset.bound) {
+                    adminUpiInput.dataset.bound = '1';
+                    adminUpiInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') saveOwnerUpiId();
+                    });
+                }
+
+                const adminPassInput = document.getElementById('adminPassInput');
+                if (adminPassInput && !adminPassInput.dataset.bound) {
+                    adminPassInput.dataset.bound = '1';
+                    adminPassInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') verifyAdminPassword();
+                    });
+                }
+
+                const loginPassInput = document.getElementById('loginPassword');
+                if (loginPassInput && !loginPassInput.dataset.bound) {
+                    loginPassInput.dataset.bound = '1';
+                    loginPassInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') handleLogin();
+                    });
+                }
+
+                // Close modals when clicking outside the inner card backdrop
+                ['paymentModal', 'bankDetailsModal', 'adminAuthModal'].forEach(modalId => {
+                    const modalEl = document.getElementById(modalId);
+                    if (modalEl && !modalEl.dataset.bound) {
+                        modalEl.dataset.bound = '1';
+                        modalEl.addEventListener('click', function(e) {
+                            if (e.target === modalEl) {
+                                if (modalId === 'paymentModal') closePaymentModal();
+                                else if (modalId === 'bankDetailsModal') closeBankModal();
+                                else if (modalId === 'adminAuthModal') closeAdminModal();
+                            }
+                        });
+                    }
+                });
             }
-            document.body.removeChild(tempInput);
-        }
 
-        function copyOnlyReferralId() {
-            if (!currentUser) return;
-            const idStr = currentUser.id;
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(idStr).catch(() => copyToClipboardFallback(idStr));
+            function initApp() {
+                bindListeners();
+                syncUpiUiState();
+                syncAllUsersDisplay();
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const refParam = urlParams.get('ref');
+                if (refParam && refParam.length === 10) {
+                    const sponsorInput = document.getElementById('regSponsor');
+                    if (sponsorInput) sponsorInput.value = refParam;
+                }
+
+                const savedMobile = safeGetItem(sessionStorage, 'er_active_user');
+                if (savedMobile && users[savedMobile]) {
+                    currentUser = users[savedMobile];
+                    if (!currentUser.ownDeposit && currentUser.balance > 0) {
+                        currentUser.ownDeposit = currentUser.balance;
+                    }
+                    checkAndCalculate5PercentDailyDeposit(currentUser);
+                    loadUserDashboard();
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initApp);
             } else {
-                copyToClipboardFallback(idStr);
+                initApp();
             }
-            showToast('Referral ID (' + idStr + ') copy ho gaya hai!', 'success');
-        }
-
-        function copyReferralLink() {
-            const shareInput = document.getElementById('shareUrlInput');
-            shareInput.select();
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(shareInput.value).catch(() => copyToClipboardFallback(shareInput.value));
-            } else {
-                copyToClipboardFallback(shareInput.value);
-            }
-            showToast('Referral link copy ho gaya hai!', 'success');
-        }
-
-        function shareOnWhatsApp() {
-            if (!currentUser) return;
-            const shareUrl = document.getElementById('shareUrlInput').value;
-            const text = `🔥 *EarnRefer Dhamakedar Offer!* 🔥\n\n` +
-                         `💰 5% Daily Growth on Deposit (₹199 - ₹1999)\n` +
-                         `🎁 ₹100 Instant Bonus + 40% Commission\n` +
-                         `⚡ Fast & Secure Withdrawals!\n\n` +
-                         `Mera Referral ID hai: *${currentUser.id}*\n\n` +
-                         `Aaj hi Join Karein: ${shareUrl}`;
-            
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-        }
-
-        function logout() {
-            currentUser = null;
-            safeRemoveItem(sessionStorage, 'er_active_user');
-            document.getElementById('dashboardScreen').classList.add('hidden');
-            document.getElementById('adminScreen').classList.add('hidden');
-            document.getElementById('logoutBtn').classList.add('hidden');
-            document.getElementById('authScreen').classList.remove('hidden');
-            
-            document.getElementById('regMobile').value = '';
-            document.getElementById('regPassword').value = '';
-            document.getElementById('regDepositAmount').value = '';
-            document.getElementById('regSponsor').value = '';
-            document.getElementById('loginMobile').value = '';
-            document.getElementById('loginPassword').value = '';
-            
-            switchAuthTab('deposit');
-            showToast('Logged out successfully', 'info');
-        }
+        })();
     </script>
 </body>
 </html>
