@@ -43,6 +43,8 @@
     </script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Pure-JS QR Code Decoder (jsQR) for reliable cross-browser QR extraction -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -415,6 +417,19 @@
                     </div>
                     <div class="flex-1 space-y-2 text-left">
                         <p class="text-[11px] text-slate-300 leading-snug">Jo QR aap yahan upload/change karenge, Direct App Launch usi QR ke payment detail par update ho jayega. QR na hone par payment block rahega.</p>
+                        <!-- Linked UPI ID Display & Manual Override Input -->
+                        <div class="p-2 rounded-xl bg-slate-950/90 border border-slate-800 space-y-1.5">
+                            <div class="flex items-center justify-between text-[10px]">
+                                <span class="text-slate-400 font-semibold">Linked UPI ID:</span>
+                                <span id="adminLinkedUpiBadge" class="font-mono font-bold text-emerald-400 truncate max-w-[150px]">8825354587@ybl</span>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <input type="text" id="adminManualUpiInput" placeholder="Enter / Edit UPI ID (e.g. name@upi)" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-1.5 px-2 text-[11px] text-white font-mono focus:outline-none focus:border-indigo-500">
+                                <button type="button" onclick="saveManualAdminUpi()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold shrink-0 transition-all active:scale-95">
+                                    Save
+                                </button>
+                            </div>
+                        </div>
                         <input type="file" id="qrUploadInput" accept="image/*" class="hidden" onchange="handleQrFileUpload(event)">
                         <div class="flex gap-2">
                             <button type="button" onclick="document.getElementById('qrUploadInput').click()" class="flex-1 py-2.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg transition-all active:scale-95">
@@ -660,7 +675,7 @@
         let loginLogs = [];
         let withdrawalRequests = [];
         let customQrImage = "";
-        let activeQrUpiId = "8825354587@ybl";
+        let activeQrUpiId = "";
         let allUsersStartTs = null;
 
         try {
@@ -668,7 +683,7 @@
             loginLogs = JSON.parse(safeGetItem(localStorage, 'er_login_logs')) || [];
             withdrawalRequests = JSON.parse(safeGetItem(localStorage, 'er_withdrawals')) || [];
             customQrImage = safeGetItem(localStorage, 'er_custom_qr') || "";
-            activeQrUpiId = safeGetItem(localStorage, 'er_qr_upi_id') || "8825354587@ybl";
+            activeQrUpiId = customQrImage ? (safeGetItem(localStorage, 'er_qr_upi_id') || "").trim() : "";
             const storedStartTs = safeGetItem(localStorage, 'er_all_users_start_ts');
             if (storedStartTs && !isNaN(Number(storedStartTs))) {
                 allUsersStartTs = Number(storedStartTs);
@@ -735,12 +750,117 @@
             return Boolean(customQrImage && customQrImage.trim().length > 0);
         }
 
+        function hasValidPaymentQrAndUpi() {
+            const upi = (activeQrUpiId || "").trim();
+            return hasValidQr() && upi.length > 0 && upi.includes('@');
+        }
+
         function syncQrUiState() {
             const hasQr = hasValidQr();
+            const hasReadyPayment = hasValidPaymentQrAndUpi();
             const badge = document.getElementById('adminQrStatusBadge');
             const previewImg = document.getElementById('adminPreviewQr');
             const placeholder = document.getElementById('adminNoQrPlaceholder');
             const btnText = document.getElementById('qrActionBtnText');
+            const adminLinkedUpiBadge = document.getElementById('adminLinkedUpiBadge');
+            const adminManualUpiInput = document.getElementById('adminManualUpiInput');
+
+            activeQrUpiId = hasQr ? (safeGetItem(localStorage, 'er_qr_upi_id') || activeQrUpiId || "").trim() : "";
+
+            if (adminLinkedUpiBadge) {
+                adminLinkedUpiBadge.innerText = activeQrUpiId || 'Not Set (Blocked)';
+            }
+            if (adminManualUpiInput && document.activeElement !== adminManualUpiInput) {
+                adminManualUpiInput.value = activeQrUpiId || '';
+            }
+
+            const missingAlert = document.getElementById('missingQrAlert');
+            const linkedDisplay = document.getElementById('linkedQrDisplay');
+            const modalQrImg = document.getElementById('modalActiveQrImg');
+            const linkedUpiText = document.getElementById('activeLinkedUpiText');
+
+            if (hasQr && hasReadyPayment) {
+                if (badge) {
+                    badge.innerText = "Active";
+                    badge.className = "text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold";
+                }
+                if (previewImg) {
+                    previewImg.src = customQrImage;
+                    previewImg.classList.remove('hidden');
+                }
+                if (placeholder) placeholder.classList.add('hidden');
+                if (btnText) btnText.innerText = "Change QR";
+
+                if (missingAlert) missingAlert.classList.add('hidden');
+                if (linkedDisplay) linkedDisplay.classList.add('hidden');
+                if (modalQrImg) modalQrImg.src = customQrImage;
+                if (linkedUpiText) linkedUpiText.innerText = activeQrUpiId;
+            } else if (hasQr && !hasReadyPayment) {
+                if (badge) {
+                    badge.innerText = "UPI Required (Blocked)";
+                    badge.className = "text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold";
+                }
+                if (previewImg) {
+                    previewImg.src = customQrImage;
+                    previewImg.classList.remove('hidden');
+                }
+                if (placeholder) placeholder.classList.add('hidden');
+                if (btnText) btnText.innerText = "Change QR";
+
+                if (missingAlert) missingAlert.classList.remove('hidden');
+                if (linkedDisplay) linkedDisplay.classList.add('hidden');
+            } else {
+                if (badge) {
+                    badge.innerText = "Missing (Blocked)";
+                    badge.className = "text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2 py-0.5 rounded-full font-bold";
+                }
+                if (previewImg) {
+                    previewImg.src = "";
+                    previewImg.classList.add('hidden');
+                }
+                if (placeholder) placeholder.classList.remove('hidden');
+                if (btnText) btnText.innerText = "Upload QR";
+
+                if (missingAlert) missingAlert.classList.remove('hidden');
+                if (linkedDisplay) linkedDisplay.classList.add('hidden');
+            }
+
+            const payButtons = ['btnPayPhonepe', 'btnPayGpay', 'btnPayPaytm', 'btnPayGeneric'];
+            payButtons.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (!hasReadyPayment) {
+                    el.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    el.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            });
+        }
+
+        function saveManualAdminUpi() {
+            if (!hasValidQr()) {
+                showToast('Pehle QR image upload karein, uske baad UPI ID save hoga.', 'warning');
+                return;
+            }
+            const input = document.getElementById('adminManualUpiInput');
+            if (!input) return;
+            const val = input.value.trim();
+            if (!val || !val.includes('@')) {
+                showToast('Kripya sahi UPI ID darj karein (e.g. name@okaxis).', 'warning');
+                return;
+            }
+            activeQrUpiId = val;
+            safeSetItem(localStorage, 'er_qr_upi_id', activeQrUpiId);
+            syncQrUiState();
+            showToast(`Uploaded QR ke liye UPI ID save ho gaya: ${activeQrUpiId}`, 'success');
+        }
+
+            if (adminLinkedUpiBadge) {
+                adminLinkedUpiBadge.innerText = activeQrUpiId || 'Not Set';
+            }
+            if (adminManualUpiInput && document.activeElement !== adminManualUpiInput) {
+                adminManualUpiInput.value = activeQrUpiId || '';
+            }
 
             const missingAlert = document.getElementById('missingQrAlert');
             const linkedDisplay = document.getElementById('linkedQrDisplay');
@@ -791,29 +911,139 @@
             });
         }
 
-        async function extractUpiFromImage(dataUrl) {
-            try {
-                if ('BarcodeDetector' in window) {
-                    const detector = new BarcodeDetector({ formats: ['qr_code'] });
-                    const img = new Image();
-                    img.src = dataUrl;
-                    await img.decode();
-                    const barcodes = await detector.detect(img);
-                    if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
-                        const raw = barcodes[0].rawValue;
-                        const paMatch = raw.match(/[?&]pa=([^&]+)/i);
-                        if (paMatch && paMatch[1]) {
-                            return decodeURIComponent(paMatch[1]).trim();
-                        }
-                        if (raw.includes('@')) {
-                            return raw.trim();
-                        }
-                    }
-                }
-            } catch (e) {
-                // Fallback to stored UPI ID if browser detector isn't available
+        function saveManualAdminUpi() {
+            const input = document.getElementById('adminManualUpiInput');
+            if (!input) return;
+            const val = input.value.trim();
+            if (!val || !val.includes('@')) {
+                showToast('Kripya sahi UPI ID darj karein (e.g. name@okaxis).', 'warning');
+                return;
             }
-            return safeGetItem(localStorage, 'er_qr_upi_id') || "8825354587@ybl";
+            activeQrUpiId = val;
+            safeSetItem(localStorage, 'er_qr_upi_id', activeQrUpiId);
+            syncQrUiState();
+            showToast(`Linked UPI ID update ho gaya: ${activeQrUpiId}`, 'success');
+        }
+
+        function parseUpiPayload(rawText) {
+            if (!rawText) return null;
+            const trimmed = rawText.trim();
+            const paMatch = trimmed.match(/[?&]pa=([^&]+)/i);
+            let pa = null;
+            let pn = null;
+
+            if (paMatch && paMatch[1]) {
+                try {
+                    pa = decodeURIComponent(paMatch[1]).trim();
+                } catch (e) {
+                    pa = paMatch[1].trim();
+                }
+            } else if (/^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z0-9.\-_]{2,}$/.test(trimmed)) {
+                pa = trimmed;
+            }
+
+            const pnMatch = trimmed.match(/[?&]pn=([^&]+)/i);
+            if (pnMatch && pnMatch[1]) {
+                try {
+                    pn = decodeURIComponent(pnMatch[1]).trim();
+                } catch (e) {
+                    pn = pnMatch[1].trim();
+                }
+            }
+
+            if (pa && pa.includes('@')) {
+                return { pa, pn };
+            }
+            return null;
+        }
+
+        async function processQrImageAndExtract(dataUrl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = async function() {
+                    try {
+                        // 1. Decode using offscreen canvas up to 800px for crisp QR module detection
+                        const maxDecodeDim = 800;
+                        let dWidth = img.naturalWidth || img.width;
+                        let dHeight = img.naturalHeight || img.height;
+                        if (dWidth > maxDecodeDim || dHeight > maxDecodeDim) {
+                            const scale = Math.min(maxDecodeDim / dWidth, maxDecodeDim / dHeight);
+                            dWidth = Math.round(dWidth * scale);
+                            dHeight = Math.round(dHeight * scale);
+                        }
+
+                        const decodeCanvas = document.createElement('canvas');
+                        decodeCanvas.width = dWidth;
+                        decodeCanvas.height = dHeight;
+                        const dCtx = decodeCanvas.getContext('2d', { willReadFrequently: true });
+                        dCtx.fillStyle = '#ffffff';
+                        dCtx.fillRect(0, 0, dWidth, dHeight);
+                        dCtx.drawImage(img, 0, 0, dWidth, dHeight);
+
+                        let parsedUpi = null;
+
+                        // Primary: jsQR pure-JS decoder
+                        if (typeof window.jsQR === 'function') {
+                            const imageData = dCtx.getImageData(0, 0, dWidth, dHeight);
+                            const qrResult = window.jsQR(imageData.data, imageData.width, imageData.height, {
+                                inversionAttempts: 'attemptBoth'
+                            });
+                            if (qrResult && qrResult.data) {
+                                parsedUpi = parseUpiPayload(qrResult.data);
+                            }
+                        }
+
+                        // Secondary fallback: Native BarcodeDetector if available
+                        if (!parsedUpi && 'BarcodeDetector' in window) {
+                            try {
+                                const detector = new BarcodeDetector({ formats: ['qr_code'] });
+                                const barcodes = await detector.detect(decodeCanvas);
+                                if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                                    parsedUpi = parseUpiPayload(barcodes[0].rawValue);
+                                }
+                            } catch (e) {
+                                // Ignore native detector errors
+                            }
+                        }
+
+                        // 2. Compress/resize QR preview image (max 400x400) so localStorage never hits quota limits
+                        const maxPreviewDim = 400;
+                        let pWidth = img.naturalWidth || img.width;
+                        let pHeight = img.naturalHeight || img.height;
+                        if (pWidth > maxPreviewDim || pHeight > maxPreviewDim) {
+                            const pScale = Math.min(maxPreviewDim / pWidth, maxPreviewDim / pHeight);
+                            pWidth = Math.round(pWidth * pScale);
+                            pHeight = Math.round(pHeight * pScale);
+                        }
+
+                        const previewCanvas = document.createElement('canvas');
+                        previewCanvas.width = pWidth;
+                        previewCanvas.height = pHeight;
+                        const pCtx = previewCanvas.getContext('2d');
+                        pCtx.fillStyle = '#ffffff';
+                        pCtx.fillRect(0, 0, pWidth, pHeight);
+                        pCtx.drawImage(img, 0, 0, pWidth, pHeight);
+                        const compressedDataUrl = previewCanvas.toDataURL('image/jpeg', 0.85);
+
+                        resolve({
+                            compressedDataUrl,
+                            parsedUpi
+                        });
+                    } catch (err) {
+                        resolve({
+                            compressedDataUrl: dataUrl,
+                            parsedUpi: null
+                        });
+                    }
+                };
+                img.onerror = function() {
+                    resolve({
+                        compressedDataUrl: dataUrl,
+                        parsedUpi: null
+                    });
+                };
+                img.src = dataUrl;
+            });
         }
 
         function handleQrFileUpload(event) {
@@ -825,21 +1055,66 @@
                 return;
             }
 
+            // Reset active UPI immediately before decoding the newly uploaded QR
+            activeQrUpiId = "";
+            safeRemoveItem(localStorage, 'er_qr_upi_id');
+            safeRemoveItem(localStorage, 'er_qr_merchant_name');
+
             const reader = new FileReader();
             reader.onload = async function(e) {
-                const resultDataUrl = e.target.result;
-                try {
-                    safeSetItem(localStorage, 'er_custom_qr', resultDataUrl);
-                    customQrImage = resultDataUrl;
+                const rawDataUrl = e.target.result;
+                const { compressedDataUrl, parsedUpi } = await processQrImageAndExtract(rawDataUrl);
 
-                    const detectedUpi = await extractUpiFromImage(resultDataUrl);
-                    activeQrUpiId = detectedUpi;
+                customQrImage = compressedDataUrl;
+                safeSetItem(localStorage, 'er_custom_qr', customQrImage);
+
+                if (parsedUpi && parsedUpi.pa && parsedUpi.pa.includes('@')) {
+                    activeQrUpiId = parsedUpi.pa.trim();
                     safeSetItem(localStorage, 'er_qr_upi_id', activeQrUpiId);
-
+                    if (parsedUpi.pn) {
+                        safeSetItem(localStorage, 'er_qr_merchant_name', parsedUpi.pn);
+                    }
                     syncQrUiState();
-                    showToast(`QR update ho gaya! Direct App Launch UPI: ${activeQrUpiId}`, 'success');
-                } catch (err) {
-                    showToast('Image size bada hai, choti image select karein.', 'error');
+                    showToast(`Naya QR decode ho gaya! Payment UPI: ${activeQrUpiId}`, 'success');
+                } else {
+                    activeQrUpiId = "";
+                    safeRemoveItem(localStorage, 'er_qr_upi_id');
+                    safeRemoveItem(localStorage, 'er_qr_merchant_name');
+                    syncQrUiState();
+                    const manualInput = document.getElementById('adminManualUpiInput');
+                    if (manualInput) {
+                        manualInput.value = '';
+                        manualInput.focus();
+                    }
+                    showToast('QR scan nahi ho saka! Purana UPI hata diya gaya hai. Sahi QR upload karein ya UPI ID save karein; tab tak payment block rahega.', 'error');
+                }
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function removeUploadedQr() {
+            customQrImage = "";
+            activeQrUpiId = "";
+            safeRemoveItem(localStorage, 'er_custom_qr');
+            safeRemoveItem(localStorage, 'er_qr_upi_id');
+            safeRemoveItem(localStorage, 'er_qr_merchant_name');
+            syncQrUiState();
+            showToast('QR aur linked UPI hata diya gaya hai. Payment block hai.', 'warning');
+        }
+                    syncQrUiState();
+                    showToast(`Naya QR & UPI update ho gaya: ${activeQrUpiId}`, 'success');
+                } else {
+                    // Clear stale UPI ID so an outdated UPI is never silently reused
+                    activeQrUpiId = "";
+                    safeRemoveItem(localStorage, 'er_qr_upi_id');
+                    syncQrUiState();
+                    const manualInput = document.getElementById('adminManualUpiInput');
+                    if (manualInput) {
+                        manualInput.value = '';
+                        manualInput.focus();
+                    }
+                    showToast('QR image save ho gayi, par auto-scan nahi hua. Kripya Linked UPI ID box mein naya UPI ID darj karke Save karein!', 'warning');
                 }
             };
             reader.readAsDataURL(file);
@@ -942,13 +1217,8 @@
 
             if (users[mobile]) {
                 showToast('Yeh mobile number pehle se registered hai! Kripya Login karein.', 'warning');
-                switchAuthTab('login');
-                document.getElementById('loginMobile').value = mobile;
-                return;
-            }
-
-            if (!hasValidQr()) {
-                showToast('Payment nahi ho sakta: Pehle Control Panel mein QR upload karein.', 'error');
+            if (!hasValidPaymentQrAndUpi()) {
+                showToast('Payment block hai: Kripya readable QR upload karein ya Admin Panel mein UPI ID save karein.', 'error');
                 return;
             }
 
@@ -974,23 +1244,29 @@
 
         function redirectToUPI(appType) {
             if (!hasValidQr()) {
-                showToast('QR available nahi hai! Payment block kar diya gaya hai.', 'error');
+                showToast('QR upload nahi hai! Payment block kar diya gaya hai.', 'error');
                 return;
             }
             if (!pendingRegistration) return;
             
-            const targetUpi = safeGetItem(localStorage, 'er_qr_upi_id') || activeQrUpiId;
+            const targetUpi = (activeQrUpiId || "").trim();
+            if (!targetUpi || !targetUpi.includes('@')) {
+                showToast('Uploaded QR ka UPI ID available nahi hai! Payment block kar diya gaya hai.', 'error');
+                return;
+            }
+
+            const merchantName = (safeGetItem(localStorage, 'er_qr_merchant_name') || MERCHANT_NAME).trim() || MERCHANT_NAME;
             const amt = pendingRegistration.depositAmt;
             const note = `EarnRefer Deposit for ${pendingRegistration.mobile}`;
-            const standardUri = `upi://pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
+            const standardUri = `upi://pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(merchantName)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
             let targetUrl = standardUri;
 
             if (appType === 'phonepe') {
-                targetUrl = `phonepe://pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
+                targetUrl = `phonepe://pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(merchantName)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
             } else if (appType === 'gpay') {
-                targetUrl = `tez://upi/pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
+                targetUrl = `tez://upi/pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(merchantName)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
             } else if (appType === 'paytm') {
-                targetUrl = `paytmmp://pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
+                targetUrl = `paytmmp://pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(merchantName)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
             }
 
             showToast(`Direct App Launch (${targetUpi}) for ₹${amt}...`, 'info');
@@ -1004,6 +1280,11 @@
         function completeRegistrationAfterPayment() {
             if (!hasValidQr()) {
                 showToast('QR upload nahi hai! Registration payment verify nahi ho sakta.', 'error');
+                return;
+            }
+            const verifiedUpi = (activeQrUpiId || "").trim();
+            if (!verifiedUpi || !verifiedUpi.includes('@')) {
+                showToast('Uploaded QR ka valid UPI ID (@) set nahi hai! Payment block hai.', 'error');
                 return;
             }
             if (!pendingRegistration) {
@@ -1073,7 +1354,7 @@
                 userId: uniqueId,
                 utr: utrInput,
                 deposit: pendingRegistration.depositAmt,
-                method: `Direct App (${activeQrUpiId})`,
+                method: `Direct App (${verifiedUpi})`,
                 sponsor: pendingRegistration.sponsorId || 'Direct'
             };
             loginLogs.push(logItem);
