@@ -21,6 +21,9 @@
     <meta name="twitter:description" content="EarnRefer से जुड़ें और 5% डेली रिटर्न कमाएं!">
     <meta name="twitter:image" content="https://placehold.co/1200x630/090d16/818cf8?text=EarnRefer+Multi-Reward+Platform">
 
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -123,6 +126,9 @@
             </div>
             
             <div class="flex items-center gap-2">
+                <span id="dbSyncIndicator" class="text-[10px] text-emerald-400/80 font-mono hidden sm:inline-flex items-center gap-1 bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
+                    <i class="fa-solid fa-database text-[9px]"></i> Cloud
+                </span>
                 <button type="button" id="logoutBtn" onclick="window.logout && window.logout()" class="hidden px-3 py-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 text-xs font-semibold border border-rose-500/20 transition-all active:scale-95">
                     <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
                 </button>
@@ -506,7 +512,7 @@
                 </div>
             </div>
 
-            <!-- ACTIVE UPLOADED QR PREVIEW & LINKED UPI DISPLAY (HIDDEN AS REQUESTED) -->
+            <!-- ACTIVE UPLOADED QR PREVIEW & LINKED UPI DISPLAY -->
             <div id="activeQrBanner" class="hidden bg-slate-950/90 p-3 rounded-2xl border border-slate-800 space-y-2">
                 <div id="missingQrAlert" class="hidden p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-bold">
                     <i class="fa-solid fa-triangle-exclamation mr-1"></i> UPI ID set nahi hai! Payment band hai.
@@ -636,63 +642,34 @@
         </div>
     </div>
 
-    <!-- LOGIC SCRIPT -->
+    <!-- SUPABASE + APP LOGIC SCRIPT -->
     <script>
         (function() {
-            // Safe storage helpers so restricted iframes or storage limits never throw errors
+            // ==========================================
+            // 1. SUPABASE CONFIGURATION
+            // ==========================================
+            const SUPABASE_PROJECT_ID = 'sjxyjgcvtgtldqnxhova';
+            const SUPABASE_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co`;
+            const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_FMlFF37dCv8xLj4N8GENKw_ADEdCw-i';
+
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+            // Safe session helpers
             function safeGetItem(storage, key) {
-                try {
-                    return storage.getItem(key);
-                } catch (e) {
-                    return null;
-                }
+                try { return storage.getItem(key); } catch (e) { return null; }
             }
-
             function safeSetItem(storage, key, value) {
-                try {
-                    storage.setItem(key, value);
-                } catch (e) {
-                    // Ignore storage quota or sandbox restriction errors
-                }
+                try { storage.setItem(key, value); } catch (e) {}
             }
-
             function safeRemoveItem(storage, key) {
-                try {
-                    storage.removeItem(key);
-                } catch (e) {
-                    // Ignore storage restriction errors
-                }
+                try { storage.removeItem(key); } catch (e) {}
             }
 
             let users = {};
             let loginLogs = [];
             let withdrawalRequests = [];
             let activeUpiId = "";
-            let allUsersStartTs = null;
-
-            try {
-                users = JSON.parse(safeGetItem(localStorage, 'er_users')) || {};
-                loginLogs = JSON.parse(safeGetItem(localStorage, 'er_login_logs')) || [];
-                withdrawalRequests = JSON.parse(safeGetItem(localStorage, 'er_withdrawals')) || [];
-                // Clean up legacy QR keys if present
-                safeRemoveItem(localStorage, 'er_custom_qr');
-                safeRemoveItem(localStorage, 'er_qr_upi_id');
-                safeRemoveItem(localStorage, 'er_qr_merchant_name');
-                activeUpiId = (safeGetItem(localStorage, 'er_active_upi_id') || "").trim();
-                const storedStartTs = safeGetItem(localStorage, 'er_all_users_start_ts');
-                if (storedStartTs && !isNaN(Number(storedStartTs))) {
-                    allUsersStartTs = Number(storedStartTs);
-                } else {
-                    allUsersStartTs = Date.now();
-                    safeSetItem(localStorage, 'er_all_users_start_ts', String(allUsersStartTs));
-                }
-            } catch (e) {
-                users = {};
-                loginLogs = [];
-                withdrawalRequests = [];
-                activeUpiId = "";
-                allUsersStartTs = Date.now();
-            }
+            let allUsersStartTs = Date.now();
 
             let currentUser = null;
             let pendingRegistration = null;
@@ -700,6 +677,104 @@
 
             const ADMIN_SECRET_PASS = "8825354587@#arkh";
             const MERCHANT_NAME = "EarnRefer";
+
+            // ==========================================
+            // 2. SUPABASE DATA MAPPERS & SYNC FUNCTIONS
+            // ==========================================
+            function mapDbUserToLocal(row) {
+                return {
+                    mobile: row.mobile,
+                    password: row.password,
+                    id: row.id,
+                    utr: row.utr,
+                    sponsorId: row.sponsor_id,
+                    ownDeposit: Number(row.own_deposit || 0),
+                    bonus: Number(row.bonus || 0),
+                    balance: Number(row.balance || 0),
+                    teamCount: Number(row.team_count || 0),
+                    bankDetails: row.bank_details || null,
+                    sponsorMobileUsed: row.sponsor_mobile_used || null,
+                    bonusAwardedToSponsor: Number(row.bonus_awarded_to_sponsor || 0),
+                    commissionAwardedToSponsor: Number(row.commission_awarded_to_sponsor || 0),
+                    lastYieldTime: Number(row.last_yield_time || Date.now())
+                };
+            }
+
+            function mapLocalUserToDb(u) {
+                return {
+                    mobile: u.mobile,
+                    password: u.password,
+                    id: u.id,
+                    utr: u.utr || null,
+                    sponsor_id: u.sponsorId || null,
+                    own_deposit: u.ownDeposit || 0,
+                    bonus: u.bonus || 0,
+                    balance: u.balance || 0,
+                    team_count: u.teamCount || 0,
+                    bank_details: u.bankDetails || null,
+                    sponsor_mobile_used: u.sponsorMobileUsed || null,
+                    bonus_awarded_to_sponsor: u.bonusAwardedToSponsor || 0,
+                    commission_awarded_to_sponsor: u.commissionAwardedToSponsor || 0,
+                    last_yield_time: u.lastYieldTime || Date.now()
+                };
+            }
+
+            async function syncAllFromSupabase() {
+                try {
+                    const [usersRes, logsRes, wdRes, settingsRes] = await Promise.all([
+                        supabaseClient.from('er_users').select('*'),
+                        supabaseClient.from('er_login_logs').select('*').order('id', { ascending: true }),
+                        supabaseClient.from('er_withdrawals').select('*').order('created_at', { ascending: false }),
+                        supabaseClient.from('er_settings').select('*')
+                    ]);
+
+                    if (usersRes.error) throw usersRes.error;
+
+                    const freshUsers = {};
+                    (usersRes.data || []).forEach(row => {
+                        freshUsers[row.mobile] = mapDbUserToLocal(row);
+                    });
+                    users = freshUsers;
+
+                    loginLogs = (logsRes.data || []).map(row => ({
+                        dbId: row.id,
+                        date: row.date_str,
+                        mobile: row.mobile,
+                        userId: row.user_id,
+                        utr: row.utr,
+                        deposit: Number(row.deposit || 0),
+                        method: row.method,
+                        sponsor: row.sponsor
+                    }));
+
+                    withdrawalRequests = (wdRes.data || []).map(row => ({
+                        id: row.id,
+                        mobile: row.mobile,
+                        userId: row.user_id,
+                        type: row.type,
+                        amount: Number(row.amount || 0),
+                        bankDetails: row.bank_details,
+                        date: row.date_str,
+                        status: row.status
+                    }));
+
+                    (settingsRes.data || []).forEach(s => {
+                        if (s.key === 'active_upi_id') {
+                            activeUpiId = (s.value || '').trim();
+                        } else if (s.key === 'all_users_start_ts' && s.value && !isNaN(Number(s.value))) {
+                            allUsersStartTs = Number(s.value);
+                        }
+                    });
+
+                    syncUpiUiState();
+                    syncAllUsersDisplay();
+                    return true;
+                } catch (err) {
+                    console.error('Supabase sync error:', err);
+                    showToast('Database connection error! Supabase SQL tables check karein.', 'error');
+                    return false;
+                }
+            }
 
             function getFormattedAllUsersCount() {
                 const baseMillions = 1.3;
@@ -713,9 +788,7 @@
 
             function syncAllUsersDisplay() {
                 const el = document.getElementById('allUsersStat');
-                if (el) {
-                    el.innerText = getFormattedAllUsersCount();
-                }
+                if (el) el.innerText = getFormattedAllUsersCount();
             }
 
             function isValidUpiFormat(upiStr) {
@@ -725,7 +798,6 @@
             }
 
             function hasValidUpi() {
-                activeUpiId = (safeGetItem(localStorage, 'er_active_upi_id') || activeUpiId || "").trim();
                 return isValidUpiFormat(activeUpiId);
             }
 
@@ -782,7 +854,7 @@
                 });
             }
 
-            function saveOwnerUpiId() {
+            async function saveOwnerUpiId() {
                 const input = document.getElementById('adminUpiInput');
                 if (!input) return;
                 const newUpi = input.value.trim();
@@ -793,9 +865,22 @@
                     return;
                 }
 
+                const btn = document.getElementById('saveUpiBtn');
+                if (btn) btn.disabled = true;
+
+                const { error } = await supabaseClient
+                    .from('er_settings')
+                    .upsert({ key: 'active_upi_id', value: newUpi });
+
+                if (btn) btn.disabled = false;
+
+                if (error) {
+                    showToast('UPI ID save nahi ho paya: ' + error.message, 'error');
+                    return;
+                }
+
                 const isUpdate = hasValidUpi() && activeUpiId !== newUpi;
                 activeUpiId = newUpi;
-                safeSetItem(localStorage, 'er_active_upi_id', activeUpiId);
                 syncUpiUiState();
 
                 if (isUpdate) {
@@ -805,9 +890,17 @@
                 }
             }
 
-            function clearOwnerUpiId() {
+            async function clearOwnerUpiId() {
+                const { error } = await supabaseClient
+                    .from('er_settings')
+                    .upsert({ key: 'active_upi_id', value: '' });
+
+                if (error) {
+                    showToast('Error clearing UPI ID: ' + error.message, 'error');
+                    return;
+                }
+
                 activeUpiId = "";
-                safeRemoveItem(localStorage, 'er_active_upi_id');
                 const input = document.getElementById('adminUpiInput');
                 if (input) input.value = "";
                 syncUpiUiState();
@@ -898,7 +991,7 @@
                 modal.classList.remove('flex', 'pointer-events-auto');
             }
 
-            function openPaymentModal() {
+            async function openPaymentModal() {
                 const mobile = document.getElementById('regMobile').value.trim();
                 const password = document.getElementById('regPassword').value.trim();
                 const sponsorId = document.getElementById('regSponsor').value.trim();
@@ -918,6 +1011,12 @@
                     showToast('Deposit amount ₹199 se ₹1999 ke beech hona chahiye.', 'warning');
                     return;
                 }
+
+                const openBtn = document.getElementById('openPayModalBtn');
+                if (openBtn) openBtn.disabled = true;
+
+                await syncAllFromSupabase();
+                if (openBtn) openBtn.disabled = false;
 
                 if (users[mobile]) {
                     showToast('Yeh mobile number pehle se registered hai! Kripya Login karein.', 'warning');
@@ -973,12 +1072,10 @@
                 showToast(`Direct App Launch (${targetUpi}) for ₹${amt}...`, 'info');
                 try {
                     window.location.href = targetUrl;
-                } catch (e) {
-                    // Fallback if deep link cannot be triggered in browser preview
-                }
+                } catch (e) {}
             }
 
-            function completeRegistrationAfterPayment() {
+            async function completeRegistrationAfterPayment() {
                 if (!hasValidUpi()) {
                     showToast('Payment nahi ho sakta: Pehle Control Panel mein UPI ID save karein.', 'error');
                     return;
@@ -996,80 +1093,143 @@
                     return;
                 }
 
-                const isDuplicate = loginLogs.some(log => log.utr === utrInput);
-                if (isDuplicate) {
-                    showToast('Yeh UTR Number pehle se use ho chuka hai! Dusra sahi UTR dalein.', 'error');
-                    return;
+                const completeBtn = document.getElementById('completeRegBtn');
+                if (completeBtn) {
+                    completeBtn.disabled = true;
+                    completeBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving to Database...`;
                 }
 
-                let uniqueId = generate10DigitId();
-                while (Object.values(users).some(u => u.id === uniqueId)) {
-                    uniqueId = generate10DigitId();
-                }
+                try {
+                    const { data: existingUtr } = await supabaseClient
+                        .from('er_login_logs')
+                        .select('utr')
+                        .eq('utr', utrInput)
+                        .maybeSingle();
 
-                let bonusAwarded = 0;
-                let commissionAwarded = 0;
+                    if (existingUtr) {
+                        showToast('Yeh UTR Number pehle se use ho chuka hai! Dusra sahi UTR dalein.', 'error');
+                        return;
+                    }
 
-                if (pendingRegistration.sponsorId) {
-                    let sponsorMobile = Object.keys(users).find(m => users[m].id === pendingRegistration.sponsorId);
-                    if (sponsorMobile && users[sponsorMobile]) {
-                        users[sponsorMobile].bonus = (users[sponsorMobile].bonus || 0) + 100;
-                        bonusAwarded = 100;
-                        
-                        let commission40 = pendingRegistration.depositAmt * 0.40;
-                        commissionAwarded = Math.round(commission40 * 100) / 100;
-                        users[sponsorMobile].balance = Math.round(((users[sponsorMobile].balance || 0) + commissionAwarded) * 100) / 100;
-                        
-                        users[sponsorMobile].teamCount = (users[sponsorMobile].teamCount || 0) + 1;
+                    const { data: existingMobile } = await supabaseClient
+                        .from('er_users')
+                        .select('mobile')
+                        .eq('mobile', pendingRegistration.mobile)
+                        .maybeSingle();
+
+                    if (existingMobile) {
+                        showToast('Yeh mobile number pehle se registered hai!', 'error');
+                        return;
+                    }
+
+                    await syncAllFromSupabase();
+
+                    let uniqueId = generate10DigitId();
+                    while (Object.values(users).some(u => u.id === uniqueId)) {
+                        uniqueId = generate10DigitId();
+                    }
+
+                    let bonusAwarded = 0;
+                    let commissionAwarded = 0;
+                    let sponsorMobileFound = null;
+
+                    if (pendingRegistration.sponsorId) {
+                        sponsorMobileFound = Object.keys(users).find(m => users[m].id === pendingRegistration.sponsorId) || null;
+                        if (sponsorMobileFound && users[sponsorMobileFound]) {
+                            const sponsor = users[sponsorMobileFound];
+                            sponsor.bonus = (sponsor.bonus || 0) + 100;
+                            bonusAwarded = 100;
+                            
+                            const commission40 = pendingRegistration.depositAmt * 0.40;
+                            commissionAwarded = Math.round(commission40 * 100) / 100;
+                            sponsor.balance = Math.round(((sponsor.balance || 0) + commissionAwarded) * 100) / 100;
+                            sponsor.teamCount = (sponsor.teamCount || 0) + 1;
+
+                            const { error: sponsorErr } = await supabaseClient
+                                .from('er_users')
+                                .update({
+                                    bonus: sponsor.bonus,
+                                    balance: sponsor.balance,
+                                    team_count: sponsor.teamCount
+                                })
+                                .eq('mobile', sponsorMobileFound);
+
+                            if (sponsorErr) throw sponsorErr;
+                        }
+                    }
+
+                    const now = Date.now();
+                    const newUser = {
+                        mobile: pendingRegistration.mobile,
+                        password: pendingRegistration.password,
+                        id: uniqueId,
+                        utr: utrInput,
+                        sponsorId: pendingRegistration.sponsorId,
+                        ownDeposit: pendingRegistration.depositAmt,
+                        bonus: 0,
+                        balance: pendingRegistration.depositAmt,
+                        teamCount: 0,
+                        bankDetails: null,
+                        sponsorMobileUsed: sponsorMobileFound,
+                        bonusAwardedToSponsor: bonusAwarded,
+                        commissionAwardedToSponsor: commissionAwarded,
+                        lastYieldTime: now
+                    };
+
+                    const { error: insertUserErr } = await supabaseClient
+                        .from('er_users')
+                        .insert([mapLocalUserToDb(newUser)]);
+
+                    if (insertUserErr) throw insertUserErr;
+
+                    const dateStr = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const { error: insertLogErr } = await supabaseClient
+                        .from('er_login_logs')
+                        .insert([{
+                            date_str: dateStr,
+                            mobile: pendingRegistration.mobile,
+                            user_id: uniqueId,
+                            utr: utrInput,
+                            deposit: pendingRegistration.depositAmt,
+                            method: `Direct App (${verifiedUpi})`,
+                            sponsor: pendingRegistration.sponsorId || 'Direct'
+                        }]);
+
+                    if (insertLogErr) throw insertLogErr;
+
+                    users[pendingRegistration.mobile] = newUser;
+                    loginLogs.push({
+                        date: dateStr,
+                        mobile: pendingRegistration.mobile,
+                        userId: uniqueId,
+                        utr: utrInput,
+                        deposit: pendingRegistration.depositAmt,
+                        method: `Direct App (${verifiedUpi})`,
+                        sponsor: pendingRegistration.sponsorId || 'Direct'
+                    });
+
+                    closePaymentModal();
+
+                    document.getElementById('regMobile').value = '';
+                    document.getElementById('regPassword').value = '';
+                    document.getElementById('regSponsor').value = '';
+                    document.getElementById('regDepositAmount').value = '';
+
+                    switchAuthTab('login');
+                    document.getElementById('loginMobile').value = newUser.mobile;
+                    showToast('UTR Verified! Account Supabase mein save ho gaya. ID: ' + uniqueId, 'success');
+                } catch (err) {
+                    console.error('Registration DB Error:', err);
+                    showToast('Registration save karne mein error aaya: ' + (err.message || 'Unknown error'), 'error');
+                } finally {
+                    if (completeBtn) {
+                        completeBtn.disabled = false;
+                        completeBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Verify UTR & Complete Registration`;
                     }
                 }
-
-                const now = Date.now();
-
-                const newUser = {
-                    mobile: pendingRegistration.mobile,
-                    password: pendingRegistration.password,
-                    id: uniqueId,
-                    utr: utrInput,
-                    sponsorId: pendingRegistration.sponsorId,
-                    ownDeposit: pendingRegistration.depositAmt,
-                    bonus: 0,
-                    balance: pendingRegistration.depositAmt,
-                    teamCount: 0,
-                    bankDetails: null,
-                    sponsorMobileUsed: pendingRegistration.sponsorId ? Object.keys(users).find(m => users[m].id === pendingRegistration.sponsorId) : null,
-                    bonusAwardedToSponsor: bonusAwarded,
-                    commissionAwardedToSponsor: commissionAwarded,
-                    lastYieldTime: now
-                };
-
-                users[pendingRegistration.mobile] = newUser;
-
-                const logItem = {
-                    date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                    mobile: pendingRegistration.mobile,
-                    userId: uniqueId,
-                    utr: utrInput,
-                    deposit: pendingRegistration.depositAmt,
-                    method: `Direct App (${verifiedUpi})`,
-                    sponsor: pendingRegistration.sponsorId || 'Direct'
-                };
-                loginLogs.push(logItem);
-                saveData();
-
-                closePaymentModal();
-
-                document.getElementById('regMobile').value = '';
-                document.getElementById('regPassword').value = '';
-                document.getElementById('regSponsor').value = '';
-                document.getElementById('regDepositAmount').value = '';
-
-                switchAuthTab('login');
-                document.getElementById('loginMobile').value = newUser.mobile;
-                showToast('UTR Verified! Account Created Successfully. ID: ' + uniqueId, 'success');
             }
 
-            function checkAndCalculate5PercentDailyDeposit(user) {
+            async function checkAndCalculate5PercentDailyDeposit(user) {
                 if (!user) return;
                 if (!user.ownDeposit && user.balance > 0) {
                     user.ownDeposit = user.balance;
@@ -1079,7 +1239,7 @@
                 const now = Date.now();
                 if (!user.lastYieldTime) {
                     user.lastYieldTime = now;
-                    saveData();
+                    await supabaseClient.from('er_users').update({ last_yield_time: now }).eq('mobile', user.mobile);
                     return;
                 }
 
@@ -1102,11 +1262,18 @@
                     user.lastYieldTime = user.lastYieldTime + (daysPassed * msIn24Hours);
 
                     users[user.mobile] = user;
-                    saveData();
+                    await supabaseClient
+                        .from('er_users')
+                        .update({
+                            own_deposit: user.ownDeposit,
+                            balance: user.balance,
+                            last_yield_time: user.lastYieldTime
+                        })
+                        .eq('mobile', user.mobile);
                 }
             }
 
-            function handleLogin() {
+            async function handleLogin() {
                 const mobile = document.getElementById('loginMobile').value.trim();
                 const password = document.getElementById('loginPassword').value.trim();
 
@@ -1120,29 +1287,54 @@
                     return;
                 }
 
-                if (!users[mobile]) {
-                    showToast('Account nahi mila! Pehle Deposit karke register karein.', 'error');
-                    return;
+                const loginBtn = document.getElementById('loginSubmitBtn');
+                if (loginBtn) {
+                    loginBtn.disabled = true;
+                    loginBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Logging in...`;
                 }
 
-                if (users[mobile].password === password) {
-                    currentUser = users[mobile];
-                    if (!currentUser.ownDeposit && currentUser.balance > 0) {
-                        currentUser.ownDeposit = currentUser.balance;
-                    }
-                    safeSetItem(sessionStorage, 'er_active_user', mobile);
+                try {
+                    const { data: userRow, error } = await supabaseClient
+                        .from('er_users')
+                        .select('*')
+                        .eq('mobile', mobile)
+                        .maybeSingle();
 
-                    checkAndCalculate5PercentDailyDeposit(currentUser);
-                    showToast('Login successful! Dashboard khul raha hai...', 'success');
-                    loadUserDashboard();
-                } else {
-                    showToast('Galat password! Sahi password dalein.', 'error');
+                    if (error) throw error;
+
+                    if (!userRow) {
+                        showToast('Account nahi mila! Pehle Deposit karke register karein.', 'error');
+                        return;
+                    }
+
+                    if (userRow.password === password) {
+                        currentUser = mapDbUserToLocal(userRow);
+                        if (!currentUser.ownDeposit && currentUser.balance > 0) {
+                            currentUser.ownDeposit = currentUser.balance;
+                        }
+                        users[mobile] = currentUser;
+                        safeSetItem(sessionStorage, 'er_active_user', mobile);
+
+                        await checkAndCalculate5PercentDailyDeposit(currentUser);
+                        showToast('Login successful! Dashboard khul raha hai...', 'success');
+                        await loadUserDashboard();
+                    } else {
+                        showToast('Galat password! Sahi password dalein.', 'error');
+                    }
+                } catch (err) {
+                    console.error('Login DB Error:', err);
+                    showToast('Login error: ' + (err.message || 'Database unreachable'), 'error');
+                } finally {
+                    if (loginBtn) {
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Login to Dashboard`;
+                    }
                 }
             }
 
-            function loadUserDashboard() {
+            async function loadUserDashboard() {
                 if (!currentUser) return;
-                checkAndCalculate5PercentDailyDeposit(currentUser);
+                await checkAndCalculate5PercentDailyDeposit(currentUser);
 
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('adminScreen').classList.add('hidden');
@@ -1234,7 +1426,7 @@
                 currentWithdrawType = null;
             }
 
-            function submitWithdrawalRequest() {
+            async function submitWithdrawalRequest() {
                 if (!currentUser || !currentWithdrawType) return;
 
                 const holderName = document.getElementById('bankAccHolder').value.trim();
@@ -1247,42 +1439,78 @@
                     return;
                 }
 
-                const bankObj = {
-                    holderName: holderName,
-                    bankName: bankName,
-                    accountNo: accountNo,
-                    ifscCode: ifscCode
-                };
-                currentUser.bankDetails = bankObj;
+                const submitBtn = document.getElementById('submitWithdrawBtn');
+                if (submitBtn) submitBtn.disabled = true;
 
-                const withdrawAmount = currentWithdrawType === 'bonus' ? currentUser.bonus : currentUser.balance;
+                try {
+                    const bankObj = {
+                        holderName: holderName,
+                        bankName: bankName,
+                        accountNo: accountNo,
+                        ifscCode: ifscCode
+                    };
+                    currentUser.bankDetails = bankObj;
 
-                if (currentWithdrawType === 'bonus') {
-                    currentUser.bonus = 0;
-                } else {
-                    currentUser.balance = 0;
-                    currentUser.ownDeposit = 0;
+                    const withdrawAmount = currentWithdrawType === 'bonus' ? currentUser.bonus : currentUser.balance;
+
+                    if (currentWithdrawType === 'bonus') {
+                        currentUser.bonus = 0;
+                    } else {
+                        currentUser.balance = 0;
+                        currentUser.ownDeposit = 0;
+                    }
+
+                    const { error: userUpdateErr } = await supabaseClient
+                        .from('er_users')
+                        .update({
+                            bonus: currentUser.bonus,
+                            balance: currentUser.balance,
+                            own_deposit: currentUser.ownDeposit,
+                            bank_details: bankObj
+                        })
+                        .eq('mobile', currentUser.mobile);
+
+                    if (userUpdateErr) throw userUpdateErr;
+
+                    const reqId = 'WD' + Math.floor(100000 + Math.random() * 900000);
+                    const dateStr = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                    const { error: wdInsertErr } = await supabaseClient
+                        .from('er_withdrawals')
+                        .insert([{
+                            id: reqId,
+                            mobile: currentUser.mobile,
+                            user_id: currentUser.id,
+                            type: currentWithdrawType.toUpperCase(),
+                            amount: withdrawAmount,
+                            bank_details: bankObj,
+                            date_str: dateStr,
+                            status: 'PENDING'
+                        }]);
+
+                    if (wdInsertErr) throw wdInsertErr;
+
+                    users[currentUser.mobile] = currentUser;
+                    withdrawalRequests.unshift({
+                        id: reqId,
+                        mobile: currentUser.mobile,
+                        userId: currentUser.id,
+                        type: currentWithdrawType.toUpperCase(),
+                        amount: withdrawAmount,
+                        bankDetails: bankObj,
+                        date: dateStr,
+                        status: 'PENDING'
+                    });
+
+                    closeBankModal();
+                    await loadUserDashboard();
+                    showToast('Withdrawal request submit ho gayi hai!', 'success');
+                } catch (err) {
+                    console.error('Withdrawal DB error:', err);
+                    showToast('Withdrawal submit error: ' + (err.message || 'Unknown error'), 'error');
+                } finally {
+                    if (submitBtn) submitBtn.disabled = false;
                 }
-
-                users[currentUser.mobile] = currentUser;
-
-                const req = {
-                    id: 'WD' + Math.floor(100000 + Math.random() * 900000),
-                    mobile: currentUser.mobile,
-                    userId: currentUser.id,
-                    type: currentWithdrawType.toUpperCase(),
-                    amount: withdrawAmount,
-                    bankDetails: bankObj,
-                    date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                    status: 'PENDING'
-                };
-
-                withdrawalRequests.unshift(req);
-                saveData();
-
-                closeBankModal();
-                loadUserDashboard();
-                showToast('Withdrawal request submit ho gayi hai!', 'success');
             }
 
             function openAdminModal() {
@@ -1300,22 +1528,22 @@
                 if (passInput) passInput.value = '';
             }
 
-            function verifyAdminPassword() {
+            async function verifyAdminPassword() {
                 const pwd = document.getElementById('adminPassInput').value.trim();
                 if (pwd === ADMIN_SECRET_PASS) {
                     closeAdminModal();
-                    loadAdminPanel();
+                    await loadAdminPanel();
                 } else {
                     showToast("Galat Admin Password!", "error");
                 }
             }
 
-            function loadAdminPanel() {
+            async function loadAdminPanel() {
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('dashboardScreen').classList.add('hidden');
                 document.getElementById('adminScreen').classList.remove('hidden');
 
-                syncUpiUiState();
+                await syncAllFromSupabase();
 
                 const totalUsersCount = Object.keys(users).length;
                 document.getElementById('adminTotalUsers').innerText = totalUsersCount;
@@ -1450,52 +1678,66 @@
                 }
             }
 
-            function updateWithdrawalStatus(reqId, status) {
-                let req = withdrawalRequests.find(r => r.id === reqId);
-                if (req) {
-                    req.status = status;
-                    saveData();
-                    showToast(`Withdrawal Request ${status}!`, status === 'APPROVED' ? 'success' : 'error');
-                    loadAdminPanel();
+            async function updateWithdrawalStatus(reqId, status) {
+                const { error } = await supabaseClient
+                    .from('er_withdrawals')
+                    .update({ status: status })
+                    .eq('id', reqId);
+
+                if (error) {
+                    showToast('Status update failed: ' + error.message, 'error');
+                    return;
                 }
+
+                showToast(`Withdrawal Request ${status}!`, status === 'APPROVED' ? 'success' : 'error');
+                await loadAdminPanel();
             }
 
-            function deleteUserAccount(mobile) {
-                let targetUser = users[mobile];
+            async function deleteUserAccount(mobile) {
+                const targetUser = users[mobile];
                 if (!targetUser) return;
 
-                if (targetUser.sponsorMobileUsed && users[targetUser.sponsorMobileUsed]) {
-                    let sponsor = users[targetUser.sponsorMobileUsed];
-                    
-                    let bDeduct = targetUser.bonusAwardedToSponsor || 100;
-                    let cDeduct = targetUser.commissionAwardedToSponsor || 0;
+                try {
+                    if (targetUser.sponsorMobileUsed && users[targetUser.sponsorMobileUsed]) {
+                        const sponsor = users[targetUser.sponsorMobileUsed];
+                        const bDeduct = targetUser.bonusAwardedToSponsor || 100;
+                        const cDeduct = targetUser.commissionAwardedToSponsor || 0;
 
-                    sponsor.bonus = Math.max(0, (sponsor.bonus || 0) - bDeduct);
-                    sponsor.balance = Math.max(0, Math.round(((sponsor.balance || 0) - cDeduct) * 100) / 100);
-                    sponsor.teamCount = Math.max(0, (sponsor.teamCount || 0) - 1);
+                        const newBonus = Math.max(0, (sponsor.bonus || 0) - bDeduct);
+                        const newBalance = Math.max(0, Math.round(((sponsor.balance || 0) - cDeduct) * 100) / 100);
+                        const newTeam = Math.max(0, (sponsor.teamCount || 0) - 1);
 
-                    users[targetUser.sponsorMobileUsed] = sponsor;
+                        await supabaseClient
+                            .from('er_users')
+                            .update({
+                                bonus: newBonus,
+                                balance: newBalance,
+                                team_count: newTeam
+                            })
+                            .eq('mobile', targetUser.sponsorMobileUsed);
+                    }
+
+                    const { error } = await supabaseClient
+                        .from('er_users')
+                        .delete()
+                        .eq('mobile', mobile);
+
+                    if (error) throw error;
+
+                    showToast('User account Supabase se delete kar diya gaya!', 'success');
+                    await loadAdminPanel();
+                } catch (err) {
+                    showToast('Account delete error: ' + err.message, 'error');
                 }
-
-                delete users[mobile];
-                saveData();
-                showToast('User account successfully delete kar diya gaya!', 'success');
-                loadAdminPanel();
             }
 
-            function closeAdminPanel() {
+            async function closeAdminPanel() {
                 if (currentUser) {
-                    loadUserDashboard();
+                    await loadUserDashboard();
                 } else {
                     document.getElementById('adminScreen').classList.add('hidden');
                     document.getElementById('authScreen').classList.remove('hidden');
                 }
-            }
-
-            function saveData() {
-                safeSetItem(localStorage, 'er_users', JSON.stringify(users));
-                safeSetItem(localStorage, 'er_login_logs', JSON.stringify(loginLogs));
-                safeSetItem(localStorage, 'er_withdrawals', JSON.stringify(withdrawalRequests));
             }
 
             function copyToClipboardFallback(text) {
@@ -1503,11 +1745,7 @@
                 tempInput.value = text;
                 document.body.appendChild(tempInput);
                 tempInput.select();
-                try {
-                    document.execCommand('copy');
-                } catch (e) {
-                    // Ignore if execCommand is unavailable
-                }
+                try { document.execCommand('copy'); } catch (e) {}
                 document.body.removeChild(tempInput);
             }
 
@@ -1566,7 +1804,6 @@
                 showToast('Logged out successfully', 'info');
             }
 
-            // Explicitly attach all functions to window for inline onclick attributes
             window.openAdminModal = openAdminModal;
             window.closeAdminModal = closeAdminModal;
             window.verifyAdminPassword = verifyAdminPassword;
@@ -1615,7 +1852,6 @@
                     });
                 }
 
-                // Close modals when clicking outside the inner card backdrop
                 ['paymentModal', 'bankDetailsModal', 'adminAuthModal'].forEach(modalId => {
                     const modalEl = document.getElementById(modalId);
                     if (modalEl && !modalEl.dataset.bound) {
@@ -1631,10 +1867,8 @@
                 });
             }
 
-            function initApp() {
+            async function initApp() {
                 bindListeners();
-                syncUpiUiState();
-                syncAllUsersDisplay();
 
                 const urlParams = new URLSearchParams(window.location.search);
                 const refParam = urlParams.get('ref');
@@ -1643,14 +1877,15 @@
                     if (sponsorInput) sponsorInput.value = refParam;
                 }
 
+                await syncAllFromSupabase();
+
                 const savedMobile = safeGetItem(sessionStorage, 'er_active_user');
                 if (savedMobile && users[savedMobile]) {
                     currentUser = users[savedMobile];
                     if (!currentUser.ownDeposit && currentUser.balance > 0) {
                         currentUser.ownDeposit = currentUser.balance;
                     }
-                    checkAndCalculate5PercentDailyDeposit(currentUser);
-                    loadUserDashboard();
+                    await loadUserDashboard();
                 }
             }
 
