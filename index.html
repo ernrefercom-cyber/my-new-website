@@ -8,8 +8,8 @@
     <!-- WhatsApp & Social Media Sharing Meta Tags -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://yourwebsite.com/">
-    <meta property="og:title" content="EarnRefer - 5% Daily Return + ₹100 Bonus & 40% Commission!">
-    <meta property="og:description" content="EarnRefer se जुड़ें और अपने डिपॉजिट पर रोजाना 5% डेली रिटर्न और ₹100 इंस्टेंट रेफरल बोनस कमाएं!">
+    <meta property="og:title" content="EarnRefer - Daily Coin Growth + ₹100 Bonus & 10% Commission!">
+    <meta property="og:description" content="EarnRefer se जुड़ें, CR Coin कमाएं और ₹200 से विड्रॉल पाएं!">
     <meta property="og:image" content="https://placehold.co/1200x630/ffffff/4f46e5?text=EarnRefer+Multi-Reward+Platform">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
@@ -18,7 +18,7 @@
     <!-- Twitter Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="EarnRefer - Multi-Reward Platform">
-    <meta name="twitter:description" content="EarnRefer से जुड़ें और 5% डेली रिटर्न कमाएं!">
+    <meta name="twitter:description" content="EarnRefer से जुड़ें और CR Coin कमाएं!">
     <meta name="twitter:image" content="https://placehold.co/1200x630/ffffff/4f46e5?text=EarnRefer+Multi-Reward+Platform">
 
     <!-- Supabase JS SDK -->
@@ -51,11 +51,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body {
+        html, body {
             font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
             background-color: #ffffff;
             color: #0f172a;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: rgba(79, 70, 229, 0.15);
         }
 
         .glass-card {
@@ -65,20 +66,19 @@
         }
 
         .glass-card-hover {
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: border-color 0.2s ease, transform 0.2s ease;
         }
         .glass-card-hover:hover {
             border-color: #818cf8;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         .gradient-btn {
             background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-            transition: all 0.25s ease;
+            transition: opacity 0.2s ease, transform 0.15s ease;
         }
         .gradient-btn:hover {
             background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
-            box-shadow: 0 10px 20px -10px rgba(79, 70, 229, 0.45);
         }
 
         .gradient-text {
@@ -87,8 +87,20 @@
             -webkit-text-fill-color: transparent;
         }
 
-        button, [role="button"], input, label {
+        /* Ensure interactive elements and inputs always receive taps cleanly */
+        button, [role="button"], input, select, textarea, label, a {
             touch-action: manipulation;
+            pointer-events: auto;
+        }
+
+        /* Hidden modals must never intercept touches */
+        .modal-backdrop {
+            display: none;
+            pointer-events: none;
+        }
+        .modal-backdrop.is-open {
+            display: flex;
+            pointer-events: auto;
         }
 
         ::-webkit-scrollbar {
@@ -108,8 +120,8 @@
     <!-- TOP NAVBAR -->
     <header class="bg-white/95 backdrop-blur-md sticky top-0 z-40 px-4 py-3.5 border-b border-slate-200 shadow-sm">
         <div class="max-w-md mx-auto flex items-center justify-between w-full">
-            <div id="brandLogoTrigger" role="button" tabindex="0" class="flex items-center gap-2.5 cursor-pointer group p-1.5 select-none" onclick="window.openAdminModal && window.openAdminModal()" title="Admin Access">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-lg shadow-md group-hover:scale-105 transition-transform">
+            <div id="brandLogoTrigger" role="button" tabindex="0" class="flex items-center gap-2.5 cursor-pointer group p-1.5 select-none rounded-xl hover:bg-slate-50" title="Owner Control Panel">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-lg shadow-md">
                     <i class="fa-solid fa-users-viewfinder"></i>
                 </div>
                 <div>
@@ -122,7 +134,10 @@
                 <span id="dbSyncIndicator" class="text-[10px] text-emerald-700 font-mono hidden sm:inline-flex items-center gap-1 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
                     <i class="fa-solid fa-database text-[9px]"></i> Cloud
                 </span>
-                <button type="button" id="logoutBtn" onclick="window.logout && window.logout()" class="hidden px-3 py-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold border border-rose-200 transition-all active:scale-95">
+                <button type="button" id="openWalletBtn" class="hidden p-2.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition-colors active:scale-95" title="Wallet (Exchange, Withdraw & History)">
+                    <i class="fa-solid fa-wallet text-sm"></i>
+                </button>
+                <button type="button" id="logoutBtn" class="hidden px-3 py-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold border border-rose-200 transition-colors active:scale-95">
                     <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
                 </button>
             </div>
@@ -139,18 +154,18 @@
         <div id="authScreen" class="space-y-6 my-auto py-4 w-full">
             <div class="text-center space-y-2">
                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold mb-1">
-                    <i class="fa-solid fa-bolt text-xs"></i> 5% Daily Growth in Main Balance + 40% Commission
+                    <i class="fa-solid fa-coins text-xs"></i> 1 CR Coin = ₹5 • 24h Coin Upgrade + 10% Referral Coin
                 </div>
                 <h1 class="text-3xl font-black tracking-tight text-slate-900">Welcome to <span class="gradient-text">EarnRefer</span></h1>
-                <p class="text-slate-600 text-xs sm:text-sm max-w-xs mx-auto">Deposit & grow your main balance with instant referral rewards</p>
+                <p class="text-slate-600 text-xs sm:text-sm max-w-xs mx-auto">Deposit ₹500+ & earn daily CR Coins with referral rewards</p>
             </div>
 
             <!-- TABS SWITCHER -->
             <div class="flex p-1.5 rounded-2xl bg-slate-100 border border-slate-200">
-                <button type="button" id="tabRegisterBtn" onclick="window.switchAuthTab && window.switchAuthTab('deposit')" class="w-1/2 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-sm">
+                <button type="button" id="tabRegisterBtn" class="w-1/2 py-2.5 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-sm">
                     <i class="fa-solid fa-wallet"></i> Register & Deposit
                 </button>
-                <button type="button" id="tabLoginBtn" onclick="window.switchAuthTab && window.switchAuthTab('login')" class="w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center gap-2">
+                <button type="button" id="tabLoginBtn" class="w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:text-slate-900 transition-colors flex items-center justify-center gap-2">
                     <i class="fa-solid fa-right-to-bracket"></i> Login
                 </button>
             </div>
@@ -161,48 +176,48 @@
                     <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
                         <i class="fa-solid fa-circle-dollar-to-slot text-indigo-600"></i> Register New Account
                     </h2>
-                    <p class="text-[11px] text-slate-500">Deposit ₹199 to ₹1999 to get started</p>
+                    <p class="text-[11px] text-slate-500">Minimum deposit ₹500 (500 se zyada kitna bhi deposit karein)</p>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Mobile Number</label>
+                    <label for="regMobile" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Mobile Number</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500 text-xs font-bold">+91</span>
-                        <input type="tel" id="regMobile" maxlength="10" placeholder="Enter 10-digit mobile" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm font-semibold tracking-wide transition-all">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500 text-xs font-bold pointer-events-none">+91</span>
+                        <input type="tel" id="regMobile" maxlength="10" inputmode="numeric" autocomplete="tel" placeholder="Enter 10-digit mobile" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm font-semibold tracking-wide">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Create Password</label>
+                    <label for="regPassword" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Create Password</label>
                     <div class="relative">
-                        <input type="password" id="regPassword" placeholder="Create your password" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-4 pr-10 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm font-mono tracking-widest transition-all">
-                        <button type="button" id="toggleRegPassBtn" onclick="window.togglePassVisibility && window.togglePassVisibility('regPassword', this)" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-800 p-2">
+                        <input type="password" id="regPassword" autocomplete="new-password" placeholder="Create your password" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-4 pr-10 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm font-mono tracking-widest">
+                        <button type="button" id="toggleRegPassBtn" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-800 p-2" aria-label="Toggle password visibility">
                             <i class="fa-regular fa-eye text-xs"></i>
                         </button>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Sponsor / Referral 10-Digit ID <span class="text-slate-400 font-normal lowercase">(optional)</span></label>
-                    <input type="text" id="regSponsor" maxlength="10" placeholder="Enter 10-digit Referral ID" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 px-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm font-mono tracking-wider transition-all">
+                    <label for="regSponsor" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Sponsor / Referral 10-Digit ID <span id="sponsorLabelHint" class="text-slate-400 font-normal lowercase">(optional)</span></label>
+                    <input type="text" id="regSponsor" maxlength="10" inputmode="numeric" placeholder="Enter 10-digit Referral ID" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 px-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm font-mono tracking-wider">
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Deposit Amount (₹199 - ₹1999)</label>
+                    <label for="regDepositAmount" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Deposit Amount (Minimum ₹500)</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-emerald-600 text-sm font-extrabold">₹</span>
-                        <input type="number" id="regDepositAmount" min="199" max="1999" placeholder="e.g. 1000" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-emerald-700 font-bold placeholder-slate-400 focus:outline-none focus:border-emerald-500 text-sm tracking-wide transition-all">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-emerald-600 text-sm font-extrabold pointer-events-none">₹</span>
+                        <input type="number" id="regDepositAmount" min="500" step="any" inputmode="decimal" placeholder="e.g. 500 or 1000" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-emerald-700 font-bold placeholder-slate-400 focus:outline-none focus:border-emerald-500 text-sm tracking-wide">
                     </div>
                 </div>
 
                 <div class="p-3.5 rounded-2xl bg-indigo-50 border border-indigo-200 space-y-1.5">
                     <p class="text-[11px] text-slate-700 leading-relaxed flex items-start gap-1.5">
-                        <i class="fa-solid fa-chart-line text-emerald-600 text-xs mt-0.5"></i>
-                        <span>Aapke deposit par har 24 ghante mein 5% growth aur referral par 40% commission seedha Main Balance mein judega!</span>
+                        <i class="fa-solid fa-coins text-amber-600 text-xs mt-0.5"></i>
+                        <span>Your Coin 0 se shuru hota hai. Har 24 ghante mein deposit par 1% (10+ team par 2%, 20+ par 3%) ke hisaab se CR Coin (1 Coin = ₹5) aur referral par 10% commission Your Coin mein judega!</span>
                     </p>
                 </div>
 
-                <button type="button" id="openPayModalBtn" onclick="window.openPaymentModal && window.openPaymentModal()" class="w-full gradient-btn text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-md transition-all flex items-center justify-center gap-2 active:scale-95">
+                <button type="button" id="openPayModalBtn" class="w-full gradient-btn text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-2 active:scale-95">
                     <i class="fa-brands fa-google-pay text-base"></i> Pay via Google Pay
                 </button>
             </div>
@@ -217,24 +232,24 @@
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Mobile Number</label>
+                    <label for="loginMobile" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Mobile Number</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500 text-xs font-bold">+91</span>
-                        <input type="tel" id="loginMobile" maxlength="10" placeholder="Enter registered mobile" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 text-sm font-semibold tracking-wide transition-all">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500 text-xs font-bold pointer-events-none">+91</span>
+                        <input type="tel" id="loginMobile" maxlength="10" inputmode="numeric" autocomplete="tel" placeholder="Enter registered mobile" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 text-sm font-semibold tracking-wide">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Password</label>
+                    <label for="loginPassword" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Password</label>
                     <div class="relative">
-                        <input type="password" id="loginPassword" placeholder="Enter your password" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-4 pr-10 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 text-sm font-mono tracking-widest transition-all">
-                        <button type="button" id="toggleLoginPassBtn" onclick="window.togglePassVisibility && window.togglePassVisibility('loginPassword', this)" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-800 p-2">
+                        <input type="password" id="loginPassword" autocomplete="current-password" placeholder="Enter your password" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-4 pr-10 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 text-sm font-mono tracking-widest">
+                        <button type="button" id="toggleLoginPassBtn" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-800 p-2" aria-label="Toggle password visibility">
                             <i class="fa-regular fa-eye text-xs"></i>
                         </button>
                     </div>
                 </div>
 
-                <button type="button" id="loginSubmitBtn" onclick="window.handleLogin && window.handleLogin()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-md transition-all flex items-center justify-center gap-2 active:scale-95">
+                <button type="button" id="loginSubmitBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-2 active:scale-95">
                     <i class="fa-solid fa-lock"></i> Login to Dashboard
                 </button>
             </div>
@@ -244,7 +259,7 @@
         <div id="dashboardScreen" class="hidden space-y-5 my-auto py-2 w-full">
             <div class="flex items-center justify-between text-xs font-medium text-slate-600 px-1">
                 <span class="flex items-center gap-1.5 text-emerald-700 font-semibold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Active
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Active • <span id="userGrowthRateLabel">1%/day</span>
                 </span>
                 <span class="bg-slate-100 px-3 py-1 rounded-full border border-slate-200 text-slate-700">
                     Mobile: <strong id="userMobileDisplay" class="text-slate-900 font-mono">--</strong>
@@ -256,13 +271,13 @@
                 <p class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider mb-1">Your 10-Digit Referral ID</p>
                 <div class="flex items-center justify-between gap-2 mt-2">
                     <span id="user10DigitId" class="text-2xl font-black tracking-widest text-slate-900 font-mono">----------</span>
-                    <button type="button" id="copyIdBtn" onclick="window.copyOnlyReferralId && window.copyOnlyReferralId()" class="p-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl border border-indigo-200 transition-all active:scale-95 flex items-center gap-1.5 text-xs font-bold">
+                    <button type="button" id="copyIdBtn" class="p-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl border border-indigo-200 transition-colors active:scale-95 flex items-center gap-1.5 text-xs font-bold">
                         <i class="fa-regular fa-copy text-sm"></i> Copy ID
                     </button>
                 </div>
             </div>
 
-            <!-- DEPOSIT BALANCE CARD -->
+            <!-- DEPOSIT BALANCE CARD (FIXED AS DEPOSITED) -->
             <div class="glass-card glass-card-hover p-5 rounded-2xl space-y-2 border-amber-200 relative overflow-hidden">
                 <div class="flex justify-between items-start">
                     <div>
@@ -273,6 +288,7 @@
                         <i class="fa-solid fa-coins text-xl"></i>
                     </div>
                 </div>
+                <p class="text-[11px] text-slate-500">Fixed deposit amount (no deduction or increase on deposit card).</p>
             </div>
 
             <!-- BONUS BALANCE CARD -->
@@ -289,32 +305,28 @@
                 <p class="text-xs text-slate-600">Earn ₹100 instantly for every new referral.</p>
                 
                 <div class="pt-2 border-t border-slate-200 space-y-1.5">
-                    <button type="button" id="bonusWithdrawBtn" onclick="window.initiateWithdrawal && window.initiateWithdrawal('bonus')" class="w-full bg-slate-100 text-slate-400 py-2.5 rounded-xl font-bold text-xs border border-slate-200 transition-all flex items-center justify-center gap-2 cursor-not-allowed">
+                    <button type="button" id="bonusWithdrawBtn" class="w-full bg-slate-100 text-slate-400 py-2.5 rounded-xl font-bold text-xs border border-slate-200 transition-colors flex items-center justify-center gap-2 cursor-not-allowed">
                         <i class="fa-solid fa-lock"></i> Withdraw Bonus
                     </button>
                     <p id="bonusWithdrawStatus" class="text-[11px] text-amber-700 font-medium text-center">Withdrawal unlocks at ₹500 bonus balance</p>
                 </div>
             </div>
 
-            <!-- MAIN BALANCE CARD -->
+            <!-- YOUR COIN CARD (SHOWS ONLY CR COIN COUNT & 24H UPGRADE TIMER) -->
             <div class="glass-card glass-card-hover p-5 rounded-2xl space-y-3 border-emerald-200 relative overflow-hidden">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Main Balance (Total)</p>
-                        <h2 class="text-3xl font-black text-slate-900 mt-1">₹<span id="mainBalance">0</span></h2>
+                        <p class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Your Coin</p>
+                        <h2 class="text-3xl font-black text-slate-900 mt-1"><span id="yourCoinBalance">0</span> <span class="text-sm font-extrabold text-indigo-600">CR Coin</span></h2>
+                        <div class="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-[10px] font-bold text-indigo-700">
+                            <i class="fa-regular fa-clock"></i> Next 24h Coin Upgrade: <span id="nextCoinCountdown" class="font-mono">--:--:--</span>
+                        </div>
                     </div>
                     <div class="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
-                        <i class="fa-solid fa-wallet text-xl"></i>
+                        <i class="fa-solid fa-coins text-xl"></i>
                     </div>
                 </div>
-                <p class="text-xs text-slate-600">Deposit + 5% Daily Growth + 40% Commission.</p>
-
-                <div class="pt-2 border-t border-slate-200 space-y-2">
-                    <button type="button" id="mainWithdrawBtn" onclick="window.initiateWithdrawal && window.initiateWithdrawal('main')" class="w-full bg-slate-100 text-slate-400 py-2.5 rounded-xl font-bold text-xs border border-slate-200 transition-all flex items-center justify-center gap-2 cursor-not-allowed">
-                        <i class="fa-solid fa-lock"></i> Withdraw Main Balance
-                    </button>
-                    <p id="mainWithdrawStatus" class="text-[11px] text-amber-700 font-medium text-center">Withdrawal unlocks at ₹30,000 main balance</p>
-                </div>
+                <p class="text-xs text-slate-600">24h Daily Growth (1%/2%/3%) + 10% Referral Commission in CR Coin.</p>
             </div>
 
             <!-- SAVED BANK DETAILS CARD -->
@@ -345,18 +357,19 @@
                 </div>
             </div>
 
-            <!-- Team Stats Box -->
+            <!-- Team Stats & Level Box -->
             <div class="glass-card p-5 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-xs text-slate-700 uppercase tracking-wider">YOUR TEAM NETWORK</h3>
+                    <h3 class="font-bold text-xs text-slate-700 uppercase tracking-wider">YOUR TEAM & DAILY LEVEL</h3>
                     <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 text-xs border border-indigo-200">
                         <i class="fa-solid fa-users"></i>
                     </div>
                 </div>
                 <div class="flex items-baseline justify-between pt-1">
                     <span class="text-4xl font-black text-indigo-600 font-mono" id="teamCount">0</span>
-                    <span class="text-xs text-slate-600 font-medium bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">Direct Referrals Joined</span>
+                    <span id="teamLevelBadge" class="text-xs text-indigo-700 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200">Level 1 (1% Daily)</span>
                 </div>
+                <p class="text-[11px] text-slate-500">10 users = 2% daily • 20 users = 3% daily</p>
                 <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-600">
                     <span class="font-semibold text-slate-600 flex items-center gap-1.5">
                         <i class="fa-solid fa-globe text-indigo-600 text-[10px]"></i> All User
@@ -367,14 +380,14 @@
 
             <!-- Share Referral Link Section -->
             <div class="glass-card p-5 rounded-2xl space-y-3 border-indigo-200">
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Share Referral Link</label>
+                <label for="shareUrlInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Share Referral Link</label>
                 <div class="flex gap-2">
                     <input type="text" id="shareUrlInput" readonly class="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 px-3 text-xs text-slate-800 font-mono focus:outline-none select-all">
-                    <button type="button" id="copyLinkBtn" onclick="window.copyReferralLink && window.copyReferralLink()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold border border-slate-300 transition-all flex items-center gap-1.5 whitespace-nowrap active:scale-95">
+                    <button type="button" id="copyLinkBtn" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold border border-slate-300 transition-colors flex items-center gap-1.5 whitespace-nowrap active:scale-95">
                         <i class="fa-regular fa-copy"></i> Copy
                     </button>
                 </div>
-                <button type="button" id="whatsappShareBtn" onclick="window.shareOnWhatsApp && window.shareOnWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 active:scale-95">
+                <button type="button" id="whatsappShareBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-extrabold text-xs shadow-md transition-colors flex items-center justify-center gap-2 active:scale-95">
                     <i class="fa-brands fa-whatsapp text-lg"></i> Share Link on WhatsApp
                 </button>
             </div>
@@ -392,7 +405,7 @@
                         <p class="text-[10px] text-slate-500">Tap any section below to open</p>
                     </div>
                 </div>
-                <button type="button" id="exitAdminBtn" onclick="window.closeAdminPanel && window.closeAdminPanel()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold border border-slate-300 transition-all">
+                <button type="button" id="exitAdminBtn" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold border border-slate-300 transition-colors">
                     Exit Admin
                 </button>
             </div>
@@ -411,36 +424,34 @@
 
             <!-- 1. COLLAPSIBLE: Payment (UPI ID + QR Code Upload) -->
             <div class="glass-card rounded-2xl border-indigo-200 overflow-hidden">
-                <button type="button" onclick="window.toggleAdminSection && window.toggleAdminSection('paymentSectionBody', 'paymentChevron')" class="w-full p-4 flex items-center justify-between text-left bg-white hover:bg-slate-50 transition-colors">
+                <button type="button" id="togglePaymentSectionBtn" class="w-full p-4 flex items-center justify-between text-left bg-white hover:bg-slate-50 transition-colors">
                     <span class="font-extrabold text-xs text-slate-900 uppercase tracking-wider flex items-center gap-2">
                         <i class="fa-solid fa-wallet text-indigo-600"></i> Payment
                     </span>
                     <div class="flex items-center gap-2">
-                        <span id="adminUpiStatusBadge" class="text-[10px] bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full font-bold">Missing</span>
+                        <span id="adminUpiStatusBadge" class="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">Active</span>
                         <i id="paymentChevron" class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform"></i>
                     </div>
                 </button>
 
                 <div id="paymentSectionBody" class="hidden p-4 pt-2 border-t border-slate-200 space-y-4 bg-slate-50/50">
-                    <!-- UPI ID Upload Box -->
                     <div class="space-y-2.5 bg-white p-3.5 rounded-xl border border-slate-200">
                         <p class="text-[11px] font-bold text-indigo-700 uppercase tracking-wider">1. UPI ID Upload / Update</p>
                         <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
                             <span class="text-[11px] text-slate-600 font-semibold">Active UPI ID:</span>
-                            <span id="adminActiveUpiDisplay" class="font-mono font-bold text-xs text-rose-600 truncate max-w-[180px]">Not Set</span>
+                            <span id="adminActiveUpiDisplay" class="font-mono font-bold text-xs text-emerald-700 truncate max-w-[180px]">earnrefer@okaxis</span>
                         </div>
                         <input type="text" id="adminUpiInput" placeholder="e.g. yourname@okaxis or 9876543210@ybl" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 px-3 text-xs text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:border-indigo-500">
                         <div class="flex gap-2">
-                            <button type="button" id="saveUpiBtn" onclick="window.saveOwnerUpiId && window.saveOwnerUpiId()" class="flex-1 py-2.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                            <button type="button" id="saveUpiBtn" class="flex-1 py-2.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-colors active:scale-95">
                                 <i class="fa-solid fa-floppy-disk"></i> <span id="upiSaveBtnText">Save UPI ID</span>
                             </button>
-                            <button type="button" id="clearUpiBtn" onclick="window.clearOwnerUpiId && window.clearOwnerUpiId()" class="py-2.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold text-xs border border-rose-200 transition-all flex items-center justify-center gap-1 active:scale-95">
+                            <button type="button" id="clearUpiBtn" class="py-2.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold text-xs border border-rose-200 transition-colors flex items-center justify-center gap-1 active:scale-95">
                                 <i class="fa-solid fa-trash"></i> Clear
                             </button>
                         </div>
                     </div>
 
-                    <!-- QR Code Photo Upload Box -->
                     <div class="space-y-2.5 bg-white p-3.5 rounded-xl border border-slate-200">
                         <div class="flex items-center justify-between">
                             <p class="text-[11px] font-bold text-purple-700 uppercase tracking-wider">2. QR Code Photo Upload</p>
@@ -452,10 +463,10 @@
                         <div id="adminQrPreviewBox" class="hidden flex flex-col items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                             <img id="adminQrPreviewImg" src="" alt="Uploaded QR Code" class="w-36 h-36 object-contain rounded-lg border border-slate-200 bg-white p-1">
                             <div class="flex gap-2 w-full">
-                                <button type="button" id="saveQrBtn" onclick="window.saveOwnerQrCode && window.saveOwnerQrCode()" class="flex-1 py-2 px-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                                <button type="button" id="saveQrBtn" class="flex-1 py-2 px-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-colors active:scale-95">
                                     <i class="fa-solid fa-cloud-arrow-up"></i> Save QR Code
                                 </button>
-                                <button type="button" id="clearQrBtn" onclick="window.clearOwnerQrCode && window.clearOwnerQrCode()" class="py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold text-xs border border-rose-200 transition-all active:scale-95">
+                                <button type="button" id="clearQrBtn" class="py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold text-xs border border-rose-200 transition-colors active:scale-95">
                                     <i class="fa-solid fa-trash"></i> Remove
                                 </button>
                             </div>
@@ -466,7 +477,7 @@
 
             <!-- 2. COLLAPSIBLE: Top Withdrawal Notifications -->
             <div class="glass-card rounded-2xl border-rose-200 overflow-hidden">
-                <button type="button" onclick="window.toggleAdminSection && window.toggleAdminSection('withdrawalSectionBody', 'withdrawalChevron')" class="w-full p-4 flex items-center justify-between text-left bg-white hover:bg-slate-50 transition-colors">
+                <button type="button" id="toggleWithdrawalSectionBtn" class="w-full p-4 flex items-center justify-between text-left bg-white hover:bg-slate-50 transition-colors">
                     <span class="font-extrabold text-xs text-rose-700 uppercase tracking-wider flex items-center gap-2">
                         <i class="fa-solid fa-bell text-rose-600"></i> Top Withdrawal Notifications
                     </span>
@@ -485,7 +496,7 @@
 
             <!-- 3. COLLAPSIBLE: All User Details & Control -->
             <div class="glass-card rounded-2xl border-indigo-200 overflow-hidden">
-                <button type="button" onclick="window.toggleAdminSection && window.toggleAdminSection('usersSectionBody', 'usersChevron')" class="w-full p-4 flex items-center justify-between text-left bg-white hover:bg-slate-50 transition-colors">
+                <button type="button" id="toggleUsersSectionBtn" class="w-full p-4 flex items-center justify-between text-left bg-white hover:bg-slate-50 transition-colors">
                     <span class="font-extrabold text-xs text-slate-900 uppercase tracking-wider flex items-center gap-2">
                         <i class="fa-solid fa-users-gear text-indigo-600"></i> All User Details & Control
                     </span>
@@ -501,7 +512,7 @@
 
             <!-- 4. COLLAPSIBLE: Registration & Payment Timestamps -->
             <div class="glass-card rounded-2xl border-amber-200 overflow-hidden">
-                <button type="button" onclick="window.toggleAdminSection && window.toggleAdminSection('logsSectionBody', 'logsChevron')" class="w-full p-4 flex items-center justify-between text-left bg-white hover:bg-slate-50 transition-colors">
+                <button type="button" id="toggleLogsSectionBtn" class="w-full p-4 flex items-center justify-between text-left bg-white hover:bg-slate-50 transition-colors">
                     <span class="font-extrabold text-xs text-slate-900 uppercase tracking-wider flex items-center gap-2">
                         <i class="fa-solid fa-clock-rotate-left text-amber-600"></i> Registration & Payment Timestamps
                     </span>
@@ -521,9 +532,64 @@
 
     </main>
 
+    <!-- USER WALLET MODAL (EXCHANGE COINS + WITHDRAW + WITHDRAWAL HISTORY) -->
+    <div id="walletModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-indigo-200 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-200">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-900 text-sm">My Wallet</h3>
+                        <p class="text-[10px] text-slate-500">1 CR Coin = ₹5 • Min Withdrawal ₹200</p>
+                    </div>
+                </div>
+                <button type="button" id="closeWalletModalBtn" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">Close</button>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <p class="text-[10px] font-bold text-indigo-700 uppercase tracking-wider">Your Coin Balance</p>
+                    <span class="text-[10px] font-bold bg-white text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">1 Coin = ₹5</span>
+                </div>
+                <p class="text-2xl font-black text-slate-900"><span id="walletCoinsDisplay">0</span> <span class="text-xs text-indigo-600">CR Coin</span></p>
+                <p class="text-xs font-bold text-emerald-700">Exchanged Cash Value: ₹<span id="walletRupeeDisplay">0</span></p>
+            </div>
+
+            <!-- EXCHANGE COINS & WITHDRAW BUTTONS -->
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="font-bold text-slate-700">Exchange Preview</span>
+                    <span id="walletExchangePreview" class="font-mono font-extrabold text-indigo-700">0 CR Coin = ₹0</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="walletExchangeBtn" class="py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95">
+                        <i class="fa-solid fa-right-left"></i> Exchange Coins
+                    </button>
+                    <button type="button" id="walletWithdrawBtn" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95">
+                        <i class="fa-solid fa-money-bill-transfer"></i> Withdraw
+                    </button>
+                </div>
+                <p id="walletWithdrawStatusText" class="text-[11px] text-amber-700 font-medium text-center">Exchange & withdrawal unlocks at 40 CR Coin (₹200)</p>
+            </div>
+
+            <!-- WITHDRAWAL HISTORY INSIDE WALLET -->
+            <div class="space-y-2 pt-2 border-t border-slate-200">
+                <h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-clock-rotate-left text-indigo-600"></i> Withdrawal History
+                </h4>
+                <div id="userWithdrawalHistoryList" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+                    <p class="text-xs text-slate-500 text-center py-3">No withdrawal history yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- GOOGLE PAY PAYMENT MODAL -->
-    <div id="paymentModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4 pointer-events-none">
-        <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-slate-200 shadow-2xl relative overflow-hidden text-center max-h-[90vh] overflow-y-auto pointer-events-auto">
+    <div id="paymentModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-slate-200 shadow-2xl relative overflow-hidden text-center max-h-[90vh] overflow-y-auto">
             <div class="space-y-1.5">
                 <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto text-xl border border-indigo-200">
                     <i class="fa-brands fa-google-pay text-2xl"></i>
@@ -540,9 +606,9 @@
                 <div id="missingQrAlert" class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold">
                     <i class="fa-solid fa-triangle-exclamation mr-1"></i> UPI ID set nahi hai! Payment band hai.
                 </div>
-                <div id="linkedUpiDisplay" class="hidden text-left">
+                <div id="linkedUpiDisplay" class="text-left">
                     <p class="text-[10px] text-emerald-700 font-bold uppercase">Active UPI Linked</p>
-                    <p class="text-xs font-mono font-bold text-slate-900 truncate">UPI: <span id="activeLinkedUpiText">--</span></p>
+                    <p class="text-xs font-mono font-bold text-slate-900 truncate">UPI: <span id="activeLinkedUpiText">earnrefer@okaxis</span></p>
                 </div>
                 <div id="userQrDisplayBox" class="hidden flex flex-col items-center gap-1.5 pt-1 border-t border-slate-200">
                     <p class="text-[10px] text-indigo-700 font-bold uppercase">Scan QR Code</p>
@@ -552,7 +618,7 @@
 
             <!-- ONLY GOOGLE PAY BUTTON -->
             <div id="payAppsSection" class="space-y-2.5 pt-1">
-                <button type="button" id="btnPayGpay" onclick="window.redirectToUPI && window.redirectToUPI('gpay')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3.5 px-4 rounded-2xl font-bold text-xs flex items-center justify-between border border-indigo-500 shadow-md transition-all active:scale-95">
+                <button type="button" id="btnPayGpay" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3.5 px-4 rounded-2xl font-bold text-xs flex items-center justify-between border border-indigo-500 shadow-md transition-colors active:scale-95">
                     <span class="flex items-center gap-2.5">
                         <div class="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-blue-600 font-black text-xs">G</div>
                         <span>Pay via Google Pay</span>
@@ -563,19 +629,19 @@
 
             <!-- UTR NUMBER VERIFICATION INPUT SECTION -->
             <div class="pt-2 border-t border-slate-200 text-left space-y-2">
-                <label class="block text-[11px] font-bold text-amber-700 uppercase tracking-wider">
+                <label for="regUtrNumber" class="block text-[11px] font-bold text-amber-700 uppercase tracking-wider">
                     <i class="fa-solid fa-receipt mr-1"></i> Enter 12-Digit UTR / Transaction ID
                 </label>
-                <input type="text" id="regUtrNumber" maxlength="12" placeholder="e.g. 401234567890" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 px-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm font-mono tracking-wider">
-                <p class="text-[10px] text-slate-500">Payment karne ke baad 12 ank ka UTR number darj karke register submit karein.</p>
+                <input type="text" id="regUtrNumber" maxlength="12" inputmode="numeric" placeholder="e.g. 401234567890" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 px-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm font-mono tracking-wider">
+                <p class="text-[10px] text-slate-500">Payment karne ke baad 12 ank ka UTR number darj karke verify karein.</p>
                 
-                <button type="button" id="completeRegBtn" onclick="window.completeRegistrationAfterPayment && window.completeRegistrationAfterPayment()" class="w-full gradient-btn text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 mt-2">
+                <button type="button" id="completeRegBtn" class="w-full gradient-btn text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-md transition-colors active:scale-95 flex items-center justify-center gap-2 mt-2">
                     <i class="fa-solid fa-circle-check"></i> Verify UTR & Complete Registration
                 </button>
             </div>
 
             <div class="space-y-2 pt-1">
-                <button type="button" id="closePayModalBtn" onclick="window.closePaymentModal && window.closePaymentModal()" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300">
+                <button type="button" id="closePayModalBtn" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300">
                     Cancel
                 </button>
             </div>
@@ -583,45 +649,45 @@
     </div>
 
     <!-- BANK DETAILS & WITHDRAWAL MODAL -->
-    <div id="bankDetailsModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4 pointer-events-none">
-        <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-slate-200 shadow-2xl relative pointer-events-auto">
+    <div id="bankDetailsModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-slate-200 shadow-2xl relative">
             <div class="text-center space-y-1.5">
                 <div class="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-700 flex items-center justify-center mx-auto text-xl border border-cyan-200">
                     <i class="fa-solid fa-building-columns"></i>
                 </div>
                 <h3 class="font-extrabold text-slate-900 text-base">Bank Withdrawal Details</h3>
-                <p class="text-xs text-slate-600">Enter bank info to request payout of <strong class="text-emerald-700 font-mono" id="withdrawModalAmt">₹0</strong></p>
+                <p class="text-xs text-slate-600" id="withdrawModalSubtitle">Payout Amount: <strong class="text-emerald-700 font-mono" id="withdrawModalAmt">₹0</strong></p>
             </div>
 
             <div class="space-y-3">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Account Holder Name</label>
+                    <label for="bankAccHolder" class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Account Holder Name</label>
                     <input type="text" id="bankAccHolder" placeholder="e.g. Rahul Kumar" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 px-3 text-xs text-slate-900 focus:outline-none focus:border-cyan-500 font-semibold">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Bank Name</label>
+                    <label for="bankName" class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Bank Name</label>
                     <input type="text" id="bankName" placeholder="e.g. State Bank of India" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 px-3 text-xs text-slate-900 focus:outline-none focus:border-cyan-500 font-semibold">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Account Number</label>
-                    <input type="text" id="bankAccNumber" placeholder="Enter bank account number" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 px-3 text-xs text-slate-900 focus:outline-none focus:border-cyan-500 font-mono">
+                    <label for="bankAccNumber" class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Account Number</label>
+                    <input type="text" id="bankAccNumber" inputmode="numeric" placeholder="Enter bank account number" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 px-3 text-xs text-slate-900 focus:outline-none focus:border-cyan-500 font-mono">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">IFSC Code</label>
+                    <label for="bankIfscCode" class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">IFSC Code</label>
                     <input type="text" id="bankIfscCode" placeholder="e.g. SBIN0001234" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 px-3 text-xs text-slate-900 focus:outline-none focus:border-cyan-500 font-mono uppercase">
                 </div>
             </div>
 
             <div class="flex gap-2 pt-2">
-                <button type="button" id="closeBankModalBtn" onclick="window.closeBankModal && window.closeBankModal()" class="w-1/2 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300">Cancel</button>
-                <button type="button" id="submitWithdrawBtn" onclick="window.submitWithdrawalRequest && window.submitWithdrawalRequest()" class="w-1/2 bg-cyan-600 hover:bg-cyan-500 text-white py-2.5 rounded-xl font-bold text-xs shadow-md">Submit Payout</button>
+                <button type="button" id="closeBankModalBtn" class="w-1/2 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300">Cancel</button>
+                <button type="button" id="submitWithdrawBtn" class="w-1/2 bg-cyan-600 hover:bg-cyan-500 text-white py-2.5 rounded-xl font-bold text-xs shadow-md">Submit Payout</button>
             </div>
         </div>
     </div>
 
     <!-- ADMIN PASSWORD MODAL -->
-    <div id="adminAuthModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4 pointer-events-none">
-        <div class="glass-card w-full max-w-xs rounded-3xl p-6 space-y-4 border-slate-200 shadow-2xl pointer-events-auto">
+    <div id="adminAuthModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="glass-card w-full max-w-xs rounded-3xl p-6 space-y-4 border-slate-200 shadow-2xl">
             <div class="text-center space-y-1.5">
                 <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-xl border border-amber-200">
                     <i class="fa-solid fa-lock"></i>
@@ -635,8 +701,8 @@
             </div>
 
             <div class="flex gap-2">
-                <button type="button" id="closeAdminModalBtn" onclick="window.closeAdminModal && window.closeAdminModal()" class="w-1/2 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300">Cancel</button>
-                <button type="button" id="verifyAdminBtn" onclick="window.verifyAdminPassword && window.verifyAdminPassword()" class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl font-bold text-xs shadow-md">Enter</button>
+                <button type="button" id="closeAdminModalBtn" class="w-1/2 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-300">Cancel</button>
+                <button type="button" id="verifyAdminBtn" class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl font-bold text-xs shadow-md">Enter</button>
             </div>
         </div>
     </div>
@@ -645,28 +711,52 @@
     <script>
         (function() {
             // ==========================================
-            // 1. SUPABASE CONFIGURATION
+            // 1. SUPABASE CONFIGURATION & SAFE STORAGE
             // ==========================================
             const SUPABASE_PROJECT_ID = 'sjxyjgcvtgtldqnxhova';
             const SUPABASE_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co`;
             const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_FMlFF37dCv8xLj4N8GENKw_ADEdCw-i';
 
-            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+            let supabaseClient = null;
+            try {
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+                }
+            } catch (e) {
+                supabaseClient = null;
+            }
+
+            // 1 CR Coin = ₹5
+            const COIN_VALUE_RUPEES = 5;
+            const MS_IN_24_HOURS = 24 * 60 * 60 * 1000;
+            const ADMIN_SECRET_PASS = "8825354587@#arkh";
+            const MERCHANT_NAME = "EarnRefer";
+            const DEFAULT_UPI_ID = "earnrefer@okaxis";
+            const STORE_KEY = "earnrefer_store_v2";
+            const SESSION_USER_KEY = "er_active_user";
 
             function safeGetItem(storage, key) {
-                try { return storage.getItem(key); } catch (e) { return null; }
+                try {
+                    return storage ? storage.getItem(key) : null;
+                } catch (e) {
+                    return null;
+                }
             }
             function safeSetItem(storage, key, value) {
-                try { storage.setItem(key, value); } catch (e) {}
+                try {
+                    if (storage) storage.setItem(key, value);
+                } catch (e) {}
             }
             function safeRemoveItem(storage, key) {
-                try { storage.removeItem(key); } catch (e) {}
+                try {
+                    if (storage) storage.removeItem(key);
+                } catch (e) {}
             }
 
             let users = {};
             let loginLogs = [];
             let withdrawalRequests = [];
-            let activeUpiId = "";
+            let activeUpiId = DEFAULT_UPI_ID;
             let activeQrImage = "";
             let pendingQrDataUrl = "";
             let allUsersStartTs = Date.now();
@@ -674,20 +764,96 @@
             let currentUser = null;
             let pendingRegistration = null;
             let currentWithdrawType = null;
+            let countdownTimer = null;
 
-            const ADMIN_SECRET_PASS = "8825354587@#arkh";
-            const MERCHANT_NAME = "EarnRefer";
+            function round2(val) {
+                return Math.round((Number(val || 0)) * 100) / 100;
+            }
 
-            // ==========================================
-            // 2. SUPABASE DATA MAPPERS & SYNC FUNCTIONS
-            // ==========================================
+            function coinsToRupees(coins) {
+                return round2(Number(coins || 0) * COIN_VALUE_RUPEES);
+            }
+
+            function rupeesToCoins(rupees) {
+                return round2(Number(rupees || 0) / COIN_VALUE_RUPEES);
+            }
+
+            function getDailyGrowthRate(teamCount) {
+                const count = Number(teamCount || 0);
+                if (count >= 20) return 0.03;
+                if (count >= 10) return 0.02;
+                return 0.01;
+            }
+
+            function getDailyGrowthPercentText(teamCount) {
+                return `${Math.round(getDailyGrowthRate(teamCount) * 100)}%`;
+            }
+
+            function isValidUpiFormat(upiStr) {
+                if (!upiStr) return false;
+                return /^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z0-9.\-_]{2,}$/.test(upiStr.trim());
+            }
+
+            function hasValidUpi() {
+                return isValidUpiFormat(activeUpiId);
+            }
+
+            function persistLocalStore() {
+                safeSetItem(localStorage, STORE_KEY, JSON.stringify({
+                    users,
+                    loginLogs,
+                    withdrawalRequests,
+                    activeUpiId,
+                    activeQrImage,
+                    allUsersStartTs
+                }));
+            }
+
+            function hydrateLocalStore() {
+                try {
+                    const raw = safeGetItem(localStorage, STORE_KEY);
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    if (parsed && typeof parsed === 'object') {
+                        if (parsed.users && typeof parsed.users === 'object') users = parsed.users;
+                        if (Array.isArray(parsed.loginLogs)) loginLogs = parsed.loginLogs;
+                        if (Array.isArray(parsed.withdrawalRequests)) withdrawalRequests = parsed.withdrawalRequests;
+                        if (typeof parsed.activeUpiId === 'string' && parsed.activeUpiId.trim()) {
+                            activeUpiId = parsed.activeUpiId.trim();
+                        }
+                        if (typeof parsed.activeQrImage === 'string') {
+                            activeQrImage = parsed.activeQrImage;
+                        }
+                        if (parsed.allUsersStartTs) {
+                            allUsersStartTs = Number(parsed.allUsersStartTs) || Date.now();
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            function normalizeUserCoins(user) {
+                if (!user) return;
+                const deposit = Number(user.ownDeposit || 0);
+                const team = Number(user.teamCount || 0);
+                const coinBal = Number(user.balance || 0);
+
+                // If user has 0 team and coin balance matches or exceeds deposit (e.g. old bug where deposit/coins were inflated), reset to 0
+                if (team === 0 && deposit > 0 && coinBal >= deposit) {
+                    user.balance = 0;
+                } else if (coinBal < 0 || !isFinite(coinBal)) {
+                    user.balance = 0;
+                } else {
+                    user.balance = round2(coinBal);
+                }
+            }
+
             function mapDbUserToLocal(row) {
-                return {
-                    mobile: row.mobile,
-                    password: row.password,
-                    id: row.id,
-                    utr: row.utr,
-                    sponsorId: row.sponsor_id,
+                const u = {
+                    mobile: String(row.mobile || ''),
+                    password: String(row.password || ''),
+                    id: String(row.id || ''),
+                    utr: row.utr || null,
+                    sponsorId: row.sponsor_id || null,
                     ownDeposit: Number(row.own_deposit || 0),
                     bonus: Number(row.bonus || 0),
                     balance: Number(row.balance || 0),
@@ -698,9 +864,12 @@
                     commissionAwardedToSponsor: Number(row.commission_awarded_to_sponsor || 0),
                     lastYieldTime: Number(row.last_yield_time || Date.now())
                 };
+                normalizeUserCoins(u);
+                return u;
             }
 
             function mapLocalUserToDb(u) {
+                normalizeUserCoins(u);
                 return {
                     mobile: u.mobile,
                     password: u.password,
@@ -719,84 +888,178 @@
                 };
             }
 
+            async function withTimeout(promise, ms = 3500) {
+                return Promise.race([
+                    promise,
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), ms))
+                ]);
+            }
+
             async function syncAllFromSupabase() {
+                hydrateLocalStore();
+                syncPaymentUiState();
+                syncAllUsersDisplay();
+
+                if (!supabaseClient) return true;
+
                 try {
-                    const [usersRes, logsRes, wdRes, settingsRes] = await Promise.all([
-                        supabaseClient.from('er_users').select('*'),
-                        supabaseClient.from('er_login_logs').select('*').order('id', { ascending: true }),
-                        supabaseClient.from('er_withdrawals').select('*').order('created_at', { ascending: false }),
-                        supabaseClient.from('er_settings').select('*')
-                    ]);
+                    const [usersRes, logsRes, wdRes, settingsRes] = await withTimeout(
+                        Promise.all([
+                            supabaseClient.from('er_users').select('*'),
+                            supabaseClient.from('er_login_logs').select('*').order('id', { ascending: true }),
+                            supabaseClient.from('er_withdrawals').select('*').order('created_at', { ascending: false }),
+                            supabaseClient.from('er_settings').select('*')
+                        ]),
+                        3500
+                    );
 
-                    if (usersRes.error) throw usersRes.error;
+                    if (!usersRes.error && Array.isArray(usersRes.data)) {
+                        const freshUsers = {};
+                        usersRes.data.forEach(row => {
+                            const mapped = mapDbUserToLocal(row);
+                            freshUsers[mapped.mobile] = mapped;
+                        });
+                        users = freshUsers;
+                    }
 
-                    const freshUsers = {};
-                    (usersRes.data || []).forEach(row => {
-                        freshUsers[row.mobile] = mapDbUserToLocal(row);
-                    });
-                    users = freshUsers;
+                    if (!logsRes.error && Array.isArray(logsRes.data)) {
+                        loginLogs = logsRes.data.map(row => ({
+                            dbId: row.id,
+                            date: row.date_str,
+                            mobile: row.mobile,
+                            userId: row.user_id,
+                            utr: row.utr,
+                            deposit: Number(row.deposit || 0),
+                            method: row.method,
+                            sponsor: row.sponsor
+                        }));
+                    }
 
-                    loginLogs = (logsRes.data || []).map(row => ({
-                        dbId: row.id,
-                        date: row.date_str,
-                        mobile: row.mobile,
-                        userId: row.user_id,
-                        utr: row.utr,
-                        deposit: Number(row.deposit || 0),
-                        method: row.method,
-                        sponsor: row.sponsor
-                    }));
+                    if (!wdRes.error && Array.isArray(wdRes.data)) {
+                        withdrawalRequests = wdRes.data.map(row => ({
+                            id: row.id,
+                            mobile: row.mobile,
+                            userId: row.user_id,
+                            type: row.type,
+                            amount: Number(row.amount || 0),
+                            bankDetails: row.bank_details,
+                            date: row.date_str,
+                            status: row.status
+                        }));
+                    }
 
-                    withdrawalRequests = (wdRes.data || []).map(row => ({
-                        id: row.id,
-                        mobile: row.mobile,
-                        userId: row.user_id,
-                        type: row.type,
-                        amount: Number(row.amount || 0),
-                        bankDetails: row.bank_details,
-                        date: row.date_str,
-                        status: row.status
-                    }));
+                    if (!settingsRes.error && Array.isArray(settingsRes.data)) {
+                        settingsRes.data.forEach(s => {
+                            if (s.key === 'active_upi_id' && s.value && s.value.trim()) {
+                                activeUpiId = s.value.trim();
+                            } else if (s.key === 'active_qr_image') {
+                                activeQrImage = (s.value || '').trim();
+                            } else if (s.key === 'all_users_start_ts' && s.value && !isNaN(Number(s.value))) {
+                                allUsersStartTs = Number(s.value);
+                            }
+                        });
+                    }
 
-                    activeUpiId = "";
-                    activeQrImage = "";
-
-                    (settingsRes.data || []).forEach(s => {
-                        if (s.key === 'active_upi_id') {
-                            activeUpiId = (s.value || '').trim();
-                        } else if (s.key === 'active_qr_image') {
-                            activeQrImage = (s.value || '').trim();
-                        } else if (s.key === 'all_users_start_ts' && s.value && !isNaN(Number(s.value))) {
-                            allUsersStartTs = Number(s.value);
-                        }
-                    });
-
+                    persistLocalStore();
                     syncPaymentUiState();
                     syncAllUsersDisplay();
                     return true;
                 } catch (err) {
-                    console.error('Supabase sync error:', err);
-                    showToast('Database connection error! Supabase SQL tables check karein.', 'error');
                     return false;
                 }
             }
 
-            function toggleAdminSection(sectionId, chevronId) {
-                const sec = document.getElementById(sectionId);
-                const chev = document.getElementById(chevronId);
-                if (!sec) return;
-                const isHidden = sec.classList.contains('hidden');
-                sec.classList.toggle('hidden', !isHidden);
-                if (chev) {
-                    chev.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+            // ==========================================
+            // 2. TOAST & MODAL CONTROLS
+            // ==========================================
+            function showToast(message, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                if (!container) return;
+                const toast = document.createElement('div');
+
+                let bgClass = 'bg-white border-slate-300 text-slate-800';
+                let icon = 'fa-circle-info text-indigo-600';
+
+                if (type === 'success') {
+                    bgClass = 'bg-emerald-50 border-emerald-300 text-emerald-900';
+                    icon = 'fa-circle-check text-emerald-600';
+                } else if (type === 'error') {
+                    bgClass = 'bg-rose-50 border-rose-300 text-rose-900';
+                    icon = 'fa-circle-exclamation text-rose-600';
+                } else if (type === 'warning') {
+                    bgClass = 'bg-amber-50 border-amber-300 text-amber-900';
+                    icon = 'fa-triangle-exclamation text-amber-600';
+                }
+
+                toast.className = `p-3 rounded-2xl border text-xs font-semibold shadow-lg flex items-center gap-2.5 mb-2 transition-opacity duration-300 pointer-events-auto ${bgClass}`;
+                toast.innerHTML = `<i class="fa-solid ${icon} text-base shrink-0"></i> <span class="flex-1">${message}</span>`;
+
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => {
+                        if (toast.parentNode) toast.parentNode.removeChild(toast);
+                    }, 300);
+                }, 3200);
+            }
+
+            function openModal(modalId) {
+                ['paymentModal', 'bankDetailsModal', 'adminAuthModal', 'walletModal'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && id !== modalId) {
+                        el.classList.remove('is-open');
+                    }
+                });
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('is-open');
+                }
+            }
+
+            function closeModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('is-open');
+                }
+            }
+
+            function togglePassVisibility(inputId, btn) {
+                const input = document.getElementById(inputId);
+                if (!input) return;
+                const icon = btn ? btn.querySelector('i') : null;
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    if (icon) icon.className = 'fa-regular fa-eye-slash text-xs';
+                } else {
+                    input.type = 'password';
+                    if (icon) icon.className = 'fa-regular fa-eye text-xs';
+                }
+            }
+
+            function switchAuthTab(tab) {
+                const regBtn = document.getElementById('tabRegisterBtn');
+                const loginBtn = document.getElementById('tabLoginBtn');
+                const regForm = document.getElementById('registerFormCard');
+                const loginForm = document.getElementById('loginFormCard');
+                if (!regBtn || !loginBtn || !regForm || !loginForm) return;
+
+                if (tab === 'deposit') {
+                    regBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-sm";
+                    loginBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:text-slate-900 transition-colors flex items-center justify-center gap-2";
+                    regForm.classList.remove('hidden');
+                    loginForm.classList.add('hidden');
+                } else {
+                    loginBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm";
+                    regBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:text-slate-900 transition-colors flex items-center justify-center gap-2";
+                    loginForm.classList.remove('hidden');
+                    regForm.classList.add('hidden');
                 }
             }
 
             function getFormattedAllUsersCount() {
                 const baseMillions = 1.3;
                 const msPerMonth = 30 * 24 * 60 * 60 * 1000;
-                const startTime = allUsersStartTs || Date.now();
-                const elapsedMs = Math.max(0, Date.now() - startTime);
+                const elapsedMs = Math.max(0, Date.now() - (allUsersStartTs || Date.now()));
                 const monthsElapsed = Math.floor(elapsedMs / msPerMonth);
                 const currentMillions = Math.round((baseMillions + monthsElapsed * 0.1) * 10) / 10;
                 return `${currentMillions.toFixed(1)}M`;
@@ -807,16 +1070,6 @@
                 if (el) el.innerText = getFormattedAllUsersCount();
             }
 
-            function isValidUpiFormat(upiStr) {
-                if (!upiStr) return false;
-                const trimmed = upiStr.trim();
-                return /^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z0-9.\-_]{2,}$/.test(trimmed);
-            }
-
-            function hasValidUpi() {
-                return isValidUpiFormat(activeUpiId);
-            }
-
             function syncPaymentUiState() {
                 const validUpi = hasValidUpi();
                 const hasQr = Boolean(activeQrImage && activeQrImage.startsWith('data:image/'));
@@ -824,11 +1077,9 @@
                 const badge = document.getElementById('adminUpiStatusBadge');
                 const activeDisplay = document.getElementById('adminActiveUpiDisplay');
                 const upiInput = document.getElementById('adminUpiInput');
-
                 const qrBadge = document.getElementById('adminQrStatusBadge');
                 const qrPreviewBox = document.getElementById('adminQrPreviewBox');
                 const qrPreviewImg = document.getElementById('adminQrPreviewImg');
-
                 const missingAlert = document.getElementById('missingQrAlert');
                 const linkedUpiDisplay = document.getElementById('linkedUpiDisplay');
                 const linkedUpiText = document.getElementById('activeLinkedUpiText');
@@ -859,31 +1110,23 @@
                         activeDisplay.innerText = "Not Set";
                         activeDisplay.className = "font-mono font-bold text-xs text-rose-600 truncate max-w-[180px]";
                     }
-                    if (upiInput && document.activeElement !== upiInput && !activeUpiId) {
-                        upiInput.value = "";
-                    }
                     if (missingAlert) missingAlert.classList.remove('hidden');
                     if (linkedUpiDisplay) linkedUpiDisplay.classList.add('hidden');
-                    if (linkedUpiText) linkedUpiText.innerText = "--";
                 }
 
                 const displayQrSrc = pendingQrDataUrl || activeQrImage;
                 if (displayQrSrc) {
                     if (qrPreviewBox) qrPreviewBox.classList.remove('hidden');
                     if (qrPreviewImg) qrPreviewImg.src = displayQrSrc;
-                } else {
-                    if (qrPreviewBox) qrPreviewBox.classList.add('hidden');
-                    if (qrPreviewImg) qrPreviewImg.src = "";
+                } else if (qrPreviewBox) {
+                    qrPreviewBox.classList.add('hidden');
                 }
 
                 if (qrBadge) {
-                    if (hasQr) {
-                        qrBadge.innerText = "QR Active";
-                        qrBadge.className = "text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold";
-                    } else {
-                        qrBadge.innerText = "No QR";
-                        qrBadge.className = "text-[10px] bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full font-bold";
-                    }
+                    qrBadge.innerText = hasQr ? "QR Active" : "No QR";
+                    qrBadge.className = hasQr
+                        ? "text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold"
+                        : "text-[10px] bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full font-bold";
                 }
 
                 if (hasQr && userQrDisplayBox && userQrImage) {
@@ -892,336 +1135,121 @@
                 } else if (userQrDisplayBox) {
                     userQrDisplayBox.classList.add('hidden');
                 }
-
-                const gpayBtn = document.getElementById('btnPayGpay');
-                if (gpayBtn) {
-                    if (!validUpi) {
-                        gpayBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    } else {
-                        gpayBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    }
-                }
             }
 
-            async function saveOwnerUpiId() {
-                const input = document.getElementById('adminUpiInput');
-                if (!input) return;
-                const newUpi = input.value.trim();
-
-                if (!newUpi || !isValidUpiFormat(newUpi)) {
-                    showToast('Kripya sahi UPI ID darj karein (e.g. name@okaxis ya 9876543210@ybl).', 'warning');
-                    input.focus();
-                    return;
-                }
-
-                const btn = document.getElementById('saveUpiBtn');
-                if (btn) btn.disabled = true;
-
-                const { error } = await supabaseClient
-                    .from('er_settings')
-                    .upsert({ key: 'active_upi_id', value: newUpi });
-
-                if (btn) btn.disabled = false;
-
-                if (error) {
-                    showToast('UPI ID save nahi ho paya: ' + error.message, 'error');
-                    return;
-                }
-
-                activeUpiId = newUpi;
-                syncPaymentUiState();
-                showToast(`UPI ID save ho gaya! Active UPI: ${activeUpiId}`, 'success');
-            }
-
-            async function clearOwnerUpiId() {
-                const { error } = await supabaseClient
-                    .from('er_settings')
-                    .upsert({ key: 'active_upi_id', value: '' });
-
-                if (error) {
-                    showToast('Error clearing UPI ID: ' + error.message, 'error');
-                    return;
-                }
-
-                activeUpiId = "";
-                const input = document.getElementById('adminUpiInput');
-                if (input) input.value = "";
-                syncPaymentUiState();
-                showToast('UPI ID hata diya gaya hai.', 'warning');
-            }
-
-            function handleQrFileChange(e) {
-                const file = e.target.files && e.target.files[0];
-                if (!file) return;
-
-                if (!file.type.startsWith('image/')) {
-                    showToast('Kripya valid image file (PNG/JPG) chunein.', 'warning');
-                    return;
-                }
-
-                if (file.size > 1.5 * 1024 * 1024) {
-                    showToast('QR image 1.5 MB se kam size ki rakhein.', 'warning');
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    pendingQrDataUrl = evt.target.result || '';
-                    syncPaymentUiState();
-                };
-                reader.readAsDataURL(file);
-            }
-
-            async function saveOwnerQrCode() {
-                const qrToSave = pendingQrDataUrl || activeQrImage;
-                if (!qrToSave) {
-                    showToast('Pehle QR Code image select karein.', 'warning');
-                    return;
-                }
-
-                const btn = document.getElementById('saveQrBtn');
-                if (btn) btn.disabled = true;
-
-                const { error } = await supabaseClient
-                    .from('er_settings')
-                    .upsert({ key: 'active_qr_image', value: qrToSave });
-
-                if (btn) btn.disabled = false;
-
-                if (error) {
-                    showToast('QR Code save nahi ho paya: ' + error.message, 'error');
-                    return;
-                }
-
-                activeQrImage = qrToSave;
-                pendingQrDataUrl = "";
-                const fileInput = document.getElementById('adminQrFileInput');
-                if (fileInput) fileInput.value = "";
-                syncPaymentUiState();
-                showToast('QR Code photo save ho gaya hai!', 'success');
-            }
-
-            async function clearOwnerQrCode() {
-                const { error } = await supabaseClient
-                    .from('er_settings')
-                    .upsert({ key: 'active_qr_image', value: '' });
-
-                if (error) {
-                    showToast('QR Code hatane mein error: ' + error.message, 'error');
-                    return;
-                }
-
-                activeQrImage = "";
-                pendingQrDataUrl = "";
-                const fileInput = document.getElementById('adminQrFileInput');
-                if (fileInput) fileInput.value = "";
-                syncPaymentUiState();
-                showToast('QR Code photo hata diya gaya hai.', 'warning');
-            }
-
-            function switchAuthTab(tab) {
-                const regBtn = document.getElementById('tabRegisterBtn');
-                const loginBtn = document.getElementById('tabLoginBtn');
-                const regForm = document.getElementById('registerFormCard');
-                const loginForm = document.getElementById('loginFormCard');
-
-                if (!regBtn || !loginBtn || !regForm || !loginForm) return;
-
-                if (tab === 'deposit') {
-                    regBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-sm";
-                    loginBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center gap-2";
-                    regForm.classList.remove('hidden');
-                    loginForm.classList.add('hidden');
-                } else {
-                    loginBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm";
-                    regBtn.className = "w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center gap-2";
-                    loginForm.classList.remove('hidden');
-                    regForm.classList.add('hidden');
-                }
-            }
-
-            function showToast(message, type = 'info') {
-                const container = document.getElementById('toastContainer');
-                if (!container) return;
-                const toast = document.createElement('div');
-                
-                let bgClass = 'bg-white border-slate-300 text-slate-800';
-                let icon = 'fa-circle-info text-indigo-600';
-                
-                if (type === 'success') {
-                    bgClass = 'bg-emerald-50 border-emerald-300 text-emerald-900';
-                    icon = 'fa-circle-check text-emerald-600';
-                } else if (type === 'error') {
-                    bgClass = 'bg-rose-50 border-rose-300 text-rose-900';
-                    icon = 'fa-circle-exclamation text-rose-600';
-                } else if (type === 'warning') {
-                    bgClass = 'bg-amber-50 border-amber-300 text-amber-900';
-                    icon = 'fa-triangle-exclamation text-amber-600';
-                }
-
-                toast.className = `p-3 rounded-2xl border text-xs font-semibold shadow-lg flex items-center gap-2.5 mb-2 transition-all duration-300 opacity-0 translate-y-2 pointer-events-auto ${bgClass}`;
-                toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i> <span class="flex-1">${message}</span>`;
-                
-                container.appendChild(toast);
-                setTimeout(() => toast.classList.remove('opacity-0', 'translate-y-2'), 10);
-                setTimeout(() => {
-                    toast.classList.add('opacity-0', '-translate-y-2');
-                    setTimeout(() => toast.remove(), 300);
-                }, 3500);
-            }
-
+            // ==========================================
+            // 3. PAYMENT, REGISTRATION & 24H COIN GROWTH
+            // ==========================================
             function generate10DigitId() {
                 let id = '';
                 for (let i = 0; i < 10; i++) id += Math.floor(Math.random() * 10);
                 return id;
             }
 
-            function togglePassVisibility(inputId, btn) {
-                const input = document.getElementById(inputId);
-                if (!input || !btn) return;
-                const icon = btn.querySelector('i');
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    if (icon) icon.className = 'fa-regular fa-eye-slash text-xs';
-                } else {
-                    input.type = 'password';
-                    if (icon) icon.className = 'fa-regular fa-eye text-xs';
-                }
-            }
+            async function handleOpenPaymentModal() {
+                const mobileEl = document.getElementById('regMobile');
+                const passEl = document.getElementById('regPassword');
+                const sponsorEl = document.getElementById('regSponsor');
+                const depEl = document.getElementById('regDepositAmount');
 
-            function showModal(modalId) {
-                const modal = document.getElementById(modalId);
-                if (!modal) return;
-                modal.classList.remove('hidden', 'pointer-events-none');
-                modal.classList.add('flex', 'pointer-events-auto');
-            }
+                const mobile = (mobileEl ? mobileEl.value : '').replace(/\D/g, '').trim();
+                const password = (passEl ? passEl.value : '').trim();
+                const sponsorId = (sponsorEl ? sponsorEl.value : '').replace(/\D/g, '').trim();
+                const depositAmt = parseFloat((depEl ? depEl.value : '').trim());
 
-            function hideModal(modalId) {
-                const modal = document.getElementById(modalId);
-                if (!modal) return;
-                modal.classList.add('hidden', 'pointer-events-none');
-                modal.classList.remove('flex', 'pointer-events-auto');
-            }
-
-            async function openPaymentModal() {
-                const mobile = document.getElementById('regMobile').value.trim();
-                const password = document.getElementById('regPassword').value.trim();
-                const sponsorId = document.getElementById('regSponsor').value.trim();
-                const depositAmt = parseFloat(document.getElementById('regDepositAmount').value.trim());
-
-                if (mobile.length !== 10 || isNaN(mobile)) {
+                if (mobile.length !== 10) {
                     showToast('Kripya 10 ank ka sahi mobile number darj karein.', 'warning');
                     return;
                 }
-
                 if (!password) {
                     showToast('Kripya naya password banayein.', 'warning');
                     return;
                 }
-
-                if (isNaN(depositAmt) || depositAmt < 199 || depositAmt > 1999) {
-                    showToast('Deposit amount ₹199 se ₹1999 ke beech hona chahiye.', 'warning');
+                if (isNaN(depositAmt) || depositAmt < 500) {
+                    showToast('Minimum deposit ₹500 hai! ₹500 ya usse zyada amount dalein.', 'warning');
                     return;
                 }
 
-                const openBtn = document.getElementById('openPayModalBtn');
-                if (openBtn) openBtn.disabled = true;
-
                 await syncAllFromSupabase();
-                if (openBtn) openBtn.disabled = false;
 
                 if (users[mobile]) {
-                    showToast('Yeh mobile number pehle se registered hai! Kripya Login karein.', 'warning');
+                    showToast('Yeh mobile number pehle se registered hai! Login karein.', 'warning');
                     switchAuthTab('login');
-                    document.getElementById('loginMobile').value = mobile;
+                    const loginMob = document.getElementById('loginMobile');
+                    if (loginMob) loginMob.value = mobile;
                     return;
                 }
 
                 if (!hasValidUpi()) {
-                    showToast('Payment nahi ho sakta: Pehle Control Panel mein UPI ID save karein.', 'error');
+                    showToast('UPI ID set nahi hai! Pehle Owner Control Panel mein UPI ID save karein.', 'error');
                     return;
                 }
 
                 pendingRegistration = {
-                    mobile: mobile,
-                    password: password,
+                    mobile,
+                    password,
                     sponsorId: sponsorId || null,
-                    depositAmt: depositAmt
+                    depositAmt
                 };
 
                 syncPaymentUiState();
-                document.getElementById('payModalAmount').innerText = `₹${depositAmt}`;
-                document.getElementById('regUtrNumber').value = '';
-                showModal('paymentModal');
+                const payAmtEl = document.getElementById('payModalAmount');
+                if (payAmtEl) payAmtEl.innerText = `₹${depositAmt}`;
+                const utrEl = document.getElementById('regUtrNumber');
+                if (utrEl) utrEl.value = '';
+                openModal('paymentModal');
             }
 
-            function closePaymentModal() {
-                hideModal('paymentModal');
+            function handleClosePaymentModal() {
+                closeModal('paymentModal');
                 pendingRegistration = null;
             }
 
-            function redirectToUPI(appType) {
+            function handlePayViaGpay() {
                 if (!hasValidUpi()) {
-                    showToast('Payment nahi ho sakta: Pehle Control Panel mein UPI ID save karein.', 'error');
+                    showToast('UPI ID set nahi hai!', 'error');
                     return;
                 }
                 if (!pendingRegistration) return;
-                
-                const targetUpi = activeUpiId;
                 const amt = pendingRegistration.depositAmt;
-                const note = `EarnRefer Deposit for ${pendingRegistration.mobile}`;
-                const gpayUrl = `tez://upi/pay?pa=${encodeURIComponent(targetUpi)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
-
-                showToast(`Opening Google Pay (${targetUpi}) for ₹${amt}...`, 'info');
+                const note = `EarnRefer Deposit ${pendingRegistration.mobile}`;
+                const gpayUrl = `tez://upi/pay?pa=${encodeURIComponent(activeUpiId)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
+                showToast(`Google Pay (${activeUpiId}) open kiya ja raha hai (₹${amt})...`, 'info');
                 try {
                     window.location.href = gpayUrl;
                 } catch (e) {}
             }
 
-            async function completeRegistrationAfterPayment() {
+            async function handleCompleteRegistrationAfterPayment() {
                 if (!hasValidUpi()) {
-                    showToast('Payment nahi ho sakta: Pehle Control Panel mein UPI ID save karein.', 'error');
+                    showToast('UPI ID set nahi hai!', 'error');
                     return;
                 }
-                const verifiedUpi = activeUpiId;
                 if (!pendingRegistration) {
                     showToast('Kripya pehle registration details bharein.', 'warning');
                     return;
                 }
 
-                const utrInput = document.getElementById('regUtrNumber').value.trim();
+                const utrEl = document.getElementById('regUtrNumber');
+                const utrInput = (utrEl ? utrEl.value : '').replace(/\D/g, '').trim();
 
-                if (utrInput.length !== 12 || isNaN(utrInput)) {
-                    showToast('Kripya sahi 12-digit UPI UTR / Transaction ID darj karein.', 'warning');
+                if (utrInput.length !== 12) {
+                    showToast('Kripya 12 ank ka sahi UTR / Transaction ID darj karein.', 'warning');
                     return;
                 }
 
                 const completeBtn = document.getElementById('completeRegBtn');
                 if (completeBtn) {
                     completeBtn.disabled = true;
-                    completeBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving to Database...`;
+                    completeBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Completing Registration...`;
                 }
 
                 try {
-                    const { data: existingUtr } = await supabaseClient
-                        .from('er_login_logs')
-                        .select('utr')
-                        .eq('utr', utrInput)
-                        .maybeSingle();
+                    const duplicateUtr = loginLogs.some(l => String(l.utr || '') === utrInput) ||
+                        Object.values(users).some(u => String(u.utr || '') === utrInput);
 
-                    if (existingUtr) {
-                        showToast('Yeh UTR Number pehle se use ho chuka hai! Dusra sahi UTR dalein.', 'error');
-                        return;
-                    }
-
-                    const { data: existingMobile } = await supabaseClient
-                        .from('er_users')
-                        .select('mobile')
-                        .eq('mobile', pendingRegistration.mobile)
-                        .maybeSingle();
-
-                    if (existingMobile) {
-                        showToast('Yeh mobile number pehle se registered hai!', 'error');
+                    if (duplicateUtr) {
+                        showToast('Yeh UTR Number pehle se use ho chuka hai!', 'error');
                         return;
                     }
 
@@ -1233,36 +1261,36 @@
                     }
 
                     let bonusAwarded = 0;
-                    let commissionAwarded = 0;
+                    let commissionCoinsAwarded = 0;
                     let sponsorMobileFound = null;
 
                     if (pendingRegistration.sponsorId) {
                         sponsorMobileFound = Object.keys(users).find(m => users[m].id === pendingRegistration.sponsorId) || null;
                         if (sponsorMobileFound && users[sponsorMobileFound]) {
                             const sponsor = users[sponsorMobileFound];
-                            sponsor.bonus = (sponsor.bonus || 0) + 100;
+                            sponsor.bonus = (Number(sponsor.bonus) || 0) + 100;
                             bonusAwarded = 100;
-                            
-                            // 40% commission goes into Main Balance (sponsor.balance)
-                            const commission40 = pendingRegistration.depositAmt * 0.40;
-                            commissionAwarded = Math.round(commission40 * 100) / 100;
-                            sponsor.balance = Math.round(((sponsor.balance || 0) + commissionAwarded) * 100) / 100;
-                            sponsor.teamCount = (sponsor.teamCount || 0) + 1;
 
-                            const { error: sponsorErr } = await supabaseClient
-                                .from('er_users')
-                                .update({
-                                    bonus: sponsor.bonus,
-                                    balance: sponsor.balance,
-                                    team_count: sponsor.teamCount
-                                })
-                                .eq('mobile', sponsorMobileFound);
+                            // 10% referral commission of deposit converted to CR Coins (1 CR Coin = ₹5)
+                            const commissionRupees10 = pendingRegistration.depositAmt * 0.10;
+                            commissionCoinsAwarded = rupeesToCoins(commissionRupees10);
+                            sponsor.balance = round2((Number(sponsor.balance) || 0) + commissionCoinsAwarded);
+                            sponsor.teamCount = (Number(sponsor.teamCount) || 0) + 1;
 
-                            if (sponsorErr) throw sponsorErr;
+                            if (supabaseClient) {
+                                await withTimeout(
+                                    supabaseClient.from('er_users').update({
+                                        bonus: sponsor.bonus,
+                                        balance: sponsor.balance,
+                                        team_count: sponsor.teamCount
+                                    }).eq('mobile', sponsorMobileFound),
+                                    3000
+                                ).catch(() => {});
+                            }
                         }
                     }
 
-                    // User's ownDeposit stays equal to deposited amount; Main Balance starts with deposited amount
+                    // New user starts with Your Coin = 0 (upgrades every 24h or via 10% referral commission)
                     const now = Date.now();
                     const newUser = {
                         mobile: pendingRegistration.mobile,
@@ -1272,60 +1300,63 @@
                         sponsorId: pendingRegistration.sponsorId,
                         ownDeposit: pendingRegistration.depositAmt,
                         bonus: 0,
-                        balance: pendingRegistration.depositAmt,
+                        balance: 0,
                         teamCount: 0,
                         bankDetails: null,
                         sponsorMobileUsed: sponsorMobileFound,
                         bonusAwardedToSponsor: bonusAwarded,
-                        commissionAwardedToSponsor: commissionAwarded,
+                        commissionAwardedToSponsor: commissionCoinsAwarded,
                         lastYieldTime: now
                     };
 
-                    const { error: insertUserErr } = await supabaseClient
-                        .from('er_users')
-                        .insert([mapLocalUserToDb(newUser)]);
-
-                    if (insertUserErr) throw insertUserErr;
-
-                    const dateStr = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    const { error: insertLogErr } = await supabaseClient
-                        .from('er_login_logs')
-                        .insert([{
-                            date_str: dateStr,
-                            mobile: pendingRegistration.mobile,
-                            user_id: uniqueId,
-                            utr: utrInput,
-                            deposit: pendingRegistration.depositAmt,
-                            method: `Google Pay (${verifiedUpi})`,
-                            sponsor: pendingRegistration.sponsorId || 'Direct'
-                        }]);
-
-                    if (insertLogErr) throw insertLogErr;
-
-                    users[pendingRegistration.mobile] = newUser;
-                    loginLogs.push({
+                    const dateStr = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const newLog = {
                         date: dateStr,
-                        mobile: pendingRegistration.mobile,
-                        userId: uniqueId,
+                        mobile: newUser.mobile,
+                        userId: newUser.id,
                         utr: utrInput,
-                        deposit: pendingRegistration.depositAmt,
-                        method: `Google Pay (${verifiedUpi})`,
-                        sponsor: pendingRegistration.sponsorId || 'Direct'
+                        deposit: newUser.ownDeposit,
+                        method: `Google Pay (${activeUpiId})`,
+                        sponsor: newUser.sponsorId || 'Direct'
+                    };
+
+                    if (supabaseClient) {
+                        await withTimeout(
+                            Promise.all([
+                                supabaseClient.from('er_users').insert([mapLocalUserToDb(newUser)]),
+                                supabaseClient.from('er_login_logs').insert([{
+                                    date_str: newLog.date,
+                                    mobile: newLog.mobile,
+                                    user_id: newLog.userId,
+                                    utr: newLog.utr,
+                                    deposit: newLog.deposit,
+                                    method: newLog.method,
+                                    sponsor: newLog.sponsor
+                                }])
+                            ]),
+                            3500
+                        ).catch(() => {});
+                    }
+
+                    users[newUser.mobile] = newUser;
+                    loginLogs.push(newLog);
+                    persistLocalStore();
+
+                    // Directly set active session and open User Dashboard (not login screen)
+                    currentUser = newUser;
+                    safeSetItem(sessionStorage, SESSION_USER_KEY, newUser.mobile);
+                    pendingRegistration = null;
+                    closeModal('paymentModal');
+
+                    ['regMobile', 'regPassword', 'regSponsor', 'regDepositAmount', 'regUtrNumber'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = '';
                     });
 
-                    closePaymentModal();
-
-                    document.getElementById('regMobile').value = '';
-                    document.getElementById('regPassword').value = '';
-                    document.getElementById('regSponsor').value = '';
-                    document.getElementById('regDepositAmount').value = '';
-
-                    switchAuthTab('login');
-                    document.getElementById('loginMobile').value = newUser.mobile;
-                    showToast('UTR Verified! Account Supabase mein save ho gaya. ID: ' + uniqueId, 'success');
+                    await loadUserDashboard();
+                    showToast(`Payment Verified! Dashboard open ho gaya. Your Coin: 0 CR Coin • ID: ${newUser.id}`, 'success');
                 } catch (err) {
-                    console.error('Registration DB Error:', err);
-                    showToast('Registration save karne mein error aaya: ' + (err.message || 'Unknown error'), 'error');
+                    showToast('Registration complete karne mein problem aayi: ' + (err.message || 'Try again'), 'error');
                 } finally {
                     if (completeBtn) {
                         completeBtn.disabled = false;
@@ -1334,57 +1365,79 @@
                 }
             }
 
-            // 5% daily growth is added ONLY to Main Balance (balance), keeping ownDeposit unchanged
-            async function checkAndCalculate5PercentDailyDeposit(user) {
-                if (!user) return;
-                if (!user.ownDeposit && user.balance > 0) {
-                    user.ownDeposit = user.balance;
-                }
-                if (!user.ownDeposit || user.ownDeposit <= 0) return;
+            async function checkAndCalculateDailyCoins(user) {
+                if (!user || !user.ownDeposit || user.ownDeposit <= 0) return false;
+                normalizeUserCoins(user);
 
                 const now = Date.now();
-                if (!user.lastYieldTime) {
+                if (!user.lastYieldTime || !isFinite(Number(user.lastYieldTime))) {
                     user.lastYieldTime = now;
-                    await supabaseClient.from('er_users').update({ last_yield_time: now }).eq('mobile', user.mobile);
-                    return;
-                }
-
-                const msIn24Hours = 24 * 60 * 60 * 1000;
-                const elapsedTime = now - user.lastYieldTime;
-
-                if (elapsedTime >= msIn24Hours) {
-                    const daysPassed = Math.floor(elapsedTime / msIn24Hours);
-                    let totalAdded = 0;
-
-                    for (let i = 0; i < daysPassed; i++) {
-                        const growth = Math.round((user.ownDeposit * 0.05) * 100) / 100;
-                        totalAdded = Math.round((totalAdded + growth) * 100) / 100;
-                    }
-
-                    user.balance = Math.round(((user.balance || 0) + totalAdded) * 100) / 100;
-                    user.lastYieldTime = user.lastYieldTime + (daysPassed * msIn24Hours);
-
                     users[user.mobile] = user;
-                    await supabaseClient
-                        .from('er_users')
-                        .update({
-                            own_deposit: user.ownDeposit,
-                            balance: user.balance,
-                            last_yield_time: user.lastYieldTime
-                        })
-                        .eq('mobile', user.mobile);
+                    persistLocalStore();
+                    return false;
                 }
+
+                const elapsed = now - Number(user.lastYieldTime);
+                if (elapsed >= MS_IN_24_HOURS) {
+                    const daysPassed = Math.floor(elapsed / MS_IN_24_HOURS);
+                    const rate = getDailyGrowthRate(user.teamCount);
+                    const dailyRupees = Number(user.ownDeposit) * rate;
+                    const dailyCoins = rupeesToCoins(dailyRupees);
+                    const addedCoins = round2(dailyCoins * daysPassed);
+
+                    user.balance = round2((Number(user.balance) || 0) + addedCoins);
+                    user.lastYieldTime = Number(user.lastYieldTime) + (daysPassed * MS_IN_24_HOURS);
+                    users[user.mobile] = user;
+                    persistLocalStore();
+
+                    if (supabaseClient) {
+                        await withTimeout(
+                            supabaseClient.from('er_users').update({
+                                balance: user.balance,
+                                last_yield_time: user.lastYieldTime
+                            }).eq('mobile', user.mobile),
+                            3000
+                        ).catch(() => {});
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+            function updateCountdownDisplay() {
+                const el = document.getElementById('nextCoinCountdown');
+                if (!el || !currentUser || !currentUser.lastYieldTime) return;
+                const remaining = Math.max(0, MS_IN_24_HOURS - (Date.now() - Number(currentUser.lastYieldTime)));
+                const hrs = Math.floor(remaining / (1000 * 60 * 60));
+                const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((remaining % (1000 * 60)) / 1000);
+                el.innerText = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+
+            function startCountdownLoop() {
+                if (countdownTimer) clearInterval(countdownTimer);
+                updateCountdownDisplay();
+                countdownTimer = setInterval(async () => {
+                    if (!currentUser) return;
+                    const upgraded = await checkAndCalculateDailyCoins(currentUser);
+                    if (upgraded) {
+                        const coinEl = document.getElementById('yourCoinBalance');
+                        if (coinEl) coinEl.innerText = currentUser.balance || 0;
+                    }
+                    updateCountdownDisplay();
+                }, 1000);
             }
 
             async function handleLogin() {
-                const mobile = document.getElementById('loginMobile').value.trim();
-                const password = document.getElementById('loginPassword').value.trim();
+                const mobEl = document.getElementById('loginMobile');
+                const passEl = document.getElementById('loginPassword');
+                const mobile = (mobEl ? mobEl.value : '').replace(/\D/g, '').trim();
+                const password = (passEl ? passEl.value : '').trim();
 
-                if (mobile.length !== 10 || isNaN(mobile)) {
+                if (mobile.length !== 10) {
                     showToast('Kripya 10 ank ka sahi mobile number darj karein.', 'warning');
                     return;
                 }
-
                 if (!password) {
                     showToast('Kripya password darj karein.', 'warning');
                     return;
@@ -1397,36 +1450,22 @@
                 }
 
                 try {
-                    const { data: userRow, error } = await supabaseClient
-                        .from('er_users')
-                        .select('*')
-                        .eq('mobile', mobile)
-                        .maybeSingle();
-
-                    if (error) throw error;
-
-                    if (!userRow) {
-                        showToast('Account nahi mila! Pehle Deposit karke register karein.', 'error');
+                    await syncAllFromSupabase();
+                    const found = users[mobile];
+                    if (!found) {
+                        showToast('Account nahi mila! Pehle Register & Deposit karein.', 'error');
+                        return;
+                    }
+                    if (found.password !== password) {
+                        showToast('Galat password! Sahi password dalein.', 'error');
                         return;
                     }
 
-                    if (userRow.password === password) {
-                        currentUser = mapDbUserToLocal(userRow);
-                        if (!currentUser.ownDeposit && currentUser.balance > 0) {
-                            currentUser.ownDeposit = currentUser.balance;
-                        }
-                        users[mobile] = currentUser;
-                        safeSetItem(sessionStorage, 'er_active_user', mobile);
-
-                        await checkAndCalculate5PercentDailyDeposit(currentUser);
-                        showToast('Login successful! Dashboard khul raha hai...', 'success');
-                        await loadUserDashboard();
-                    } else {
-                        showToast('Galat password! Sahi password dalein.', 'error');
-                    }
-                } catch (err) {
-                    console.error('Login DB Error:', err);
-                    showToast('Login error: ' + (err.message || 'Database unreachable'), 'error');
+                    currentUser = found;
+                    safeSetItem(sessionStorage, SESSION_USER_KEY, mobile);
+                    await checkAndCalculateDailyCoins(currentUser);
+                    await loadUserDashboard();
+                    showToast('Login successful! Dashboard open ho gaya.', 'success');
                 } finally {
                     if (loginBtn) {
                         loginBtn.disabled = false;
@@ -1437,82 +1476,167 @@
 
             async function loadUserDashboard() {
                 if (!currentUser) return;
-                await checkAndCalculate5PercentDailyDeposit(currentUser);
+                normalizeUserCoins(currentUser);
+                await checkAndCalculateDailyCoins(currentUser);
 
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('adminScreen').classList.add('hidden');
                 document.getElementById('dashboardScreen').classList.remove('hidden');
                 document.getElementById('logoutBtn').classList.remove('hidden');
+                document.getElementById('openWalletBtn').classList.remove('hidden');
 
+                const teamCnt = Number(currentUser.teamCount || 0);
+                const ratePct = getDailyGrowthPercentText(teamCnt);
+                const levelNum = teamCnt >= 20 ? 3 : (teamCnt >= 10 ? 2 : 1);
+
+                document.getElementById('userGrowthRateLabel').innerText = `${ratePct}/day`;
                 document.getElementById('userMobileDisplay').innerText = currentUser.mobile;
                 document.getElementById('user10DigitId').innerText = currentUser.id;
-                
-                const currentBonus = currentUser.bonus || 0;
-                const currentMain = currentUser.balance || 0;
-                const ownDep = currentUser.ownDeposit || 0;
-
-                document.getElementById('displayOwnDeposit').innerText = `${ownDep}`;
-                document.getElementById('bonusBalance').innerText = currentBonus;
-                document.getElementById('mainBalance').innerText = currentMain;
-                document.getElementById('teamCount').innerText = currentUser.teamCount || 0;
+                document.getElementById('displayOwnDeposit').innerText = `${Number(currentUser.ownDeposit || 0)}`;
+                document.getElementById('bonusBalance').innerText = `${Number(currentUser.bonus || 0)}`;
+                // Strictly show ONLY CR Coin count on Your Coin card
+                document.getElementById('yourCoinBalance').innerText = `${Number(currentUser.balance || 0)}`;
+                document.getElementById('teamCount').innerText = `${teamCnt}`;
+                document.getElementById('teamLevelBadge').innerText = `Level ${levelNum} (${ratePct} Daily)`;
                 syncAllUsersDisplay();
 
+                const currentBonus = Number(currentUser.bonus || 0);
                 const bonusBtn = document.getElementById('bonusWithdrawBtn');
                 const bonusStatus = document.getElementById('bonusWithdrawStatus');
                 if (currentBonus >= 500) {
-                    bonusBtn.className = "w-full bg-purple-600 hover:bg-purple-500 text-white py-2.5 rounded-xl font-bold text-xs border border-purple-500 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md";
+                    bonusBtn.className = "w-full bg-purple-600 hover:bg-purple-500 text-white py-2.5 rounded-xl font-bold text-xs border border-purple-500 transition-colors flex items-center justify-center gap-2 active:scale-95 shadow-md cursor-pointer";
                     bonusBtn.innerHTML = `<i class="fa-solid fa-hand-holding-dollar"></i> Withdraw Bonus (₹${currentBonus})`;
                     bonusStatus.className = "text-[11px] text-emerald-700 font-bold text-center";
-                    bonusStatus.innerText = "✓ Bonus Withdrawal Threshold Achieved!";
+                    bonusStatus.innerText = "✓ Bonus Withdrawal Unlocked!";
                 } else {
-                    bonusBtn.className = "w-full bg-slate-100 text-slate-400 py-2.5 rounded-xl font-bold text-xs border border-slate-200 transition-all flex items-center justify-center gap-2 cursor-not-allowed";
+                    bonusBtn.className = "w-full bg-slate-100 text-slate-400 py-2.5 rounded-xl font-bold text-xs border border-slate-200 transition-colors flex items-center justify-center gap-2 cursor-not-allowed";
                     bonusBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Withdraw Bonus`;
                     bonusStatus.className = "text-[11px] text-amber-700 font-medium text-center";
                     bonusStatus.innerText = `Withdrawal unlocks at ₹500 bonus balance (Need ₹${500 - currentBonus} more)`;
                 }
 
-                const mainBtn = document.getElementById('mainWithdrawBtn');
-                const mainStatus = document.getElementById('mainWithdrawStatus');
-                if (currentMain >= 30000) {
-                    mainBtn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl font-bold text-xs border border-emerald-500 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md";
-                    mainBtn.innerHTML = `<i class="fa-solid fa-money-bill-transfer"></i> Withdraw Main Balance (₹${currentMain})`;
-                    mainStatus.className = "text-[11px] text-emerald-700 font-bold text-center";
-                    mainStatus.innerText = "✓ Main Balance Withdrawal Threshold Achieved!";
-                } else {
-                    mainBtn.className = "w-full bg-slate-100 text-slate-400 py-2.5 rounded-xl font-bold text-xs border border-slate-200 transition-all flex items-center justify-center gap-2 cursor-not-allowed";
-                    mainBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Withdraw Main Balance`;
-                    mainStatus.className = "text-[11px] text-amber-700 font-medium text-center";
-                    mainStatus.innerText = `Withdrawal unlocks at ₹30,000 main balance (Need ₹${(30000 - currentMain).toFixed(2)} more)`;
-                }
-
                 const bankCard = document.getElementById('userBankInfoCard');
                 if (currentUser.bankDetails) {
                     bankCard.classList.remove('hidden');
-                    document.getElementById('cardHolderName').innerText = currentUser.bankDetails.holderName;
-                    document.getElementById('cardBankName').innerText = currentUser.bankDetails.bankName;
-                    document.getElementById('cardAccNumber').innerText = currentUser.bankDetails.accountNo;
-                    document.getElementById('cardIfscCode').innerText = currentUser.bankDetails.ifscCode;
+                    document.getElementById('cardHolderName').innerText = currentUser.bankDetails.holderName || '--';
+                    document.getElementById('cardBankName').innerText = currentUser.bankDetails.bankName || '--';
+                    document.getElementById('cardAccNumber').innerText = currentUser.bankDetails.accountNo || '--';
+                    document.getElementById('cardIfscCode').innerText = currentUser.bankDetails.ifscCode || '--';
                 } else {
                     bankCard.classList.add('hidden');
                 }
 
                 const baseUrl = window.location.origin + window.location.pathname;
                 document.getElementById('shareUrlInput').value = `${baseUrl}?ref=${currentUser.id}`;
+                startCountdownLoop();
+            }
+
+            // ==========================================
+            // 4. WALLET MODAL (EXCHANGE, WITHDRAW, HISTORY)
+            // ==========================================
+            async function handleOpenWalletModal() {
+                if (!currentUser) return;
+                await syncAllFromSupabase();
+                if (users[currentUser.mobile]) {
+                    currentUser = users[currentUser.mobile];
+                    normalizeUserCoins(currentUser);
+                }
+
+                const coins = Number(currentUser.balance || 0);
+                const rupees = coinsToRupees(coins);
+
+                document.getElementById('walletCoinsDisplay').innerText = `${coins}`;
+                document.getElementById('walletRupeeDisplay').innerText = `${rupees}`;
+                document.getElementById('walletExchangePreview').innerText = `${coins} CR Coin = ₹${rupees}`;
+
+                const statusText = document.getElementById('walletWithdrawStatusText');
+                const exBtn = document.getElementById('walletExchangeBtn');
+                const wdBtn = document.getElementById('walletWithdrawBtn');
+
+                if (rupees >= 200) {
+                    statusText.className = "text-[11px] text-emerald-700 font-bold text-center";
+                    statusText.innerText = `✓ Unlocked! ${coins} CR Coin exchanges to ₹${rupees}.`;
+                    exBtn.className = "py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer";
+                    wdBtn.className = "py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer";
+                } else {
+                    statusText.className = "text-[11px] text-amber-700 font-medium text-center";
+                    statusText.innerText = `Unlocks at 40 CR Coin (₹200). Need ₹${round2(200 - rupees)} more.`;
+                    exBtn.className = "py-2.5 px-3 rounded-xl bg-slate-200 text-slate-500 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed";
+                    wdBtn.className = "py-2.5 px-3 rounded-xl bg-slate-200 text-slate-500 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed";
+                }
+
+                const histContainer = document.getElementById('userWithdrawalHistoryList');
+                const myHistory = withdrawalRequests.filter(w => w.mobile === currentUser.mobile);
+                histContainer.innerHTML = '';
+
+                if (myHistory.length === 0) {
+                    histContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-3">No withdrawal history yet.</p>`;
+                } else {
+                    myHistory.forEach(item => {
+                        const div = document.createElement('div');
+                        let badgeStyle = "bg-amber-50 text-amber-800 border-amber-200";
+                        if (item.status === 'APPROVED') badgeStyle = "bg-emerald-50 text-emerald-800 border-emerald-200";
+                        if (item.status === 'REJECTED') badgeStyle = "bg-rose-50 text-rose-800 border-rose-200";
+
+                        div.className = "p-3 rounded-xl bg-white border border-slate-200 text-xs flex items-center justify-between gap-2";
+                        div.innerHTML = `
+                            <div>
+                                <p class="font-extrabold text-slate-900">₹${item.amount} <span class="text-[10px] font-semibold text-slate-500">(${item.type || 'COIN'})</span></p>
+                                <p class="text-[10px] text-slate-500">${item.date || ''}</p>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeStyle}">${item.status || 'PENDING'}</span>
+                        `;
+                        histContainer.appendChild(div);
+                    });
+                }
+
+                openModal('walletModal');
+            }
+
+            function handleExchangeCoinsClick() {
+                if (!currentUser) return;
+                const coins = Number(currentUser.balance || 0);
+                const rupees = coinsToRupees(coins);
+                if (rupees < 200) {
+                    showToast('Coin exchange & withdrawal ke liye kam se kam 40 CR Coin (₹200) zaroori hain.', 'warning');
+                    return;
+                }
+                closeModal('walletModal');
+                initiateWithdrawal('coin');
+            }
+
+            function handleWalletWithdrawClick() {
+                if (!currentUser) return;
+                const coins = Number(currentUser.balance || 0);
+                const rupees = coinsToRupees(coins);
+                if (rupees < 200) {
+                    showToast('Withdrawal ke liye kam se kam ₹200 (40 CR Coin) balance zaroori hai.', 'warning');
+                    return;
+                }
+                closeModal('walletModal');
+                initiateWithdrawal('coin');
             }
 
             function initiateWithdrawal(type) {
                 if (!currentUser) return;
                 currentWithdrawType = type;
 
-                const amount = type === 'bonus' ? currentUser.bonus : currentUser.balance;
-                const threshold = type === 'bonus' ? 500 : 30000;
-
-                if (amount < threshold) {
-                    showToast(`Withdrawal eligible only after reaching ₹${threshold}`, 'warning');
-                    return;
+                if (type === 'bonus') {
+                    const amount = Number(currentUser.bonus || 0);
+                    if (amount < 500) {
+                        showToast('Bonus withdrawal ₹500 par unlock hota hai.', 'warning');
+                        return;
+                    }
+                    document.getElementById('withdrawModalSubtitle').innerHTML = `Bonus Payout: <strong class="text-emerald-700 font-mono">₹${amount}</strong>`;
+                } else {
+                    const coins = Number(currentUser.balance || 0);
+                    const rupees = coinsToRupees(coins);
+                    if (rupees < 200) {
+                        showToast('Coin exchange & withdrawal ₹200 (40 CR Coin) par unlock hota hai.', 'warning');
+                        return;
+                    }
+                    document.getElementById('withdrawModalSubtitle').innerHTML = `Exchanged: <strong class="text-indigo-700 font-mono">${coins} CR Coin</strong> → <strong class="text-emerald-700 font-mono">₹${rupees}</strong>`;
                 }
-
-                document.getElementById('withdrawModalAmt').innerText = `₹${amount}`;
 
                 if (currentUser.bankDetails) {
                     document.getElementById('bankAccHolder').value = currentUser.bankDetails.holderName || '';
@@ -1521,15 +1645,10 @@
                     document.getElementById('bankIfscCode').value = currentUser.bankDetails.ifscCode || '';
                 }
 
-                showModal('bankDetailsModal');
+                openModal('bankDetailsModal');
             }
 
-            function closeBankModal() {
-                hideModal('bankDetailsModal');
-                currentWithdrawType = null;
-            }
-
-            async function submitWithdrawalRequest() {
+            async function handleSubmitWithdrawalRequest() {
                 if (!currentUser || !currentWithdrawType) return;
 
                 const holderName = document.getElementById('bankAccHolder').value.trim();
@@ -1546,99 +1665,198 @@
                 if (submitBtn) submitBtn.disabled = true;
 
                 try {
-                    const bankObj = {
-                        holderName: holderName,
-                        bankName: bankName,
-                        accountNo: accountNo,
-                        ifscCode: ifscCode
-                    };
+                    const bankObj = { holderName, bankName, accountNo, ifscCode };
                     currentUser.bankDetails = bankObj;
 
-                    const withdrawAmount = currentWithdrawType === 'bonus' ? currentUser.bonus : currentUser.balance;
+                    let withdrawRupees = 0;
+                    let reqTypeLabel = '';
 
                     if (currentWithdrawType === 'bonus') {
+                        withdrawRupees = Number(currentUser.bonus || 0);
                         currentUser.bonus = 0;
+                        reqTypeLabel = 'BONUS';
                     } else {
+                        const coinsExchanged = Number(currentUser.balance || 0);
+                        withdrawRupees = coinsToRupees(coinsExchanged);
                         currentUser.balance = 0;
-                        currentUser.ownDeposit = 0;
+                        reqTypeLabel = `EXCHANGED (${coinsExchanged} CR COIN)`;
                     }
 
-                    const { error: userUpdateErr } = await supabaseClient
-                        .from('er_users')
-                        .update({
-                            bonus: currentUser.bonus,
-                            balance: currentUser.balance,
-                            own_deposit: currentUser.ownDeposit,
-                            bank_details: bankObj
-                        })
-                        .eq('mobile', currentUser.mobile);
-
-                    if (userUpdateErr) throw userUpdateErr;
-
                     const reqId = 'WD' + Math.floor(100000 + Math.random() * 900000);
-                    const dateStr = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const dateStr = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-                    const { error: wdInsertErr } = await supabaseClient
-                        .from('er_withdrawals')
-                        .insert([{
-                            id: reqId,
-                            mobile: currentUser.mobile,
-                            user_id: currentUser.id,
-                            type: currentWithdrawType.toUpperCase(),
-                            amount: withdrawAmount,
-                            bank_details: bankObj,
-                            date_str: dateStr,
-                            status: 'PENDING'
-                        }]);
-
-                    if (wdInsertErr) throw wdInsertErr;
+                    if (supabaseClient) {
+                        await withTimeout(
+                            Promise.all([
+                                supabaseClient.from('er_users').update({
+                                    bonus: currentUser.bonus,
+                                    balance: currentUser.balance,
+                                    own_deposit: currentUser.ownDeposit,
+                                    bank_details: bankObj
+                                }).eq('mobile', currentUser.mobile),
+                                supabaseClient.from('er_withdrawals').insert([{
+                                    id: reqId,
+                                    mobile: currentUser.mobile,
+                                    user_id: currentUser.id,
+                                    type: reqTypeLabel,
+                                    amount: withdrawRupees,
+                                    bank_details: bankObj,
+                                    date_str: dateStr,
+                                    status: 'PENDING'
+                                }])
+                            ]),
+                            3500
+                        ).catch(() => {});
+                    }
 
                     users[currentUser.mobile] = currentUser;
                     withdrawalRequests.unshift({
                         id: reqId,
                         mobile: currentUser.mobile,
                         userId: currentUser.id,
-                        type: currentWithdrawType.toUpperCase(),
-                        amount: withdrawAmount,
+                        type: reqTypeLabel,
+                        amount: withdrawRupees,
                         bankDetails: bankObj,
                         date: dateStr,
                         status: 'PENDING'
                     });
+                    persistLocalStore();
 
-                    closeBankModal();
+                    closeModal('bankDetailsModal');
+                    currentWithdrawType = null;
                     await loadUserDashboard();
-                    showToast('Withdrawal request submit ho gayi hai!', 'success');
-                } catch (err) {
-                    console.error('Withdrawal DB error:', err);
-                    showToast('Withdrawal submit error: ' + (err.message || 'Unknown error'), 'error');
+                    showToast(`Withdrawal request submit ho gayi! Amount: ₹${withdrawRupees}`, 'success');
                 } finally {
                     if (submitBtn) submitBtn.disabled = false;
                 }
             }
 
-            function openAdminModal() {
-                showModal('adminAuthModal');
+            // ==========================================
+            // 5. OWNER / ADMIN CONTROL PANEL
+            // ==========================================
+            function toggleAdminSection(sectionId, chevronId) {
+                const sec = document.getElementById(sectionId);
+                const chev = document.getElementById(chevronId);
+                if (!sec) return;
+                const isHidden = sec.classList.contains('hidden');
+                sec.classList.toggle('hidden', !isHidden);
+                if (chev) {
+                    chev.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+                }
+            }
+
+            function handleOpenAdminModal() {
+                openModal('adminAuthModal');
                 const passInput = document.getElementById('adminPassInput');
                 if (passInput) {
                     passInput.value = '';
-                    setTimeout(() => passInput.focus(), 50);
+                    setTimeout(() => {
+                        try { passInput.focus(); } catch (e) {}
+                    }, 30);
                 }
             }
 
-            function closeAdminModal() {
-                hideModal('adminAuthModal');
+            async function handleVerifyAdminPassword() {
                 const passInput = document.getElementById('adminPassInput');
-                if (passInput) passInput.value = '';
+                const pwd = (passInput ? passInput.value : '').trim();
+                if (pwd === ADMIN_SECRET_PASS) {
+                    closeModal('adminAuthModal');
+                    await loadAdminPanel();
+                    showToast('Owner Control Panel open ho gaya!', 'success');
+                } else {
+                    showToast('Galat Owner Password!', 'error');
+                }
             }
 
-            async function verifyAdminPassword() {
-                const pwd = document.getElementById('adminPassInput').value.trim();
-                if (pwd === ADMIN_SECRET_PASS) {
-                    closeAdminModal();
-                    await loadAdminPanel();
-                } else {
-                    showToast("Galat Admin Password!", "error");
+            async function handleSaveOwnerUpiId() {
+                const input = document.getElementById('adminUpiInput');
+                if (!input) return;
+                const newUpi = input.value.trim();
+                if (!isValidUpiFormat(newUpi)) {
+                    showToast('Kripya sahi UPI ID darj karein (e.g. name@okaxis).', 'warning');
+                    return;
                 }
+                activeUpiId = newUpi;
+                persistLocalStore();
+                syncPaymentUiState();
+                if (supabaseClient) {
+                    await withTimeout(
+                        supabaseClient.from('er_settings').upsert({ key: 'active_upi_id', value: newUpi }),
+                        3000
+                    ).catch(() => {});
+                }
+                showToast(`UPI ID save ho gaya: ${activeUpiId}`, 'success');
+            }
+
+            async function handleClearOwnerUpiId() {
+                activeUpiId = "";
+                const input = document.getElementById('adminUpiInput');
+                if (input) input.value = "";
+                persistLocalStore();
+                syncPaymentUiState();
+                if (supabaseClient) {
+                    await withTimeout(
+                        supabaseClient.from('er_settings').upsert({ key: 'active_upi_id', value: '' }),
+                        3000
+                    ).catch(() => {});
+                }
+                showToast('UPI ID clear kar diya gaya.', 'warning');
+            }
+
+            function handleQrFileChange(e) {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    showToast('Kripya valid image file chunein.', 'warning');
+                    return;
+                }
+                if (file.size > 1.5 * 1024 * 1024) {
+                    showToast('QR image 1.5 MB se kam rakhein.', 'warning');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    pendingQrDataUrl = evt.target.result || '';
+                    syncPaymentUiState();
+                };
+                reader.readAsDataURL(file);
+            }
+
+            async function handleSaveOwnerQrCode() {
+                const qrToSave = pendingQrDataUrl || activeQrImage;
+                if (!qrToSave) {
+                    showToast('Pehle QR image select karein.', 'warning');
+                    return;
+                }
+                activeQrImage = qrToSave;
+                pendingQrDataUrl = "";
+                const fileInput = document.getElementById('adminQrFileInput');
+                if (fileInput) fileInput.value = "";
+                persistLocalStore();
+                syncPaymentUiState();
+                if (supabaseClient) {
+                    await withTimeout(
+                        supabaseClient.from('er_settings').upsert({ key: 'active_qr_image', value: qrToSave }),
+                        3000
+                    ).catch(() => {});
+                }
+                showToast('QR Code save ho gaya!', 'success');
+            }
+
+            async function handleClearOwnerQrCode() {
+                activeQrImage = "";
+                pendingQrDataUrl = "";
+                const fileInput = document.getElementById('adminQrFileInput');
+                if (fileInput) fileInput.value = "";
+                persistLocalStore();
+                syncPaymentUiState();
+                if (supabaseClient) {
+                    await withTimeout(
+                        supabaseClient.from('er_settings').upsert({ key: 'active_qr_image', value: '' }),
+                        3000
+                    ).catch(() => {});
+                }
+                showToast('QR Code remove kar diya gaya.', 'warning');
             }
 
             async function loadAdminPanel() {
@@ -1649,17 +1867,15 @@
                 await syncAllFromSupabase();
 
                 const totalUsersCount = Object.keys(users).length;
-                document.getElementById('adminTotalUsers').innerText = totalUsersCount;
-                
-                let totalCollected = 0;
-                loginLogs.forEach(l => { totalCollected += l.deposit; });
-                document.getElementById('adminTotalCollected').innerText = `₹${totalCollected}`;
+                document.getElementById('adminTotalUsers').innerText = `${totalUsersCount}`;
 
+                let totalCollected = 0;
+                loginLogs.forEach(l => { totalCollected += Number(l.deposit || 0); });
+                document.getElementById('adminTotalCollected').innerText = `₹${totalCollected}`;
                 document.getElementById('logBadge').innerText = `${loginLogs.length} Logs`;
 
                 const wdContainer = document.getElementById('adminWithdrawalRequestsList');
                 wdContainer.innerHTML = '';
-                
                 const pendingReqs = withdrawalRequests.filter(r => r.status === 'PENDING');
                 document.getElementById('withdrawalBadge').innerText = `${pendingReqs.length} Pending`;
 
@@ -1668,18 +1884,19 @@
                 } else {
                     withdrawalRequests.forEach(req => {
                         const item = document.createElement('div');
-                        let statusBg = req.status === 'PENDING' ? 'bg-amber-50 border-amber-200 text-amber-900' : (req.status === 'APPROVED' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-rose-50 border-rose-200 text-rose-900');
+                        const statusBg = req.status === 'PENDING'
+                            ? 'bg-amber-50 border-amber-200 text-amber-900'
+                            : (req.status === 'APPROVED' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-rose-50 border-rose-200 text-rose-900');
 
                         item.className = `p-3.5 rounded-2xl border space-y-2 text-xs ${statusBg}`;
                         item.innerHTML = `
                             <div class="flex justify-between items-center border-b border-slate-200 pb-2">
                                 <div>
                                     <span class="font-extrabold text-slate-900 text-sm">₹${req.amount}</span>
-                                    <span class="text-[10px] bg-white px-2 py-0.5 rounded-full ml-2 text-slate-700 font-bold border border-slate-200">${req.type} WITHDRAWAL</span>
+                                    <span class="text-[10px] bg-white px-2 py-0.5 rounded-full ml-2 text-slate-700 font-bold border border-slate-200">${req.type}</span>
                                 </div>
                                 <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border bg-white">${req.status}</span>
                             </div>
-
                             <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-700 pt-1">
                                 <p>Mobile: <strong class="text-slate-900">${req.mobile}</strong></p>
                                 <p>User ID: <strong class="text-indigo-700 font-mono">${req.userId}</strong></p>
@@ -1688,9 +1905,7 @@
                                 <p>Acc No: <strong class="text-emerald-700 font-mono">${req.bankDetails.accountNo}</strong></p>
                                 <p>IFSC: <strong class="text-cyan-700 font-mono">${req.bankDetails.ifscCode}</strong></p>
                             </div>
-                            
                             <p class="text-[10px] text-slate-500">${req.date}</p>
-
                             ${req.status === 'PENDING' ? `
                                 <div class="flex gap-2 pt-1 border-t border-slate-200">
                                     <button type="button" data-wd-id="${req.id}" data-wd-status="APPROVED" class="wd-action-btn w-1/2 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[11px]">
@@ -1706,8 +1921,20 @@
                     });
 
                     wdContainer.querySelectorAll('.wd-action-btn').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            updateWithdrawalStatus(this.getAttribute('data-wd-id'), this.getAttribute('data-wd-status'));
+                        btn.addEventListener('click', async function() {
+                            const id = this.getAttribute('data-wd-id');
+                            const st = this.getAttribute('data-wd-status');
+                            const target = withdrawalRequests.find(r => r.id === id);
+                            if (target) target.status = st;
+                            persistLocalStore();
+                            if (supabaseClient) {
+                                await withTimeout(
+                                    supabaseClient.from('er_withdrawals').update({ status: st }).eq('id', id),
+                                    3000
+                                ).catch(() => {});
+                            }
+                            showToast(`Withdrawal ${st}!`, st === 'APPROVED' ? 'success' : 'error');
+                            await loadAdminPanel();
                         });
                     });
                 }
@@ -1718,11 +1945,10 @@
                     usersContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Koi user registered nahi hai.</p>`;
                 } else {
                     Object.keys(users).forEach(mob => {
-                        let u = users[mob];
+                        const u = users[mob];
                         const uItem = document.createElement('div');
                         uItem.className = "p-3.5 bg-white rounded-2xl border border-slate-200 space-y-2 text-xs";
-                        
-                        let bankText = u.bankDetails ? `${u.bankDetails.bankName} (${u.bankDetails.accountNo})` : 'Not Provided';
+                        const bankText = u.bankDetails ? `${u.bankDetails.bankName} (${u.bankDetails.accountNo})` : 'Not Provided';
 
                         uItem.innerHTML = `
                             <div class="flex justify-between items-center border-b border-slate-200 pb-2">
@@ -1730,17 +1956,17 @@
                                 <span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-mono border border-indigo-200">ID: ${u.id}</span>
                             </div>
                             <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-700">
-                                <p>Main Bal: <strong class="text-emerald-700">₹${u.balance}</strong></p>
+                                <p>Your Coin: <strong class="text-emerald-700">${u.balance} CR Coin</strong></p>
                                 <p>Deposit: <strong class="text-amber-700">₹${u.ownDeposit || 0}</strong></p>
                                 <p>UTR: <strong class="text-cyan-700 font-mono">${u.utr || 'N/A'}</strong></p>
-                                <p>Team: <strong class="text-indigo-700">${u.teamCount}</strong></p>
+                                <p>Team: <strong class="text-indigo-700">${u.teamCount} (${getDailyGrowthPercentText(u.teamCount)})</strong></p>
                             </div>
                             <div class="text-[11px] text-slate-600 border-t border-slate-200 pt-1">
                                 <span>Password: <strong class="text-slate-900 font-mono">${u.password}</strong></span> | 
                                 <span>Bank: <strong class="text-cyan-700">${bankText}</strong></span>
                             </div>
                             <div class="pt-1 flex justify-end">
-                                <button type="button" data-del-mobile="${u.mobile}" class="del-user-btn px-3 py-1 bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white rounded-lg text-[10px] font-bold border border-rose-200 transition-all">
+                                <button type="button" data-del-mobile="${u.mobile}" class="del-user-btn px-3 py-1 bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white rounded-lg text-[10px] font-bold border border-rose-200 transition-colors">
                                     <i class="fa-solid fa-trash mr-1"></i> Delete Account
                                 </button>
                             </div>
@@ -1749,8 +1975,18 @@
                     });
 
                     usersContainer.querySelectorAll('.del-user-btn').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            deleteUserAccount(this.getAttribute('data-del-mobile'));
+                        btn.addEventListener('click', async function() {
+                            const targetMob = this.getAttribute('data-del-mobile');
+                            delete users[targetMob];
+                            persistLocalStore();
+                            if (supabaseClient) {
+                                await withTimeout(
+                                    supabaseClient.from('er_users').delete().eq('mobile', targetMob),
+                                    3000
+                                ).catch(() => {});
+                            }
+                            showToast('Account delete ho gaya.', 'success');
+                            await loadAdminPanel();
                         });
                     });
                 }
@@ -1781,60 +2017,7 @@
                 }
             }
 
-            async function updateWithdrawalStatus(reqId, status) {
-                const { error } = await supabaseClient
-                    .from('er_withdrawals')
-                    .update({ status: status })
-                    .eq('id', reqId);
-
-                if (error) {
-                    showToast('Status update failed: ' + error.message, 'error');
-                    return;
-                }
-
-                showToast(`Withdrawal Request ${status}!`, status === 'APPROVED' ? 'success' : 'error');
-                await loadAdminPanel();
-            }
-
-            async function deleteUserAccount(mobile) {
-                const targetUser = users[mobile];
-                if (!targetUser) return;
-
-                try {
-                    if (targetUser.sponsorMobileUsed && users[targetUser.sponsorMobileUsed]) {
-                        const sponsor = users[targetUser.sponsorMobileUsed];
-                        const bDeduct = targetUser.bonusAwardedToSponsor || 100;
-                        const cDeduct = targetUser.commissionAwardedToSponsor || 0;
-
-                        const newBonus = Math.max(0, (sponsor.bonus || 0) - bDeduct);
-                        const newBalance = Math.max(0, Math.round(((sponsor.balance || 0) - cDeduct) * 100) / 100);
-                        const newTeam = Math.max(0, (sponsor.teamCount || 0) - 1);
-
-                        await supabaseClient
-                            .from('er_users')
-                            .update({
-                                bonus: newBonus,
-                                balance: newBalance,
-                                team_count: newTeam
-                            })
-                            .eq('mobile', targetUser.sponsorMobileUsed);
-                    }
-
-                    const { error } = await supabaseClient
-                        .from('er_users')
-                        .delete()
-                        .eq('mobile', mobile);
-
-                    if (error) throw error;
-
-                    showToast('User account Supabase se delete kar diya gaya!', 'success');
-                    await loadAdminPanel();
-                } catch (err) {
-                    showToast('Account delete error: ' + err.message, 'error');
-                }
-            }
-
-            async function closeAdminPanel() {
+            async function handleExitAdminPanel() {
                 if (currentUser) {
                     await loadUserDashboard();
                 } else {
@@ -1843,160 +2026,182 @@
                 }
             }
 
-            function copyToClipboardFallback(text) {
-                const tempInput = document.createElement('input');
-                tempInput.value = text;
-                document.body.appendChild(tempInput);
-                tempInput.select();
+            // ==========================================
+            // 6. SHARE, COPY & LOGOUT
+            // ==========================================
+            function copyTextSafe(text) {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).catch(() => {});
+                }
+                const temp = document.createElement('input');
+                temp.value = text;
+                document.body.appendChild(temp);
+                temp.select();
                 try { document.execCommand('copy'); } catch (e) {}
-                document.body.removeChild(tempInput);
+                document.body.removeChild(temp);
             }
 
-            function copyOnlyReferralId() {
+            function handleCopyId() {
                 if (!currentUser) return;
-                const idStr = currentUser.id;
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(idStr).catch(() => copyToClipboardFallback(idStr));
-                } else {
-                    copyToClipboardFallback(idStr);
-                }
-                showToast('Referral ID (' + idStr + ') copy ho gaya hai!', 'success');
+                copyTextSafe(currentUser.id);
+                showToast(`Referral ID (${currentUser.id}) copy ho gaya!`, 'success');
             }
 
-            function copyReferralLink() {
-                const shareInput = document.getElementById('shareUrlInput');
-                if (!shareInput) return;
-                shareInput.select();
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(shareInput.value).catch(() => copyToClipboardFallback(shareInput.value));
-                } else {
-                    copyToClipboardFallback(shareInput.value);
-                }
-                showToast('Referral link copy ho gaya hai!', 'success');
+            function handleCopyLink() {
+                const el = document.getElementById('shareUrlInput');
+                if (!el) return;
+                copyTextSafe(el.value);
+                showToast('Referral link copy ho gaya!', 'success');
             }
 
-            function shareOnWhatsApp() {
+            function handleShareWhatsApp() {
                 if (!currentUser) return;
                 const shareUrl = document.getElementById('shareUrlInput').value;
                 const text = `🔥 *EarnRefer Dhamakedar Offer!* 🔥\n\n` +
-                             `💰 5% Daily Growth in Main Balance (₹199 - ₹1999)\n` +
-                             `🎁 ₹100 Instant Bonus + 40% Commission\n` +
-                             `⚡ Fast & Secure Withdrawals!\n\n` +
-                             `Mera Referral ID hai: *${currentUser.id}*\n\n` +
-                             `Aaj hi Join Karein: ${shareUrl}`;
-                
+                    `🪙 24h CR Coin Upgrade (1 CR Coin = ₹5)\n` +
+                    `🎁 ₹100 Bonus + 10% Referral Coin Commission\n` +
+                    `⚡ Withdrawals starting at ₹200!\n\n` +
+                    `Referral ID: *${currentUser.id}*\n` +
+                    `Join: ${shareUrl}`;
                 window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
             }
 
-            function logout() {
+            function handleLogout() {
                 currentUser = null;
-                safeRemoveItem(sessionStorage, 'er_active_user');
+                if (countdownTimer) {
+                    clearInterval(countdownTimer);
+                    countdownTimer = null;
+                }
+                safeRemoveItem(sessionStorage, SESSION_USER_KEY);
                 document.getElementById('dashboardScreen').classList.add('hidden');
                 document.getElementById('adminScreen').classList.add('hidden');
                 document.getElementById('logoutBtn').classList.add('hidden');
+                document.getElementById('openWalletBtn').classList.add('hidden');
                 document.getElementById('authScreen').classList.remove('hidden');
-                
-                document.getElementById('regMobile').value = '';
-                document.getElementById('regPassword').value = '';
-                document.getElementById('regDepositAmount').value = '';
-                document.getElementById('regSponsor').value = '';
-                document.getElementById('loginMobile').value = '';
-                document.getElementById('loginPassword').value = '';
-                
+
+                ['regMobile', 'regPassword', 'regSponsor', 'regDepositAmount', 'loginMobile', 'loginPassword'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+
                 switchAuthTab('deposit');
                 showToast('Logged out successfully', 'info');
             }
 
-            window.openAdminModal = openAdminModal;
-            window.closeAdminModal = closeAdminModal;
-            window.verifyAdminPassword = verifyAdminPassword;
-            window.closeAdminPanel = closeAdminPanel;
-            window.toggleAdminSection = toggleAdminSection;
-            window.switchAuthTab = switchAuthTab;
-            window.togglePassVisibility = togglePassVisibility;
-            window.openPaymentModal = openPaymentModal;
-            window.closePaymentModal = closePaymentModal;
-            window.redirectToUPI = redirectToUPI;
-            window.completeRegistrationAfterPayment = completeRegistrationAfterPayment;
-            window.handleLogin = handleLogin;
-            window.initiateWithdrawal = initiateWithdrawal;
-            window.closeBankModal = closeBankModal;
-            window.submitWithdrawalRequest = submitWithdrawalRequest;
-            window.saveOwnerUpiId = saveOwnerUpiId;
-            window.clearOwnerUpiId = clearOwnerUpiId;
-            window.saveOwnerQrCode = saveOwnerQrCode;
-            window.clearOwnerQrCode = clearOwnerQrCode;
-            window.updateWithdrawalStatus = updateWithdrawalStatus;
-            window.deleteUserAccount = deleteUserAccount;
-            window.copyOnlyReferralId = copyOnlyReferralId;
-            window.copyReferralLink = copyReferralLink;
-            window.shareOnWhatsApp = shareOnWhatsApp;
-            window.logout = logout;
-
-            function bindListeners() {
-                const adminUpiInput = document.getElementById('adminUpiInput');
-                if (adminUpiInput && !adminUpiInput.dataset.bound) {
-                    adminUpiInput.dataset.bound = '1';
-                    adminUpiInput.addEventListener('keydown', function(e) {
-                        if (e.key === 'Enter') saveOwnerUpiId();
-                    });
-                }
-
-                const qrFileInput = document.getElementById('adminQrFileInput');
-                if (qrFileInput && !qrFileInput.dataset.bound) {
-                    qrFileInput.dataset.bound = '1';
-                    qrFileInput.addEventListener('change', handleQrFileChange);
-                }
-
-                const adminPassInput = document.getElementById('adminPassInput');
-                if (adminPassInput && !adminPassInput.dataset.bound) {
-                    adminPassInput.dataset.bound = '1';
-                    adminPassInput.addEventListener('keydown', function(e) {
-                        if (e.key === 'Enter') verifyAdminPassword();
-                    });
-                }
-
-                const loginPassInput = document.getElementById('loginPassword');
-                if (loginPassInput && !loginPassInput.dataset.bound) {
-                    loginPassInput.dataset.bound = '1';
-                    loginPassInput.addEventListener('keydown', function(e) {
-                        if (e.key === 'Enter') handleLogin();
-                    });
-                }
-
-                ['paymentModal', 'bankDetailsModal', 'adminAuthModal'].forEach(modalId => {
-                    const modalEl = document.getElementById(modalId);
-                    if (modalEl && !modalEl.dataset.bound) {
-                        modalEl.dataset.bound = '1';
-                        modalEl.addEventListener('click', function(e) {
-                            if (e.target === modalEl) {
-                                if (modalId === 'paymentModal') closePaymentModal();
-                                else if (modalId === 'bankDetailsModal') closeBankModal();
-                                else if (modalId === 'adminAuthModal') closeAdminModal();
-                            }
-                        });
+            // ==========================================
+            // 7. DIRECT EVENT BINDING (NEVER BLOCKED)
+            // ==========================================
+            function bindClick(id, handler) {
+                const el = document.getElementById(id);
+                if (!el || el.dataset.bound === '1') return;
+                el.dataset.bound = '1';
+                el.addEventListener('click', function(e) {
+                    try {
+                        handler(e);
+                    } catch (err) {
+                        showToast('Action error: ' + (err.message || 'Try again'), 'error');
                     }
                 });
             }
 
+            function bindAllEvents() {
+                try {
+                    bindClick('brandLogoTrigger', handleOpenAdminModal);
+                    bindClick('openWalletBtn', handleOpenWalletModal);
+                    bindClick('closeWalletModalBtn', () => closeModal('walletModal'));
+                    bindClick('walletExchangeBtn', handleExchangeCoinsClick);
+                    bindClick('walletWithdrawBtn', handleWalletWithdrawClick);
+                    bindClick('logoutBtn', handleLogout);
+
+                    bindClick('tabRegisterBtn', () => switchAuthTab('deposit'));
+                    bindClick('tabLoginBtn', () => switchAuthTab('login'));
+
+                    bindClick('toggleRegPassBtn', function() { togglePassVisibility('regPassword', this); });
+                    bindClick('toggleLoginPassBtn', function() { togglePassVisibility('loginPassword', this); });
+
+                    bindClick('openPayModalBtn', handleOpenPaymentModal);
+                    bindClick('closePayModalBtn', handleClosePaymentModal);
+                    bindClick('btnPayGpay', handlePayViaGpay);
+                    bindClick('completeRegBtn', handleCompleteRegistrationAfterPayment);
+
+                    bindClick('loginSubmitBtn', handleLogin);
+                    bindClick('bonusWithdrawBtn', () => initiateWithdrawal('bonus'));
+
+                    bindClick('closeBankModalBtn', () => closeModal('bankDetailsModal'));
+                    bindClick('submitWithdrawBtn', handleSubmitWithdrawalRequest);
+
+                    bindClick('closeAdminModalBtn', () => closeModal('adminAuthModal'));
+                    bindClick('verifyAdminBtn', handleVerifyAdminPassword);
+                    bindClick('exitAdminBtn', handleExitAdminPanel);
+
+                    bindClick('togglePaymentSectionBtn', () => toggleAdminSection('paymentSectionBody', 'paymentChevron'));
+                    bindClick('toggleWithdrawalSectionBtn', () => toggleAdminSection('withdrawalSectionBody', 'withdrawalChevron'));
+                    bindClick('toggleUsersSectionBtn', () => toggleAdminSection('usersSectionBody', 'usersChevron'));
+                    bindClick('toggleLogsSectionBtn', () => toggleAdminSection('logsSectionBody', 'logsChevron'));
+
+                    bindClick('saveUpiBtn', handleSaveOwnerUpiId);
+                    bindClick('clearUpiBtn', handleClearOwnerUpiId);
+                    bindClick('saveQrBtn', handleSaveOwnerQrCode);
+                    bindClick('clearQrBtn', handleClearOwnerQrCode);
+
+                    bindClick('copyIdBtn', handleCopyId);
+                    bindClick('copyLinkBtn', handleCopyLink);
+                    bindClick('whatsappShareBtn', handleShareWhatsApp);
+
+                    const qrFileInput = document.getElementById('adminQrFileInput');
+                    if (qrFileInput && !qrFileInput.dataset.bound) {
+                        qrFileInput.dataset.bound = '1';
+                        qrFileInput.addEventListener('change', handleQrFileChange);
+                    }
+
+                    const adminPassInput = document.getElementById('adminPassInput');
+                    if (adminPassInput && !adminPassInput.dataset.bound) {
+                        adminPassInput.dataset.bound = '1';
+                        adminPassInput.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') handleVerifyAdminPassword();
+                        });
+                    }
+
+                    const loginPassInput = document.getElementById('loginPassword');
+                    if (loginPassInput && !loginPassInput.dataset.bound) {
+                        loginPassInput.dataset.bound = '1';
+                        loginPassInput.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') handleLogin();
+                        });
+                    }
+
+                    ['paymentModal', 'bankDetailsModal', 'adminAuthModal', 'walletModal'].forEach(modalId => {
+                        const modalEl = document.getElementById(modalId);
+                        if (modalEl && !modalEl.dataset.bound) {
+                            modalEl.dataset.bound = '1';
+                            modalEl.addEventListener('click', function(e) {
+                                if (e.target === modalEl) {
+                                    closeModal(modalId);
+                                }
+                            });
+                        }
+                    });
+                } catch (e) {}
+            }
+
             async function initApp() {
-                bindListeners();
+                bindAllEvents();
+                hydrateLocalStore();
+                syncPaymentUiState();
+                syncAllUsersDisplay();
 
                 const urlParams = new URLSearchParams(window.location.search);
                 const refParam = urlParams.get('ref');
-                if (refParam && refParam.length === 10) {
+                if (refParam && /^\d{10}$/.test(refParam.trim())) {
                     const sponsorInput = document.getElementById('regSponsor');
-                    if (sponsorInput) sponsorInput.value = refParam;
+                    if (sponsorInput) sponsorInput.value = refParam.trim();
                 }
 
                 await syncAllFromSupabase();
 
-                const savedMobile = safeGetItem(sessionStorage, 'er_active_user');
-                if (savedMobile && users[savedMobile]) {
-                    currentUser = users[savedMobile];
-                    if (!currentUser.ownDeposit && currentUser.balance > 0) {
-                        currentUser.ownDeposit = currentUser.balance;
-                    }
+                const savedMob = safeGetItem(sessionStorage, SESSION_USER_KEY);
+                if (savedMob && users[savedMob]) {
+                    currentUser = users[savedMob];
                     await loadUserDashboard();
                 }
             }
