@@ -9,7 +9,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://yourwebsite.com/">
     <meta property="og:title" content="EarnRefer - Daily Coin Growth + ₹100 Bonus & 10% Commission!">
-    <meta property="og:description" content="EarnRefer se जुड़ें, CR Coin कमाएं और ₹200 से विड्रॉल पाएं!">
+    <meta property="og:description" content="EarnRefer se जुड़ें, ER Coin कमाएं और ₹200 से विड्रॉल पाएं!">
     <meta property="og:image" content="https://placehold.co/1200x630/ffffff/4f46e5?text=EarnRefer+Multi-Reward+Platform">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
@@ -18,7 +18,7 @@
     <!-- Twitter Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="EarnRefer - Multi-Reward Platform">
-    <meta name="twitter:description" content="EarnRefer से जुड़ें और CR Coin कमाएं!">
+    <meta name="twitter:description" content="EarnRefer से जुड़ें और ER Coin कमाएं!">
     <meta name="twitter:image" content="https://placehold.co/1200x630/ffffff/4f46e5?text=EarnRefer+Multi-Reward+Platform">
 
     <!-- Supabase JS SDK -->
@@ -118,7 +118,7 @@
 <body class="min-h-screen flex flex-col justify-between antialiased bg-white text-slate-900">
 
     <!-- TOP NAVBAR -->
-    <header class="bg-white/95 backdrop-blur-md sticky top-0 z-40 px-4 py-3.5 border-b border-slate-200 shadow-sm">
+    <header class="bg-white sticky top-0 z-40 px-4 py-3.5 border-b border-slate-200 shadow-sm">
         <div class="max-w-md mx-auto flex items-center justify-between w-full">
             <div id="brandLogoTrigger" role="button" tabindex="0" class="flex items-center gap-2.5 cursor-pointer group p-1.5 select-none rounded-xl hover:bg-slate-50" title="Owner Control Panel">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-lg shadow-md">
@@ -155,10 +155,10 @@
         <div id="authScreen" class="space-y-6 my-auto py-4 w-full">
             <div class="text-center space-y-2">
                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold mb-1">
-                    <i class="fa-solid fa-coins text-xs"></i> 1 CR Coin = ₹5 • 24h Coin Upgrade + 10% Referral Coin
+                    <i class="fa-solid fa-coins text-xs"></i> 1 ER Coin = ₹5 • 24h Coin Upgrade + 10% Referral Coin
                 </div>
                 <h1 class="text-3xl font-black tracking-tight text-slate-900">Welcome to <span class="gradient-text">EarnRefer</span></h1>
-                <p class="text-slate-600 text-xs sm:text-sm max-w-xs mx-auto">Deposit ₹500+ & earn daily CR Coins with referral rewards</p>
+                <p class="text-slate-600 text-xs sm:text-sm max-w-xs mx-auto">Deposit ₹500+ & earn daily ER Coins with referral rewards</p>
             </div>
 
             <!-- TABS SWITCHER -->
@@ -214,11 +214,11 @@
                 <div class="p-3.5 rounded-2xl bg-indigo-50 border border-indigo-200 space-y-1.5">
                     <p class="text-[11px] text-slate-700 leading-relaxed flex items-start gap-1.5">
                         <i class="fa-solid fa-coins text-amber-600 text-xs mt-0.5"></i>
-                        <span>Your Coin 0 se shuru hota hai. Har 24 ghante mein deposit par 1% (10+ team par 2%, 20+ par 3%) ke hisaab se CR Coin (1 Coin = ₹5) aur referral par 10% commission Your Coin mein judega!</span>
+                        <span>Your Coin 0 se shuru hota hai. Har 24 ghante mein deposit par 1% (10+ team par 2%, 20+ par 3%) ke hisaab se ER Coin (1 Coin = ₹5) aur referral par 10% commission Your Coin mein judega!</span>
                     </p>
                 </div>
 
-                <button type="button" id="openPayModalBtn" class="w-full gradient-btn text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-md flex items-center justify-center gap-2 active:scale-95">
+                <button type="button" id="openPayModalBtn" class="w-full gradient-btn text-white py-3.5 rounded-xl font-extrabold text-xs tracking-wider uppercase shadow-md transition-colors flex items-center justify-center gap-2 active:scale-95">
                     <i class="fa-brands fa-google-pay text-base"></i> Pay via Google Pay
                 </button>
             </div>
@@ -313,12 +313,12 @@
                 </div>
             </div>
 
-            <!-- YOUR COIN CARD (SHOWS ONLY CR COIN COUNT & 24H UPGRADE TIMER) -->
+            <!-- YOUR COIN CARD (SHOWS ONLY ER COIN COUNT & 24H UPGRADE TIMER) -->
             <div class="glass-card glass-card-hover p-5 rounded-2xl space-y-3 border-emerald-200 relative overflow-hidden">
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Your Coin</p>
-                        <h2 class="text-3xl font-black text-slate-900 mt-1"><span id="yourCoinBalance">0</span> <span class="text-sm font-extrabold text-indigo-600">CR Coin</span></h2>
+                        <h2 class="text-3xl font-black text-slate-900 mt-1"><span id="yourCoinBalance">0</span> <span class="text-sm font-extrabold text-indigo-600">ER Coin</span></h2>
                         <div class="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-[10px] font-bold text-indigo-700">
                             <i class="fa-regular fa-clock"></i> Next 24h Coin Upgrade: <span id="nextCoinCountdown" class="font-mono">--:--:--</span>
                         </div>
@@ -327,7 +327,7 @@
                         <i class="fa-solid fa-coins text-xl"></i>
                     </div>
                 </div>
-                <p class="text-xs text-slate-600">24h Daily Growth (1%/2%/3%) + 10% Referral Commission in CR Coin. (1 CR Coin = ₹5)</p>
+                <p class="text-xs text-slate-600">24h Daily Growth (1%/2%/3%) + 10% Referral Commission in ER Coin. (1 ER Coin = ₹5)</p>
             </div>
 
             <!-- EXCHANGE COIN BUTTON DIRECTLY BELOW YOUR COIN CARD -->
@@ -336,7 +336,7 @@
                     <i class="fa-solid fa-right-left text-sm"></i>
                     <span>Exchange Coin</span>
                 </span>
-                <span id="exchangeCoinRateHint" class="text-[11px] font-mono bg-white/15 px-2.5 py-1 rounded-lg">0 Coin = ₹0</span>
+                <span id="exchangeCoinRateHint" class="text-[11px] font-mono bg-white/15 px-2.5 py-1 rounded-lg">0 ER Coin = ₹0</span>
             </button>
 
             <!-- TEAM LEVEL PROGRESS BOX DIRECTLY BELOW YOUR COIN & EXCHANGE BUTTON -->
@@ -563,8 +563,8 @@
 
     </main>
 
-    <!-- USER WALLET MODAL (WALLET RUPEE BALANCE + WITHDRAW ₹200+ + WITHDRAWAL HISTORY) -->
-    <div id="walletModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
+    <!-- USER WALLET MODAL (EXCHANGE REMOVED • CUSTOM WITHDRAWAL AMOUNT ₹200+ • WITHDRAWAL HISTORY) -->
+    <div id="walletModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 z-50 items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-indigo-200 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div class="flex items-center gap-2">
@@ -582,23 +582,31 @@
             <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
                 <div class="flex items-center justify-between">
                     <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Wallet Balance</p>
-                    <span class="text-[10px] font-bold bg-white text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">1 CR Coin = ₹5</span>
+                    <span class="text-[10px] font-bold bg-white text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">1 ER Coin = ₹5</span>
                 </div>
                 <p class="text-3xl font-black text-slate-900 font-mono">₹<span id="walletRupeeDisplay">0</span></p>
-                <p class="text-[11px] text-slate-600">Available to Exchange: <strong id="walletCoinsDisplay" class="text-indigo-700 font-mono">0 CR Coin</strong></p>
+                <p class="text-[11px] text-slate-600">Unexchanged Balance: <strong id="walletCoinsDisplay" class="text-indigo-700 font-mono">0 ER Coin</strong></p>
             </div>
 
-            <!-- EXCHANGE & WITHDRAW CONTROLS IN WALLET -->
+            <!-- WITHDRAWAL SECTION WITH CUSTOM AMOUNT INPUT (NO EXCHANGE BUTTON HERE) -->
             <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" id="walletExchangeBtn" class="py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95">
-                        <i class="fa-solid fa-right-left"></i> Exchange Coin
-                    </button>
-                    <button type="button" id="walletWithdrawBtn" class="py-2.5 px-3 rounded-xl bg-slate-200 text-slate-500 font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed">
-                        <i class="fa-solid fa-lock"></i> Withdraw to Bank (Min ₹200)
-                    </button>
+                <button type="button" id="walletModalExchangeCoinBtn" class="w-full py-2.5 px-3 rounded-xl gradient-btn text-white font-extrabold text-xs shadow-sm flex items-center justify-between active:scale-95">
+                    <span class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-right-left"></i> Exchange ER Coin to Wallet
+                    </span>
+                    <span id="walletModalExchangeHint" class="text-[10px] font-mono bg-white/15 px-2 py-0.5 rounded-lg">0 ER Coin → ₹0</span>
+                </button>
+                <div>
+                    <label for="walletWithdrawAmountInput" class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Withdrawal Amount Likhein (Min ₹200)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-700 text-xs font-extrabold pointer-events-none">₹</span>
+                        <input type="number" id="walletWithdrawAmountInput" min="200" step="any" inputmode="decimal" placeholder="e.g. 300" class="w-full bg-white border border-slate-300 rounded-xl py-2.5 pl-7 pr-3 text-xs text-slate-900 font-mono font-bold focus:outline-none focus:border-emerald-500">
+                    </div>
                 </div>
-                <p id="walletWithdrawStatusText" class="text-[11px] text-amber-700 font-medium text-center">Wallet balance ₹200 hone par withdrawal unlock hoga</p>
+                <button type="button" id="walletWithdrawBtn" class="w-full py-2.5 px-3 rounded-xl bg-slate-200 text-slate-500 font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed">
+                    <i class="fa-solid fa-lock"></i> Withdraw to Bank (Min ₹200)
+                </button>
+                <p id="walletWithdrawStatusText" class="text-[11px] text-amber-700 font-medium text-center">Wallet mein ₹200+ hone par withdrawal unlock hoga</p>
             </div>
 
             <!-- WITHDRAWAL HISTORY INSIDE WALLET -->
@@ -617,7 +625,7 @@
     </div>
 
     <!-- GOOGLE PAY PAYMENT MODAL -->
-    <div id="paymentModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
+    <div id="paymentModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 z-50 items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-slate-200 shadow-2xl relative overflow-hidden text-center max-h-[90vh] overflow-y-auto">
             <div class="space-y-1.5">
                 <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto text-xl border border-indigo-200">
@@ -678,7 +686,7 @@
     </div>
 
     <!-- BANK DETAILS & WITHDRAWAL MODAL -->
-    <div id="bankDetailsModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
+    <div id="bankDetailsModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 z-50 items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-slate-200 shadow-2xl relative">
             <div class="text-center space-y-1.5">
                 <div class="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-700 flex items-center justify-center mx-auto text-xl border border-cyan-200">
@@ -689,6 +697,13 @@
             </div>
 
             <div class="space-y-3">
+                <div id="bankWithdrawAmountGroup">
+                    <label for="bankWithdrawAmount" class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Withdrawal Amount (₹200 - Available Balance)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-700 text-xs font-extrabold pointer-events-none">₹</span>
+                        <input type="number" id="bankWithdrawAmount" min="200" step="any" inputmode="decimal" placeholder="Enter amount (min 200)" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 pl-7 pr-3 text-xs text-slate-900 focus:outline-none focus:border-cyan-500 font-mono font-bold">
+                    </div>
+                </div>
                 <div>
                     <label for="bankAccHolder" class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Account Holder Name</label>
                     <input type="text" id="bankAccHolder" placeholder="e.g. Rahul Kumar" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 px-3 text-xs text-slate-900 focus:outline-none focus:border-cyan-500 font-semibold">
@@ -715,7 +730,7 @@
     </div>
 
     <!-- ADMIN PASSWORD MODAL -->
-    <div id="adminAuthModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
+    <div id="adminAuthModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 z-50 items-center justify-center p-4">
         <div class="glass-card w-full max-w-xs rounded-3xl p-6 space-y-4 border-slate-200 shadow-2xl">
             <div class="text-center space-y-1.5">
                 <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-xl border border-amber-200">
@@ -739,9 +754,6 @@
     <!-- SUPABASE + APP LOGIC SCRIPT -->
     <script>
         (function() {
-            // ==========================================
-            // 1. SUPABASE CONFIGURATION & SAFE STORAGE
-            // ==========================================
             const SUPABASE_PROJECT_ID = 'sjxyjgcvtgtldqnxhova';
             const SUPABASE_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co`;
             const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_FMlFF37dCv8xLj4N8GENKw_ADEdCw-i';
@@ -755,7 +767,6 @@
                 supabaseClient = null;
             }
 
-            // 1 CR Coin = ₹5
             const COIN_VALUE_RUPEES = 5;
             const MS_IN_24_HOURS = 24 * 60 * 60 * 1000;
             const ADMIN_SECRET_PASS = "8825354587@#arkh";
@@ -765,21 +776,13 @@
             const SESSION_USER_KEY = "er_active_user";
 
             function safeGetItem(storage, key) {
-                try {
-                    return storage ? storage.getItem(key) : null;
-                } catch (e) {
-                    return null;
-                }
+                try { return storage ? storage.getItem(key) : null; } catch (e) { return null; }
             }
             function safeSetItem(storage, key, value) {
-                try {
-                    if (storage) storage.setItem(key, value);
-                } catch (e) {}
+                try { if (storage) storage.setItem(key, value); } catch (e) {}
             }
             function safeRemoveItem(storage, key) {
-                try {
-                    if (storage) storage.removeItem(key);
-                } catch (e) {}
+                try { if (storage) storage.removeItem(key); } catch (e) {}
             }
 
             let users = {};
@@ -794,17 +797,30 @@
             let pendingRegistration = null;
             let currentWithdrawType = null;
             let countdownTimer = null;
+            let lastExchangeTimestamp = 0;
 
             function round2(val) {
-                return Math.round((Number(val || 0)) * 100) / 100;
+                const num = Number(val);
+                if (!isFinite(num)) return 0;
+                return Math.round(num * 100) / 100;
+            }
+
+            function parseAmountSafe(val) {
+                if (typeof val === 'number') return isFinite(val) ? val : 0;
+                if (typeof val === 'string') {
+                    const cleaned = val.replace(/[^0-9.\-]/g, '').trim();
+                    const parsed = parseFloat(cleaned);
+                    return isFinite(parsed) ? parsed : 0;
+                }
+                return 0;
             }
 
             function coinsToRupees(coins) {
-                return round2(Number(coins || 0) * COIN_VALUE_RUPEES);
+                return round2(parseAmountSafe(coins) * COIN_VALUE_RUPEES);
             }
 
             function rupeesToCoins(rupees) {
-                return round2(Number(rupees || 0) / COIN_VALUE_RUPEES);
+                return round2(parseAmountSafe(rupees) / COIN_VALUE_RUPEES);
             }
 
             function getDailyGrowthRate(teamCount) {
@@ -818,8 +834,6 @@
                 return `${Math.round(getDailyGrowthRate(teamCount) * 100)}%`;
             }
 
-            // Progress bar calculation for 0 -> 10 (1% stage) and 10 -> 20 (2% -> 3% stage)
-            // 0 users = 0%, 5 users = 50% of first bar (or 25% overall), 10 users = 100% of first stage (2% daily), 20 users = 100% of second stage (3% daily)
             function getTeamProgressData(teamCount) {
                 const count = Math.max(0, Number(teamCount || 0));
                 if (count < 10) {
@@ -895,45 +909,74 @@
 
             function normalizeUserCoins(user) {
                 if (!user) return;
-                const deposit = Number(user.ownDeposit || 0);
-                const team = Number(user.teamCount || 0);
-                const coinBal = Number(user.balance || 0);
+                const deposit = parseAmountSafe(user.ownDeposit);
+                const team = parseInt(user.teamCount, 10) || 0;
+                let coinBal = parseAmountSafe(user.balance);
+                let walletRs = parseAmountSafe(
+                    user.walletRupees !== undefined && user.walletRupees !== null
+                        ? user.walletRupees
+                        : user.wallet_rupees
+                );
+                const lastExchanged = parseAmountSafe(
+                    user.lastExchangedAt !== undefined && user.lastExchangedAt !== null
+                        ? user.lastExchangedAt
+                        : user.last_exchanged_at
+                );
+                const exchangedCoins = parseAmountSafe(
+                    user.exchangedCoins !== undefined && user.exchangedCoins !== null
+                        ? user.exchangedCoins
+                        : user.exchanged_coins
+                );
 
-                // If user has 0 team and coin balance matches or exceeds deposit (e.g. old bug where deposit/coins were inflated), reset to 0
-                if (team === 0 && deposit > 0 && coinBal >= deposit) {
-                    user.balance = 0;
-                } else if (coinBal < 0 || !isFinite(coinBal)) {
-                    user.balance = 0;
-                } else {
-                    user.balance = round2(coinBal);
+                user.lastExchangedAt = lastExchanged;
+                user.exchangedCoins = round2(exchangedCoins);
+
+                if (walletRs > 0 || lastExchanged > 0 || exchangedCoins > 0) {
+                    if (coinBal < 0) coinBal = 0;
+                } else if (team === 0 && deposit > 0 && coinBal >= deposit) {
+                    coinBal = 0;
+                } else if (coinBal < 0) {
+                    coinBal = 0;
                 }
+
+                user.balance = round2(coinBal);
+                user.walletRupees = Math.max(0, round2(walletRs));
             }
 
             function mapDbUserToLocal(row) {
+                const rawWallet = (row.wallet_rupees !== undefined && row.wallet_rupees !== null)
+                    ? row.wallet_rupees
+                    : row.walletRupees;
+                const rawBalance = (row.balance !== undefined && row.balance !== null)
+                    ? row.balance
+                    : 0;
+
                 const u = {
-                    mobile: String(row.mobile || ''),
+                    mobile: String(row.mobile || '').trim(),
                     password: String(row.password || ''),
                     id: String(row.id || ''),
                     utr: row.utr || null,
                     sponsorId: row.sponsor_id || null,
-                    ownDeposit: Number(row.own_deposit || 0),
-                    bonus: Number(row.bonus || 0),
-                    balance: Number(row.balance || 0),
-                    walletRupees: Number(row.wallet_rupees || 0),
-                    teamCount: Number(row.team_count || 0),
+                    ownDeposit: parseAmountSafe(row.own_deposit),
+                    bonus: parseAmountSafe(row.bonus),
+                    balance: parseAmountSafe(rawBalance),
+                    walletRupees: parseAmountSafe(rawWallet),
+                    exchangedCoins: parseAmountSafe(row.exchanged_coins !== undefined ? row.exchanged_coins : row.exchangedCoins),
+                    lastExchangedAt: parseAmountSafe(row.last_exchanged_at !== undefined ? row.last_exchanged_at : row.lastExchangedAt),
+                    teamCount: parseInt(row.team_count, 10) || 0,
                     bankDetails: row.bank_details || null,
                     sponsorMobileUsed: row.sponsor_mobile_used || null,
-                    bonusAwardedToSponsor: Number(row.bonus_awarded_to_sponsor || 0),
-                    commissionAwardedToSponsor: Number(row.commission_awarded_to_sponsor || 0),
-                    lastYieldTime: Number(row.last_yield_time || Date.now())
+                    bonusAwardedToSponsor: parseAmountSafe(row.bonus_awarded_to_sponsor),
+                    commissionAwardedToSponsor: parseAmountSafe(row.commission_awarded_to_sponsor),
+                    lastYieldTime: parseAmountSafe(row.last_yield_time) || Date.now()
                 };
                 normalizeUserCoins(u);
                 return u;
             }
 
-            function mapLocalUserToDb(u) {
+            function mapLocalUserToDb(u, includeExchangeCols = true) {
                 normalizeUserCoins(u);
-                return {
+                const payload = {
                     mobile: u.mobile,
                     password: u.password,
                     id: u.id,
@@ -950,6 +993,43 @@
                     commission_awarded_to_sponsor: u.commissionAwardedToSponsor || 0,
                     last_yield_time: u.lastYieldTime || Date.now()
                 };
+                if (includeExchangeCols) {
+                    payload.exchanged_coins = u.exchangedCoins || 0;
+                    payload.last_exchanged_at = u.lastExchangedAt || 0;
+                }
+                return payload;
+            }
+
+            async function persistUserRecord(userObj) {
+                if (!userObj || !userObj.mobile) return;
+                normalizeUserCoins(userObj);
+                users[userObj.mobile] = userObj;
+                if (currentUser && currentUser.mobile === userObj.mobile) {
+                    currentUser = userObj;
+                }
+                persistLocalStore();
+
+                if (!supabaseClient) return;
+
+                try {
+                    const { error } = await withTimeout(
+                        supabaseClient.from('er_users').upsert(mapLocalUserToDb(userObj, true), { onConflict: 'mobile' }),
+                        3500
+                    );
+                    if (error) {
+                        await withTimeout(
+                            supabaseClient.from('er_users').upsert(mapLocalUserToDb(userObj, false), { onConflict: 'mobile' }),
+                            3500
+                        ).catch(() => {});
+                    }
+                } catch (e) {
+                    try {
+                        await withTimeout(
+                            supabaseClient.from('er_users').upsert(mapLocalUserToDb(userObj, false), { onConflict: 'mobile' }),
+                            3500
+                        ).catch(() => {});
+                    } catch (err2) {}
+                }
             }
 
             async function withTimeout(promise, ms = 3500) {
@@ -979,11 +1059,49 @@
 
                     if (!usersRes.error && Array.isArray(usersRes.data)) {
                         const freshUsers = {};
+                        const protectRecentExchange = (Date.now() - lastExchangeTimestamp) < 30000;
+
                         usersRes.data.forEach(row => {
                             const mapped = mapDbUserToLocal(row);
+                            const existingLocal = users[mapped.mobile];
+                            if (existingLocal) {
+                                normalizeUserCoins(existingLocal);
+                                const localWallet = round2(existingLocal.walletRupees || 0);
+                                const dbWallet = round2(mapped.walletRupees || 0);
+                                const localExchangedAt = parseAmountSafe(existingLocal.lastExchangedAt);
+                                const dbExchangedAt = parseAmountSafe(mapped.lastExchangedAt);
+                                const localExchangedCoins = round2(existingLocal.exchangedCoins || 0);
+                                const dbExchangedCoins = round2(mapped.exchangedCoins || 0);
+
+                                if (localExchangedAt > dbExchangedAt || (protectRecentExchange && currentUser && currentUser.mobile === mapped.mobile)) {
+                                    mapped.walletRupees = Math.max(localWallet, dbWallet);
+                                    mapped.balance = Math.min(round2(existingLocal.balance || 0), round2(mapped.balance || 0));
+                                    mapped.lastExchangedAt = Math.max(localExchangedAt, dbExchangedAt);
+                                    mapped.exchangedCoins = Math.max(localExchangedCoins, dbExchangedCoins);
+                                } else if (localWallet > 0 && dbWallet === 0) {
+                                    mapped.walletRupees = localWallet;
+                                    mapped.lastExchangedAt = Math.max(localExchangedAt, dbExchangedAt);
+                                    mapped.exchangedCoins = Math.max(localExchangedCoins, dbExchangedCoins);
+                                }
+                            }
                             freshUsers[mapped.mobile] = mapped;
                         });
                         users = freshUsers;
+
+                        if (currentUser && users[currentUser.mobile]) {
+                            const syncedUser = users[currentUser.mobile];
+                            const curWallet = round2(currentUser.walletRupees || 0);
+                            const synWallet = round2(syncedUser.walletRupees || 0);
+                            const curExAt = parseAmountSafe(currentUser.lastExchangedAt);
+                            const synExAt = parseAmountSafe(syncedUser.lastExchangedAt);
+                            if (curExAt > synExAt || (curWallet > 0 && synWallet === 0)) {
+                                syncedUser.walletRupees = Math.max(curWallet, synWallet);
+                                syncedUser.balance = Math.min(round2(currentUser.balance || 0), round2(syncedUser.balance || 0));
+                                syncedUser.lastExchangedAt = Math.max(curExAt, synExAt);
+                                syncedUser.exchangedCoins = Math.max(round2(currentUser.exchangedCoins || 0), round2(syncedUser.exchangedCoins || 0));
+                            }
+                            currentUser = syncedUser;
+                        }
                     }
 
                     if (!logsRes.error && Array.isArray(logsRes.data)) {
@@ -993,7 +1111,7 @@
                             mobile: row.mobile,
                             userId: row.user_id,
                             utr: row.utr,
-                            deposit: Number(row.deposit || 0),
+                            deposit: parseAmountSafe(row.deposit),
                             method: row.method,
                             sponsor: row.sponsor
                         }));
@@ -1005,7 +1123,7 @@
                             mobile: row.mobile,
                             userId: row.user_id,
                             type: row.type,
-                            amount: Number(row.amount || 0),
+                            amount: parseAmountSafe(row.amount),
                             bankDetails: row.bank_details,
                             date: row.date_str,
                             status: row.status
@@ -1033,9 +1151,6 @@
                 }
             }
 
-            // ==========================================
-            // 2. TOAST & MODAL CONTROLS
-            // ==========================================
             function showToast(message, type = 'info') {
                 const container = document.getElementById('toastContainer');
                 if (!container) return;
@@ -1070,21 +1185,15 @@
             function openModal(modalId) {
                 ['paymentModal', 'bankDetailsModal', 'adminAuthModal', 'walletModal'].forEach(id => {
                     const el = document.getElementById(id);
-                    if (el && id !== modalId) {
-                        el.classList.remove('is-open');
-                    }
+                    if (el && id !== modalId) el.classList.remove('is-open');
                 });
                 const modal = document.getElementById(modalId);
-                if (modal) {
-                    modal.classList.add('is-open');
-                }
+                if (modal) modal.classList.add('is-open');
             }
 
             function closeModal(modalId) {
                 const modal = document.getElementById(modalId);
-                if (modal) {
-                    modal.classList.remove('is-open');
-                }
+                if (modal) modal.classList.remove('is-open');
             }
 
             function togglePassVisibility(inputId, btn) {
@@ -1159,9 +1268,7 @@
                         activeDisplay.innerText = activeUpiId;
                         activeDisplay.className = "font-mono font-bold text-xs text-emerald-700 truncate max-w-[180px]";
                     }
-                    if (upiInput && document.activeElement !== upiInput) {
-                        upiInput.value = activeUpiId;
-                    }
+                    if (upiInput && document.activeElement !== upiInput) upiInput.value = activeUpiId;
                     if (missingAlert) missingAlert.classList.add('hidden');
                     if (linkedUpiDisplay) linkedUpiDisplay.classList.remove('hidden');
                     if (linkedUpiText) linkedUpiText.innerText = activeUpiId;
@@ -1201,9 +1308,6 @@
                 }
             }
 
-            // ==========================================
-            // 3. PAYMENT, REGISTRATION & 24H COIN GROWTH
-            // ==========================================
             function generate10DigitId() {
                 let id = '';
                 for (let i = 0; i < 10; i++) id += Math.floor(Math.random() * 10);
@@ -1249,13 +1353,7 @@
                     return;
                 }
 
-                pendingRegistration = {
-                    mobile,
-                    password,
-                    sponsorId: sponsorId || null,
-                    depositAmt
-                };
-
+                pendingRegistration = { mobile, password, sponsorId: sponsorId || null, depositAmt };
                 syncPaymentUiState();
                 const payAmtEl = document.getElementById('payModalAmount');
                 if (payAmtEl) payAmtEl.innerText = `₹${depositAmt}`;
@@ -1279,9 +1377,7 @@
                 const note = `EarnRefer Deposit ${pendingRegistration.mobile}`;
                 const gpayUrl = `tez://upi/pay?pa=${encodeURIComponent(activeUpiId)}&pn=${encodeURIComponent(MERCHANT_NAME)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
                 showToast(`Google Pay (${activeUpiId}) open kiya ja raha hai (₹${amt})...`, 'info');
-                try {
-                    window.location.href = gpayUrl;
-                } catch (e) {}
+                try { window.location.href = gpayUrl; } catch (e) {}
             }
 
             async function handleCompleteRegistrationAfterPayment() {
@@ -1332,14 +1428,13 @@
                         sponsorMobileFound = Object.keys(users).find(m => users[m].id === pendingRegistration.sponsorId) || null;
                         if (sponsorMobileFound && users[sponsorMobileFound]) {
                             const sponsor = users[sponsorMobileFound];
-                            sponsor.bonus = (Number(sponsor.bonus) || 0) + 100;
+                            sponsor.bonus = parseAmountSafe(sponsor.bonus) + 100;
                             bonusAwarded = 100;
 
-                            // 10% referral commission of deposit converted to CR Coins (1 CR Coin = ₹5)
                             const commissionRupees10 = pendingRegistration.depositAmt * 0.10;
                             commissionCoinsAwarded = rupeesToCoins(commissionRupees10);
-                            sponsor.balance = round2((Number(sponsor.balance) || 0) + commissionCoinsAwarded);
-                            sponsor.teamCount = (Number(sponsor.teamCount) || 0) + 1;
+                            sponsor.balance = round2(parseAmountSafe(sponsor.balance) + commissionCoinsAwarded);
+                            sponsor.teamCount = (parseInt(sponsor.teamCount, 10) || 0) + 1;
 
                             if (supabaseClient) {
                                 await withTimeout(
@@ -1353,7 +1448,7 @@
                             }
                         }
                     }
-                    // New user starts with Your Coin = 0 and Wallet Rupees = 0
+
                     const now = Date.now();
                     const newUser = {
                         mobile: pendingRegistration.mobile,
@@ -1406,7 +1501,6 @@
                     loginLogs.push(newLog);
                     persistLocalStore();
 
-                    // Directly set active session and open User Dashboard (not login screen)
                     currentUser = newUser;
                     safeSetItem(sessionStorage, SESSION_USER_KEY, newUser.mobile);
                     pendingRegistration = null;
@@ -1418,7 +1512,7 @@
                     });
 
                     await loadUserDashboard();
-                    showToast(`Payment Verified! Dashboard open ho gaya. Your Coin: 0 CR Coin • ID: ${newUser.id}`, 'success');
+                    showToast(`Payment Verified! Dashboard open ho gaya. Your Coin: 0 ER Coin • ID: ${newUser.id}`, 'success');
                 } catch (err) {
                     showToast('Registration complete karne mein problem aayi: ' + (err.message || 'Try again'), 'error');
                 } finally {
@@ -1449,8 +1543,13 @@
                     const dailyCoins = rupeesToCoins(dailyRupees);
                     const addedCoins = round2(dailyCoins * daysPassed);
 
-                    user.balance = round2((Number(user.balance) || 0) + addedCoins);
-                    user.lastYieldTime = Number(user.lastYieldTime) + (daysPassed * MS_IN_24_HOURS);
+                    const cycleEndTime = Number(user.lastYieldTime) + (daysPassed * MS_IN_24_HOURS);
+                    const alreadyExchangedThisCycle = parseAmountSafe(user.lastExchangedAt) >= cycleEndTime;
+
+                    user.balance = alreadyExchangedThisCycle
+                        ? round2(parseAmountSafe(user.balance))
+                        : round2(parseAmountSafe(user.balance) + addedCoins);
+                    user.lastYieldTime = cycleEndTime;
                     users[user.mobile] = user;
                     persistLocalStore();
 
@@ -1463,7 +1562,7 @@
                             3000
                         ).catch(() => {});
                     }
-                    return true;
+                    return !alreadyExchangedThisCycle && addedCoins > 0;
                 }
                 return false;
             }
@@ -1514,6 +1613,8 @@
                 }
 
                 try {
+                    hydrateLocalStore();
+                    const localBeforeSync = users[mobile] ? { ...users[mobile] } : null;
                     await syncAllFromSupabase();
                     const found = users[mobile];
                     if (!found) {
@@ -1523,6 +1624,22 @@
                     if (found.password !== password) {
                         showToast('Galat password! Sahi password dalein.', 'error');
                         return;
+                    }
+
+                    normalizeUserCoins(found);
+                    if (localBeforeSync) {
+                        normalizeUserCoins(localBeforeSync);
+                        const locExAt = parseAmountSafe(localBeforeSync.lastExchangedAt);
+                        const dbExAt = parseAmountSafe(found.lastExchangedAt);
+                        const locWal = round2(localBeforeSync.walletRupees || 0);
+                        const dbWal = round2(found.walletRupees || 0);
+                        if (locExAt > dbExAt || (locWal > 0 && dbWal === 0)) {
+                            found.walletRupees = Math.max(locWal, dbWal);
+                            found.balance = Math.min(round2(localBeforeSync.balance || 0), round2(found.balance || 0));
+                            found.lastExchangedAt = Math.max(locExAt, dbExAt);
+                            found.exchangedCoins = Math.max(round2(localBeforeSync.exchangedCoins || 0), round2(found.exchangedCoins || 0));
+                            await persistUserRecord(found);
+                        }
                     }
 
                     currentUser = found;
@@ -1558,14 +1675,13 @@
                 document.getElementById('user10DigitId').innerText = currentUser.id;
                 document.getElementById('displayOwnDeposit').innerText = `${Number(currentUser.ownDeposit || 0)}`;
                 document.getElementById('bonusBalance').innerText = `${Number(currentUser.bonus || 0)}`;
-                // Strictly show ONLY CR Coin count on Your Coin card
+
                 const coins = round2(currentUser.balance || 0);
                 const walletRs = round2(currentUser.walletRupees || 0);
                 document.getElementById('yourCoinBalance').innerText = `${coins}`;
                 document.getElementById('headerWalletRupees').innerText = `${walletRs}`;
-                document.getElementById('exchangeCoinRateHint').innerText = `${coins} Coin = ₹${coinsToRupees(coins)}`;
+                document.getElementById('exchangeCoinRateHint').innerText = `${coins} ER Coin = ₹${coinsToRupees(coins)}`;
 
-                // Update Team Progress Box (0 -> 10 -> 20)
                 const prog = getTeamProgressData(teamCnt);
                 document.getElementById('teamProgressTitle').innerText = prog.titleText;
                 document.getElementById('teamProgressRateBadge').innerText = prog.rateText;
@@ -1607,72 +1723,110 @@
                 startCountdownLoop();
             }
 
-            // ==========================================
-            // 4. EXCHANGE COINS TO WALLET & WALLET WITHDRAWAL
-            // ==========================================
             async function handleExchangeCoinsDirectly() {
-                if (!currentUser) return;
+                if (!currentUser) {
+                    showToast('Kripya pehle login karein.', 'warning');
+                    return;
+                }
+                hydrateLocalStore();
+                if (users[currentUser.mobile]) {
+                    const localCoins = parseAmountSafe(currentUser.balance);
+                    const storeCoins = parseAmountSafe(users[currentUser.mobile].balance);
+                    const storeWallet = parseAmountSafe(users[currentUser.mobile].walletRupees);
+                    currentUser.balance = Math.max(localCoins, storeCoins);
+                    currentUser.walletRupees = Math.max(parseAmountSafe(currentUser.walletRupees), storeWallet);
+                }
                 normalizeUserCoins(currentUser);
+
                 const coins = round2(currentUser.balance || 0);
                 if (coins <= 0) {
-                    showToast('Exchange karne ke liye Your Coin mein coins hone chahiye.', 'warning');
+                    showToast('Exchange karne ke liye Your Coin mein ER Coin hone chahiye.', 'warning');
                     return;
                 }
 
                 const convertedRupees = coinsToRupees(coins);
-                currentUser.balance = 0;
-                currentUser.walletRupees = round2((Number(currentUser.walletRupees) || 0) + convertedRupees);
-                users[currentUser.mobile] = currentUser;
-                persistLocalStore();
+                const prevWallet = round2(currentUser.walletRupees || 0);
+                const nextWallet = round2(prevWallet + convertedRupees);
+                const exchangedAtTs = Date.now();
 
-                if (supabaseClient) {
-                    await withTimeout(
-                        supabaseClient.from('er_users').update({
-                            balance: currentUser.balance,
-                            wallet_rupees: currentUser.walletRupees
-                        }).eq('mobile', currentUser.mobile),
-                        3000
-                    ).catch(() => {});
-                }
+                currentUser.balance = 0;
+                currentUser.walletRupees = nextWallet;
+                currentUser.exchangedCoins = round2(parseAmountSafe(currentUser.exchangedCoins) + coins);
+                currentUser.lastExchangedAt = exchangedAtTs;
+                lastExchangeTimestamp = exchangedAtTs;
+
+                const coinEl = document.getElementById('yourCoinBalance');
+                const headerWalEl = document.getElementById('headerWalletRupees');
+                const hintEl = document.getElementById('exchangeCoinRateHint');
+                const modalWalEl = document.getElementById('walletRupeeDisplay');
+                const modalCoinEl = document.getElementById('walletCoinsDisplay');
+                if (coinEl) coinEl.innerText = '0';
+                if (headerWalEl) headerWalEl.innerText = `${nextWallet}`;
+                if (hintEl) hintEl.innerText = `0 ER Coin = ₹0`;
+                if (modalWalEl) modalWalEl.innerText = `${nextWallet}`;
+                if (modalCoinEl) modalCoinEl.innerText = `0 ER Coin`;
+
+                await persistUserRecord(currentUser);
 
                 await loadUserDashboard();
-                showToast(`${coins} CR Coin exchange hokar ₹${convertedRupees} Wallet mein aa gaye!`, 'success');
+                const walletModalEl = document.getElementById('walletModal');
+                if (walletModalEl && walletModalEl.classList.contains('is-open')) {
+                    await handleOpenWalletModal();
+                }
+                showToast(`${coins} ER Coin exchange hokar ₹${convertedRupees} aapke Wallet mein add ho gaye! (Wallet: ₹${nextWallet})`, 'success');
             }
 
             async function handleOpenWalletModal() {
                 if (!currentUser) return;
+                const protectRecentExchange = (Date.now() - lastExchangeTimestamp) < 10000;
+                const preExchangeWallet = round2(currentUser.walletRupees || 0);
+                const preExchangeCoins = round2(currentUser.balance || 0);
+
                 await syncAllFromSupabase();
                 if (users[currentUser.mobile]) {
-                    currentUser = users[currentUser.mobile];
-                    normalizeUserCoins(currentUser);
+                    const refreshed = users[currentUser.mobile];
+                    normalizeUserCoins(refreshed);
+                    if (protectRecentExchange || preExchangeWallet > round2(refreshed.walletRupees || 0)) {
+                        refreshed.walletRupees = Math.max(preExchangeWallet, round2(refreshed.walletRupees || 0));
+                        refreshed.balance = Math.min(preExchangeCoins, round2(refreshed.balance || 0));
+                    }
+                    currentUser = refreshed;
+                    users[currentUser.mobile] = currentUser;
+                    persistLocalStore();
                 }
 
+                normalizeUserCoins(currentUser);
                 const coins = round2(currentUser.balance || 0);
                 const walletRs = round2(currentUser.walletRupees || 0);
 
-                document.getElementById('walletCoinsDisplay').innerText = `${coins} CR Coin`;
+                document.getElementById('walletCoinsDisplay').innerText = `${coins} ER Coin`;
                 document.getElementById('walletRupeeDisplay').innerText = `${walletRs}`;
                 document.getElementById('headerWalletRupees').innerText = `${walletRs}`;
-
                 const statusText = document.getElementById('walletWithdrawStatusText');
-                const exBtn = document.getElementById('walletExchangeBtn');
                 const wdBtn = document.getElementById('walletWithdrawBtn');
+                const amtInput = document.getElementById('walletWithdrawAmountInput');
 
-                if (coins > 0) {
-                    exBtn.className = "py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer";
-                } else {
-                    exBtn.className = "py-2.5 px-3 rounded-xl bg-slate-200 text-slate-500 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed";
+                if (amtInput) {
+                    amtInput.max = walletRs;
+                    if (walletRs >= 200) {
+                        amtInput.disabled = false;
+                        const prevVal = parseFloat(amtInput.value);
+                        amtInput.value = (!isNaN(prevVal) && prevVal >= 200 && prevVal <= walletRs) ? `${prevVal}` : '200';
+                    } else {
+                        amtInput.disabled = true;
+                        amtInput.value = '';
+                    }
                 }
 
                 if (walletRs >= 200) {
                     statusText.className = "text-[11px] text-emerald-700 font-bold text-center";
-                    statusText.innerText = `✓ Wallet balance ₹${walletRs} unlocked for bank withdrawal!`;
-                    wdBtn.className = "py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer";
-                    wdBtn.innerHTML = `<i class="fa-solid fa-money-bill-transfer"></i> Withdraw ₹${walletRs}`;
+                    statusText.innerText = `✓ Wallet balance ₹${walletRs} unlocked! Apna amount likh kar withdraw karein.`;
+                    wdBtn.className = "w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer";
+                    wdBtn.innerHTML = `<i class="fa-solid fa-money-bill-transfer"></i> Withdraw to Bank`;
                 } else {
                     statusText.className = "text-[11px] text-amber-700 font-medium text-center";
                     statusText.innerText = `Wallet mein ₹200+ hone par withdrawal unlock hoga (Need ₹${round2(200 - walletRs)} more).`;
-                    wdBtn.className = "py-2.5 px-3 rounded-xl bg-slate-200 text-slate-500 font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed";
+                    wdBtn.className = "w-full py-2.5 px-3 rounded-xl bg-slate-200 text-slate-500 font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed";
                     wdBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Withdraw to Bank (Min ₹200)`;
                 }
 
@@ -1695,11 +1849,12 @@
                         const rawAcc = item.bankDetails && item.bankDetails.accountNo ? String(item.bankDetails.accountNo) : '';
                         const last4 = rawAcc.length >= 4 ? ` • A/C ••••${rawAcc.slice(-4)}` : '';
                         const bankLabel = item.bankDetails && item.bankDetails.bankName ? `${item.bankDetails.bankName}${last4}` : 'Bank Transfer';
+                        const displayType = String(item.type || 'WALLET').replace(/CR COIN/gi, 'ER COIN');
 
                         div.className = "p-3 rounded-xl bg-white border border-slate-200 text-xs flex items-center justify-between gap-2 shadow-xs";
                         div.innerHTML = `
                             <div class="min-w-0 flex-1">
-                                <p class="font-extrabold text-slate-900">₹${item.amount} <span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">${item.type || 'WALLET'}</span></p>
+                                <p class="font-extrabold text-slate-900">₹${item.amount} <span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">${displayType}</span></p>
                                 <p class="text-[10px] text-slate-600 font-medium truncate mt-0.5">${bankLabel}</p>
                                 <p class="text-[10px] text-slate-400 mt-0.5">${item.date || ''}</p>
                             </div>
@@ -1712,13 +1867,6 @@
                 openModal('walletModal');
             }
 
-            async function handleExchangeCoinsInsideWallet() {
-                await handleExchangeCoinsDirectly();
-                if (document.getElementById('walletModal')?.classList.contains('is-open')) {
-                    await handleOpenWalletModal();
-                }
-            }
-
             function handleWalletWithdrawClick() {
                 if (!currentUser) return;
                 const walletRs = round2(currentUser.walletRupees || 0);
@@ -1726,13 +1874,32 @@
                     showToast('Withdrawal ke liye Wallet balance kam se kam ₹200 hona chahiye.', 'warning');
                     return;
                 }
+
+                const amtInput = document.getElementById('walletWithdrawAmountInput');
+                const typedAmt = parseFloat((amtInput ? amtInput.value : '').trim());
+
+                if (isNaN(typedAmt) || typedAmt < 200) {
+                    showToast('Kripya minimum ₹200 ya usse zyada withdrawal amount likhein.', 'warning');
+                    if (amtInput) amtInput.focus();
+                    return;
+                }
+
+                if (typedAmt > walletRs) {
+                    showToast(`Aapke Wallet mein sirf ₹${walletRs} hain! ₹${walletRs} ya usse kam amount likhein.`, 'warning');
+                    if (amtInput) amtInput.focus();
+                    return;
+                }
+
                 closeModal('walletModal');
-                initiateWithdrawal('wallet');
+                initiateWithdrawal('wallet', round2(typedAmt));
             }
 
-            function initiateWithdrawal(type) {
+            function initiateWithdrawal(type, presetAmount) {
                 if (!currentUser) return;
                 currentWithdrawType = type;
+
+                const bankAmtGroup = document.getElementById('bankWithdrawAmountGroup');
+                const bankAmtInput = document.getElementById('bankWithdrawAmount');
 
                 if (type === 'bonus') {
                     const amount = Number(currentUser.bonus || 0);
@@ -1740,14 +1907,23 @@
                         showToast('Bonus withdrawal ₹500 par unlock hota hai.', 'warning');
                         return;
                     }
+                    if (bankAmtGroup) bankAmtGroup.classList.add('hidden');
                     document.getElementById('withdrawModalSubtitle').innerHTML = `Bonus Payout: <strong class="text-emerald-700 font-mono">₹${amount}</strong>`;
                 } else {
                     const walletRs = round2(currentUser.walletRupees || 0);
                     if (walletRs < 200) {
-                        showToast('Wallet withdrawal ₹200 par unlock hota hai. Pehle coins exchange karein.', 'warning');
+                        showToast('Wallet withdrawal ₹200 par unlock hota hai. Pehle dashboard se coin exchange karein.', 'warning');
                         return;
                     }
-                    document.getElementById('withdrawModalSubtitle').innerHTML = `Wallet Withdrawal: <strong class="text-emerald-700 font-mono">₹${walletRs}</strong>`;
+                    const initialAmt = (presetAmount && presetAmount >= 200 && presetAmount <= walletRs)
+                        ? round2(presetAmount)
+                        : Math.min(200, walletRs);
+                    if (bankAmtGroup) bankAmtGroup.classList.remove('hidden');
+                    if (bankAmtInput) {
+                        bankAmtInput.max = walletRs;
+                        bankAmtInput.value = `${initialAmt}`;
+                    }
+                    document.getElementById('withdrawModalSubtitle').innerHTML = `Available Wallet: <strong class="text-emerald-700 font-mono">₹${walletRs}</strong> • Withdraw: <strong class="text-indigo-700 font-mono" id="withdrawModalAmt">₹${initialAmt}</strong>`;
                 }
 
                 if (currentUser.bankDetails) {
@@ -1773,6 +1949,35 @@
                     return;
                 }
 
+                let withdrawRupees = 0;
+                let reqTypeLabel = '';
+
+                if (currentWithdrawType === 'bonus') {
+                    withdrawRupees = Number(currentUser.bonus || 0);
+                    if (withdrawRupees < 500) {
+                        showToast('Bonus withdrawal ₹500 par unlock hota hai.', 'warning');
+                        return;
+                    }
+                } else {
+                    const availableWallet = round2(currentUser.walletRupees || 0);
+                    const bankAmtInput = document.getElementById('bankWithdrawAmount');
+                    const requestedAmt = parseFloat((bankAmtInput ? bankAmtInput.value : '').trim());
+
+                    if (isNaN(requestedAmt) || requestedAmt < 200) {
+                        showToast('Minimum withdrawal ₹200 hai! ₹200 ya usse zyada amount likhein.', 'warning');
+                        if (bankAmtInput) bankAmtInput.focus();
+                        return;
+                    }
+
+                    if (requestedAmt > availableWallet) {
+                        showToast(`Wallet balance sirf ₹${availableWallet} hai! Isse zyada withdrawal nahi ho sakta.`, 'warning');
+                        if (bankAmtInput) bankAmtInput.focus();
+                        return;
+                    }
+
+                    withdrawRupees = round2(requestedAmt);
+                }
+
                 const submitBtn = document.getElementById('submitWithdrawBtn');
                 if (submitBtn) submitBtn.disabled = true;
 
@@ -1780,16 +1985,11 @@
                     const bankObj = { holderName, bankName, accountNo, ifscCode };
                     currentUser.bankDetails = bankObj;
 
-                    let withdrawRupees = 0;
-                    let reqTypeLabel = '';
-
                     if (currentWithdrawType === 'bonus') {
-                        withdrawRupees = Number(currentUser.bonus || 0);
                         currentUser.bonus = 0;
                         reqTypeLabel = 'BONUS';
                     } else {
-                        withdrawRupees = round2(currentUser.walletRupees || 0);
-                        currentUser.walletRupees = 0;
+                        currentUser.walletRupees = Math.max(0, round2((Number(currentUser.walletRupees) || 0) - withdrawRupees));
                         reqTypeLabel = 'WALLET';
                     }
 
@@ -1834,27 +2034,27 @@
                     });
                     persistLocalStore();
 
+                    const walletAmtInput = document.getElementById('walletWithdrawAmountInput');
+                    if (walletAmtInput) walletAmtInput.value = '';
+
                     closeModal('bankDetailsModal');
                     currentWithdrawType = null;
                     await loadUserDashboard();
-                    showToast(`Withdrawal request submit ho gayi! Amount: ₹${withdrawRupees}`, 'success');
+
+                    const remainingMsg = reqTypeLabel === 'WALLET' ? ` • Wallet mein ₹${currentUser.walletRupees} bache hain` : '';
+                    showToast(`₹${withdrawRupees} withdrawal request submit ho gayi!${remainingMsg}`, 'success');
                 } finally {
                     if (submitBtn) submitBtn.disabled = false;
                 }
             }
 
-            // ==========================================
-            // 5. OWNER / ADMIN CONTROL PANEL
-            // ==========================================
             function toggleAdminSection(sectionId, chevronId) {
                 const sec = document.getElementById(sectionId);
                 const chev = document.getElementById(chevronId);
                 if (!sec) return;
                 const isHidden = sec.classList.contains('hidden');
                 sec.classList.toggle('hidden', !isHidden);
-                if (chev) {
-                    chev.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-                }
+                if (chev) chev.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
             }
 
             function handleOpenAdminModal() {
@@ -1862,9 +2062,7 @@
                 const passInput = document.getElementById('adminPassInput');
                 if (passInput) {
                     passInput.value = '';
-                    setTimeout(() => {
-                        try { passInput.focus(); } catch (e) {}
-                    }, 30);
+                    setTimeout(() => { try { passInput.focus(); } catch (e) {} }, 30);
                 }
             }
 
@@ -2068,13 +2266,13 @@
                                 <span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-mono border border-indigo-200">ID: ${u.id}</span>
                             </div>
                             <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-700">
-                                <p>Your Coin: <strong class="text-emerald-700">${u.balance} CR Coin</strong></p>
+                                <p>Your Coin: <strong class="text-emerald-700">${u.balance} ER Coin</strong></p>
+                                <p>Wallet: <strong class="text-indigo-700">₹${u.walletRupees || 0}</strong></p>
                                 <p>Deposit: <strong class="text-amber-700">₹${u.ownDeposit || 0}</strong></p>
-                                <p>UTR: <strong class="text-cyan-700 font-mono">${u.utr || 'N/A'}</strong></p>
                                 <p>Team: <strong class="text-indigo-700">${u.teamCount} (${getDailyGrowthPercentText(u.teamCount)})</strong></p>
                             </div>
                             <div class="text-[11px] text-slate-600 border-t border-slate-200 pt-1">
-                                <span>Password: <strong class="text-slate-900 font-mono">${u.password}</strong></span> | 
+                                <span>UTR: <strong class="text-cyan-700 font-mono">${u.utr || 'N/A'}</strong></span> | 
                                 <span>Bank: <strong class="text-cyan-700">${bankText}</strong></span>
                             </div>
                             <div class="pt-1 flex justify-end">
@@ -2138,9 +2336,6 @@
                 }
             }
 
-            // ==========================================
-            // 6. SHARE, COPY & LOGOUT
-            // ==========================================
             function copyTextSafe(text) {
                 if (navigator.clipboard && window.isSecureContext) {
                     navigator.clipboard.writeText(text).catch(() => {});
@@ -2170,7 +2365,7 @@
                 if (!currentUser) return;
                 const shareUrl = document.getElementById('shareUrlInput').value;
                 const text = `🔥 *EarnRefer Dhamakedar Offer!* 🔥\n\n` +
-                    `🪙 24h CR Coin Upgrade (1 CR Coin = ₹5)\n` +
+                    `🪙 24h ER Coin Upgrade (1 ER Coin = ₹5)\n` +
                     `🎁 ₹100 Bonus + 10% Referral Coin Commission\n` +
                     `⚡ Withdrawals starting at ₹200!\n\n` +
                     `Referral ID: *${currentUser.id}*\n` +
@@ -2200,9 +2395,6 @@
                 showToast('Logged out successfully', 'info');
             }
 
-            // ==========================================
-            // 7. DIRECT EVENT BINDING (NEVER BLOCKED)
-            // ==========================================
             function bindClick(id, handler) {
                 const el = document.getElementById(id);
                 if (!el || el.dataset.bound === '1') return;
@@ -2219,47 +2411,44 @@
             function bindAllEvents() {
                 try {
                     bindClick('brandLogoTrigger', handleOpenAdminModal);
+                    bindClick('tabRegisterBtn', () => switchAuthTab('deposit'));
+                    bindClick('tabLoginBtn', () => switchAuthTab('login'));
+                    bindClick('toggleRegPassBtn', function() { togglePassVisibility('regPassword', this); });
+                    bindClick('toggleLoginPassBtn', function() { togglePassVisibility('loginPassword', this); });
+                    bindClick('openPayModalBtn', handleOpenPaymentModal);
+                    bindClick('btnPayGpay', handlePayViaGpay);
+                    bindClick('completeRegBtn', handleCompleteRegistrationAfterPayment);
+                    bindClick('closePayModalBtn', handleClosePaymentModal);
+                    bindClick('loginSubmitBtn', handleLogin);
+
                     bindClick('openWalletBtn', handleOpenWalletModal);
                     bindClick('closeWalletModalBtn', () => closeModal('walletModal'));
                     bindClick('dashboardExchangeCoinBtn', handleExchangeCoinsDirectly);
-                    bindClick('walletExchangeBtn', handleExchangeCoinsInsideWallet);
+                    bindClick('walletModalExchangeCoinBtn', handleExchangeCoinsDirectly);
                     bindClick('walletWithdrawBtn', handleWalletWithdrawClick);
-                    bindClick('logoutBtn', handleLogout);
-
-                    bindClick('tabRegisterBtn', () => switchAuthTab('deposit'));
-                    bindClick('tabLoginBtn', () => switchAuthTab('login'));
-
-                    bindClick('toggleRegPassBtn', function() { togglePassVisibility('regPassword', this); });
-                    bindClick('toggleLoginPassBtn', function() { togglePassVisibility('loginPassword', this); });
-
-                    bindClick('openPayModalBtn', handleOpenPaymentModal);
-                    bindClick('closePayModalBtn', handleClosePaymentModal);
-                    bindClick('btnPayGpay', handlePayViaGpay);
-                    bindClick('completeRegBtn', handleCompleteRegistrationAfterPayment);
-
-                    bindClick('loginSubmitBtn', handleLogin);
                     bindClick('bonusWithdrawBtn', () => initiateWithdrawal('bonus'));
-
-                    bindClick('closeBankModalBtn', () => closeModal('bankDetailsModal'));
+                    bindClick('closeBankModalBtn', () => {
+                        closeModal('bankDetailsModal');
+                        currentWithdrawType = null;
+                    });
                     bindClick('submitWithdrawBtn', handleSubmitWithdrawalRequest);
-
-                    bindClick('closeAdminModalBtn', () => closeModal('adminAuthModal'));
-                    bindClick('verifyAdminBtn', handleVerifyAdminPassword);
-                    bindClick('exitAdminBtn', handleExitAdminPanel);
-
-                    bindClick('togglePaymentSectionBtn', () => toggleAdminSection('paymentSectionBody', 'paymentChevron'));
-                    bindClick('toggleWithdrawalSectionBtn', () => toggleAdminSection('withdrawalSectionBody', 'withdrawalChevron'));
-                    bindClick('toggleUsersSectionBtn', () => toggleAdminSection('usersSectionBody', 'usersChevron'));
-                    bindClick('toggleLogsSectionBtn', () => toggleAdminSection('logsSectionBody', 'logsChevron'));
-
-                    bindClick('saveUpiBtn', handleSaveOwnerUpiId);
-                    bindClick('clearUpiBtn', handleClearOwnerUpiId);
-                    bindClick('saveQrBtn', handleSaveOwnerQrCode);
-                    bindClick('clearQrBtn', handleClearOwnerQrCode);
 
                     bindClick('copyIdBtn', handleCopyId);
                     bindClick('copyLinkBtn', handleCopyLink);
                     bindClick('whatsappShareBtn', handleShareWhatsApp);
+                    bindClick('logoutBtn', handleLogout);
+
+                    bindClick('closeAdminModalBtn', () => closeModal('adminAuthModal'));
+                    bindClick('verifyAdminBtn', handleVerifyAdminPassword);
+                    bindClick('exitAdminBtn', handleExitAdminPanel);
+                    bindClick('togglePaymentSectionBtn', () => toggleAdminSection('paymentSectionBody', 'paymentChevron'));
+                    bindClick('toggleWithdrawalSectionBtn', () => toggleAdminSection('withdrawalSectionBody', 'withdrawalChevron'));
+                    bindClick('toggleUsersSectionBtn', () => toggleAdminSection('usersSectionBody', 'usersChevron'));
+                    bindClick('toggleLogsSectionBtn', () => toggleAdminSection('logsSectionBody', 'logsChevron'));
+                    bindClick('saveUpiBtn', handleSaveOwnerUpiId);
+                    bindClick('clearUpiBtn', handleClearOwnerUpiId);
+                    bindClick('saveQrBtn', handleSaveOwnerQrCode);
+                    bindClick('clearQrBtn', handleClearOwnerQrCode);
 
                     const qrFileInput = document.getElementById('adminQrFileInput');
                     if (qrFileInput && !qrFileInput.dataset.bound) {
@@ -2267,11 +2456,31 @@
                         qrFileInput.addEventListener('change', handleQrFileChange);
                     }
 
+                    const adminUpiInput = document.getElementById('adminUpiInput');
+                    if (adminUpiInput && !adminUpiInput.dataset.bound) {
+                        adminUpiInput.dataset.bound = '1';
+                        adminUpiInput.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') handleSaveOwnerUpiId();
+                        });
+                    }
+
                     const adminPassInput = document.getElementById('adminPassInput');
                     if (adminPassInput && !adminPassInput.dataset.bound) {
                         adminPassInput.dataset.bound = '1';
                         adminPassInput.addEventListener('keydown', function(e) {
                             if (e.key === 'Enter') handleVerifyAdminPassword();
+                        });
+                    }
+
+                    const bankAmtInput = document.getElementById('bankWithdrawAmount');
+                    if (bankAmtInput && !bankAmtInput.dataset.bound) {
+                        bankAmtInput.dataset.bound = '1';
+                        bankAmtInput.addEventListener('input', function() {
+                            const amtLabel = document.getElementById('withdrawModalAmt');
+                            const val = parseFloat(this.value);
+                            if (amtLabel) {
+                                amtLabel.innerText = isNaN(val) || val <= 0 ? '₹0' : `₹${round2(val)}`;
+                            }
                         });
                     }
 
@@ -2288,9 +2497,7 @@
                         if (modalEl && !modalEl.dataset.bound) {
                             modalEl.dataset.bound = '1';
                             modalEl.addEventListener('click', function(e) {
-                                if (e.target === modalEl) {
-                                    closeModal(modalId);
-                                }
+                                if (e.target === modalEl) closeModal(modalId);
                             });
                         }
                     });
