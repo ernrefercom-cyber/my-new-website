@@ -134,8 +134,9 @@
                 <span id="dbSyncIndicator" class="text-[10px] text-emerald-700 font-mono hidden sm:inline-flex items-center gap-1 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
                     <i class="fa-solid fa-database text-[9px]"></i> Cloud
                 </span>
-                <button type="button" id="openWalletBtn" class="hidden p-2.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition-colors active:scale-95" title="Wallet (Exchange, Withdraw & History)">
+                <button type="button" id="openWalletBtn" class="hidden px-2.5 py-2 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition-colors active:scale-95 inline-flex items-center gap-1.5 text-xs font-extrabold" title="Wallet (Cash Balance, Withdraw & History)">
                     <i class="fa-solid fa-wallet text-sm"></i>
+                    <span>₹<span id="headerWalletRupees">0</span></span>
                 </button>
                 <button type="button" id="logoutBtn" class="hidden px-3 py-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold border border-rose-200 transition-colors active:scale-95">
                     <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
@@ -326,7 +327,37 @@
                         <i class="fa-solid fa-coins text-xl"></i>
                     </div>
                 </div>
-                <p class="text-xs text-slate-600">24h Daily Growth (1%/2%/3%) + 10% Referral Commission in CR Coin.</p>
+                <p class="text-xs text-slate-600">24h Daily Growth (1%/2%/3%) + 10% Referral Commission in CR Coin. (1 CR Coin = ₹5)</p>
+            </div>
+
+            <!-- EXCHANGE COIN BUTTON DIRECTLY BELOW YOUR COIN CARD -->
+            <button type="button" id="dashboardExchangeCoinBtn" class="w-full gradient-btn text-white py-3.5 px-4 rounded-2xl font-extrabold text-xs tracking-wider uppercase shadow-md flex items-center justify-between active:scale-95">
+                <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-right-left text-sm"></i>
+                    <span>Exchange Coin</span>
+                </span>
+                <span id="exchangeCoinRateHint" class="text-[11px] font-mono bg-white/15 px-2.5 py-1 rounded-lg">0 Coin = ₹0</span>
+            </button>
+
+            <!-- TEAM LEVEL PROGRESS BOX DIRECTLY BELOW YOUR COIN & EXCHANGE BUTTON -->
+            <div id="teamProgressBox" class="glass-card p-5 rounded-2xl space-y-3 border-indigo-200">
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <p class="text-[11px] font-bold text-indigo-700 uppercase tracking-wider">Team Growth Progress</p>
+                        <h3 id="teamProgressTitle" class="text-sm font-extrabold text-slate-900 mt-0.5">0 / 10 Users → Level 2 (2% Daily)</h3>
+                    </div>
+                    <span id="teamProgressRateBadge" class="text-xs font-extrabold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">1% / day</span>
+                </div>
+
+                <div>
+                    <div class="w-full h-3.5 rounded-full bg-slate-100 border border-slate-200 overflow-hidden">
+                        <div id="teamProgressBarFill" class="h-full rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-500 transition-all duration-300" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <p id="teamProgressSubtext" class="text-[11px] text-slate-600 font-medium">
+                    1 user adds a step • 5 users = halfway to 10 • 10 users = 2% daily • 20 users = 3% daily
+                </p>
             </div>
 
             <!-- SAVED BANK DETAILS CARD -->
@@ -532,7 +563,7 @@
 
     </main>
 
-    <!-- USER WALLET MODAL (EXCHANGE COINS + WITHDRAW + WITHDRAWAL HISTORY) -->
+    <!-- USER WALLET MODAL (WALLET RUPEE BALANCE + WITHDRAW ₹200+ + WITHDRAWAL HISTORY) -->
     <div id="walletModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-indigo-200 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
@@ -542,45 +573,43 @@
                     </div>
                     <div>
                         <h3 class="font-extrabold text-slate-900 text-sm">My Wallet</h3>
-                        <p class="text-[10px] text-slate-500">1 CR Coin = ₹5 • Min Withdrawal ₹200</p>
+                        <p class="text-[10px] text-slate-500">Exchanged Cash • Min Withdrawal ₹200</p>
                     </div>
                 </div>
                 <button type="button" id="closeWalletModalBtn" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">Close</button>
             </div>
 
-            <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 space-y-1.5">
+            <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1.5">
                 <div class="flex items-center justify-between">
-                    <p class="text-[10px] font-bold text-indigo-700 uppercase tracking-wider">Your Coin Balance</p>
-                    <span class="text-[10px] font-bold bg-white text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">1 Coin = ₹5</span>
+                    <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Wallet Balance</p>
+                    <span class="text-[10px] font-bold bg-white text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">1 CR Coin = ₹5</span>
                 </div>
-                <p class="text-2xl font-black text-slate-900"><span id="walletCoinsDisplay">0</span> <span class="text-xs text-indigo-600">CR Coin</span></p>
-                <p class="text-xs font-bold text-emerald-700">Exchanged Cash Value: ₹<span id="walletRupeeDisplay">0</span></p>
+                <p class="text-3xl font-black text-slate-900 font-mono">₹<span id="walletRupeeDisplay">0</span></p>
+                <p class="text-[11px] text-slate-600">Available to Exchange: <strong id="walletCoinsDisplay" class="text-indigo-700 font-mono">0 CR Coin</strong></p>
             </div>
 
-            <!-- EXCHANGE COINS & WITHDRAW BUTTONS -->
+            <!-- EXCHANGE & WITHDRAW CONTROLS IN WALLET -->
             <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
-                <div class="flex items-center justify-between text-xs">
-                    <span class="font-bold text-slate-700">Exchange Preview</span>
-                    <span id="walletExchangePreview" class="font-mono font-extrabold text-indigo-700">0 CR Coin = ₹0</span>
-                </div>
-
                 <div class="grid grid-cols-2 gap-2">
                     <button type="button" id="walletExchangeBtn" class="py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95">
-                        <i class="fa-solid fa-right-left"></i> Exchange Coins
+                        <i class="fa-solid fa-right-left"></i> Exchange Coin
                     </button>
-                    <button type="button" id="walletWithdrawBtn" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95">
-                        <i class="fa-solid fa-money-bill-transfer"></i> Withdraw
+                    <button type="button" id="walletWithdrawBtn" class="py-2.5 px-3 rounded-xl bg-slate-200 text-slate-500 font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed">
+                        <i class="fa-solid fa-lock"></i> Withdraw to Bank (Min ₹200)
                     </button>
                 </div>
-                <p id="walletWithdrawStatusText" class="text-[11px] text-amber-700 font-medium text-center">Exchange & withdrawal unlocks at 40 CR Coin (₹200)</p>
+                <p id="walletWithdrawStatusText" class="text-[11px] text-amber-700 font-medium text-center">Wallet balance ₹200 hone par withdrawal unlock hoga</p>
             </div>
 
             <!-- WITHDRAWAL HISTORY INSIDE WALLET -->
             <div class="space-y-2 pt-2 border-t border-slate-200">
-                <h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-clock-rotate-left text-indigo-600"></i> Withdrawal History
-                </h4>
-                <div id="userWithdrawalHistoryList" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-clock-rotate-left text-indigo-600"></i> WITHDRAWAL HISTORY
+                    </h4>
+                    <span id="walletHistoryCountBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">0</span>
+                </div>
+                <div id="userWithdrawalHistoryList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
                     <p class="text-xs text-slate-500 text-center py-3">No withdrawal history yet.</p>
                 </div>
             </div>
@@ -789,6 +818,39 @@
                 return `${Math.round(getDailyGrowthRate(teamCount) * 100)}%`;
             }
 
+            // Progress bar calculation for 0 -> 10 (1% stage) and 10 -> 20 (2% -> 3% stage)
+            // 0 users = 0%, 5 users = 50% of first bar (or 25% overall), 10 users = 100% of first stage (2% daily), 20 users = 100% of second stage (3% daily)
+            function getTeamProgressData(teamCount) {
+                const count = Math.max(0, Number(teamCount || 0));
+                if (count < 10) {
+                    const pctOfStage = Math.min(100, Math.round((count / 10) * 1000) / 10);
+                    return {
+                        fillPct: pctOfStage,
+                        rateText: "1% / day",
+                        titleText: `${count} / 10 Users → Level 2 (2% Daily)`,
+                        subText: count === 5
+                            ? "5 users added — half of the 10-user milestone complete!"
+                            : `${10 - count} more user(s) needed to unlock 2% daily growth.`
+                    };
+                }
+                if (count < 20) {
+                    const extra = count - 10;
+                    const pctOfStage = Math.min(100, Math.round((extra / 10) * 1000) / 10);
+                    return {
+                        fillPct: pctOfStage,
+                        rateText: "2% / day",
+                        titleText: `${count} / 20 Users → Level 3 (3% Daily)`,
+                        subText: `Level 2 active (2% daily). ${20 - count} more user(s) needed for 3% daily growth.`
+                    };
+                }
+                return {
+                    fillPct: 100,
+                    rateText: "3% / day",
+                    titleText: `${count} Users → Max Level 3 (3% Daily)`,
+                    subText: "Maximum daily coin growth rate (3% / day) unlocked!"
+                };
+            }
+
             function isValidUpiFormat(upiStr) {
                 if (!upiStr) return false;
                 return /^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z0-9.\-_]{2,}$/.test(upiStr.trim());
@@ -857,6 +919,7 @@
                     ownDeposit: Number(row.own_deposit || 0),
                     bonus: Number(row.bonus || 0),
                     balance: Number(row.balance || 0),
+                    walletRupees: Number(row.wallet_rupees || 0),
                     teamCount: Number(row.team_count || 0),
                     bankDetails: row.bank_details || null,
                     sponsorMobileUsed: row.sponsor_mobile_used || null,
@@ -879,6 +942,7 @@
                     own_deposit: u.ownDeposit || 0,
                     bonus: u.bonus || 0,
                     balance: u.balance || 0,
+                    wallet_rupees: u.walletRupees || 0,
                     team_count: u.teamCount || 0,
                     bank_details: u.bankDetails || null,
                     sponsor_mobile_used: u.sponsorMobileUsed || null,
@@ -1289,8 +1353,7 @@
                             }
                         }
                     }
-
-                    // New user starts with Your Coin = 0 (upgrades every 24h or via 10% referral commission)
+                    // New user starts with Your Coin = 0 and Wallet Rupees = 0
                     const now = Date.now();
                     const newUser = {
                         mobile: pendingRegistration.mobile,
@@ -1301,6 +1364,7 @@
                         ownDeposit: pendingRegistration.depositAmt,
                         bonus: 0,
                         balance: 0,
+                        walletRupees: 0,
                         teamCount: 0,
                         bankDetails: null,
                         sponsorMobileUsed: sponsorMobileFound,
@@ -1495,7 +1559,19 @@
                 document.getElementById('displayOwnDeposit').innerText = `${Number(currentUser.ownDeposit || 0)}`;
                 document.getElementById('bonusBalance').innerText = `${Number(currentUser.bonus || 0)}`;
                 // Strictly show ONLY CR Coin count on Your Coin card
-                document.getElementById('yourCoinBalance').innerText = `${Number(currentUser.balance || 0)}`;
+                const coins = round2(currentUser.balance || 0);
+                const walletRs = round2(currentUser.walletRupees || 0);
+                document.getElementById('yourCoinBalance').innerText = `${coins}`;
+                document.getElementById('headerWalletRupees').innerText = `${walletRs}`;
+                document.getElementById('exchangeCoinRateHint').innerText = `${coins} Coin = ₹${coinsToRupees(coins)}`;
+
+                // Update Team Progress Box (0 -> 10 -> 20)
+                const prog = getTeamProgressData(teamCnt);
+                document.getElementById('teamProgressTitle').innerText = prog.titleText;
+                document.getElementById('teamProgressRateBadge').innerText = prog.rateText;
+                document.getElementById('teamProgressBarFill').style.width = `${prog.fillPct}%`;
+                document.getElementById('teamProgressSubtext').innerText = prog.subText;
+
                 document.getElementById('teamCount').innerText = `${teamCnt}`;
                 document.getElementById('teamLevelBadge').innerText = `Level ${levelNum} (${ratePct} Daily)`;
                 syncAllUsersDisplay();
@@ -1532,8 +1608,37 @@
             }
 
             // ==========================================
-            // 4. WALLET MODAL (EXCHANGE, WITHDRAW, HISTORY)
+            // 4. EXCHANGE COINS TO WALLET & WALLET WITHDRAWAL
             // ==========================================
+            async function handleExchangeCoinsDirectly() {
+                if (!currentUser) return;
+                normalizeUserCoins(currentUser);
+                const coins = round2(currentUser.balance || 0);
+                if (coins <= 0) {
+                    showToast('Exchange karne ke liye Your Coin mein coins hone chahiye.', 'warning');
+                    return;
+                }
+
+                const convertedRupees = coinsToRupees(coins);
+                currentUser.balance = 0;
+                currentUser.walletRupees = round2((Number(currentUser.walletRupees) || 0) + convertedRupees);
+                users[currentUser.mobile] = currentUser;
+                persistLocalStore();
+
+                if (supabaseClient) {
+                    await withTimeout(
+                        supabaseClient.from('er_users').update({
+                            balance: currentUser.balance,
+                            wallet_rupees: currentUser.walletRupees
+                        }).eq('mobile', currentUser.mobile),
+                        3000
+                    ).catch(() => {});
+                }
+
+                await loadUserDashboard();
+                showToast(`${coins} CR Coin exchange hokar ₹${convertedRupees} Wallet mein aa gaye!`, 'success');
+            }
+
             async function handleOpenWalletModal() {
                 if (!currentUser) return;
                 await syncAllFromSupabase();
@@ -1542,31 +1647,39 @@
                     normalizeUserCoins(currentUser);
                 }
 
-                const coins = Number(currentUser.balance || 0);
-                const rupees = coinsToRupees(coins);
+                const coins = round2(currentUser.balance || 0);
+                const walletRs = round2(currentUser.walletRupees || 0);
 
-                document.getElementById('walletCoinsDisplay').innerText = `${coins}`;
-                document.getElementById('walletRupeeDisplay').innerText = `${rupees}`;
-                document.getElementById('walletExchangePreview').innerText = `${coins} CR Coin = ₹${rupees}`;
+                document.getElementById('walletCoinsDisplay').innerText = `${coins} CR Coin`;
+                document.getElementById('walletRupeeDisplay').innerText = `${walletRs}`;
+                document.getElementById('headerWalletRupees').innerText = `${walletRs}`;
 
                 const statusText = document.getElementById('walletWithdrawStatusText');
                 const exBtn = document.getElementById('walletExchangeBtn');
                 const wdBtn = document.getElementById('walletWithdrawBtn');
 
-                if (rupees >= 200) {
-                    statusText.className = "text-[11px] text-emerald-700 font-bold text-center";
-                    statusText.innerText = `✓ Unlocked! ${coins} CR Coin exchanges to ₹${rupees}.`;
+                if (coins > 0) {
                     exBtn.className = "py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer";
+                } else {
+                    exBtn.className = "py-2.5 px-3 rounded-xl bg-slate-200 text-slate-500 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed";
+                }
+
+                if (walletRs >= 200) {
+                    statusText.className = "text-[11px] text-emerald-700 font-bold text-center";
+                    statusText.innerText = `✓ Wallet balance ₹${walletRs} unlocked for bank withdrawal!`;
                     wdBtn.className = "py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer";
+                    wdBtn.innerHTML = `<i class="fa-solid fa-money-bill-transfer"></i> Withdraw ₹${walletRs}`;
                 } else {
                     statusText.className = "text-[11px] text-amber-700 font-medium text-center";
-                    statusText.innerText = `Unlocks at 40 CR Coin (₹200). Need ₹${round2(200 - rupees)} more.`;
-                    exBtn.className = "py-2.5 px-3 rounded-xl bg-slate-200 text-slate-500 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed";
-                    wdBtn.className = "py-2.5 px-3 rounded-xl bg-slate-200 text-slate-500 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed";
+                    statusText.innerText = `Wallet mein ₹200+ hone par withdrawal unlock hoga (Need ₹${round2(200 - walletRs)} more).`;
+                    wdBtn.className = "py-2.5 px-3 rounded-xl bg-slate-200 text-slate-500 font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed";
+                    wdBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Withdraw to Bank (Min ₹200)`;
                 }
 
                 const histContainer = document.getElementById('userWithdrawalHistoryList');
-                const myHistory = withdrawalRequests.filter(w => w.mobile === currentUser.mobile);
+                const histBadge = document.getElementById('walletHistoryCountBadge');
+                const myHistory = withdrawalRequests.filter(w => String(w.mobile || '').trim() === String(currentUser.mobile || '').trim());
+                if (histBadge) histBadge.innerText = `${myHistory.length}`;
                 histContainer.innerHTML = '';
 
                 if (myHistory.length === 0) {
@@ -1574,17 +1687,23 @@
                 } else {
                     myHistory.forEach(item => {
                         const div = document.createElement('div');
+                        const statusVal = (item.status || 'PENDING').toUpperCase();
                         let badgeStyle = "bg-amber-50 text-amber-800 border-amber-200";
-                        if (item.status === 'APPROVED') badgeStyle = "bg-emerald-50 text-emerald-800 border-emerald-200";
-                        if (item.status === 'REJECTED') badgeStyle = "bg-rose-50 text-rose-800 border-rose-200";
+                        if (statusVal === 'APPROVED') badgeStyle = "bg-emerald-50 text-emerald-800 border-emerald-200";
+                        if (statusVal === 'REJECTED') badgeStyle = "bg-rose-50 text-rose-800 border-rose-200";
 
-                        div.className = "p-3 rounded-xl bg-white border border-slate-200 text-xs flex items-center justify-between gap-2";
+                        const rawAcc = item.bankDetails && item.bankDetails.accountNo ? String(item.bankDetails.accountNo) : '';
+                        const last4 = rawAcc.length >= 4 ? ` • A/C ••••${rawAcc.slice(-4)}` : '';
+                        const bankLabel = item.bankDetails && item.bankDetails.bankName ? `${item.bankDetails.bankName}${last4}` : 'Bank Transfer';
+
+                        div.className = "p-3 rounded-xl bg-white border border-slate-200 text-xs flex items-center justify-between gap-2 shadow-xs";
                         div.innerHTML = `
-                            <div>
-                                <p class="font-extrabold text-slate-900">₹${item.amount} <span class="text-[10px] font-semibold text-slate-500">(${item.type || 'COIN'})</span></p>
-                                <p class="text-[10px] text-slate-500">${item.date || ''}</p>
+                            <div class="min-w-0 flex-1">
+                                <p class="font-extrabold text-slate-900">₹${item.amount} <span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">${item.type || 'WALLET'}</span></p>
+                                <p class="text-[10px] text-slate-600 font-medium truncate mt-0.5">${bankLabel}</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">${item.date || ''}</p>
                             </div>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeStyle}">${item.status || 'PENDING'}</span>
+                            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full border shrink-0 ${badgeStyle}">${statusVal}</span>
                         `;
                         histContainer.appendChild(div);
                     });
@@ -1593,28 +1712,22 @@
                 openModal('walletModal');
             }
 
-            function handleExchangeCoinsClick() {
-                if (!currentUser) return;
-                const coins = Number(currentUser.balance || 0);
-                const rupees = coinsToRupees(coins);
-                if (rupees < 200) {
-                    showToast('Coin exchange & withdrawal ke liye kam se kam 40 CR Coin (₹200) zaroori hain.', 'warning');
-                    return;
+            async function handleExchangeCoinsInsideWallet() {
+                await handleExchangeCoinsDirectly();
+                if (document.getElementById('walletModal')?.classList.contains('is-open')) {
+                    await handleOpenWalletModal();
                 }
-                closeModal('walletModal');
-                initiateWithdrawal('coin');
             }
 
             function handleWalletWithdrawClick() {
                 if (!currentUser) return;
-                const coins = Number(currentUser.balance || 0);
-                const rupees = coinsToRupees(coins);
-                if (rupees < 200) {
-                    showToast('Withdrawal ke liye kam se kam ₹200 (40 CR Coin) balance zaroori hai.', 'warning');
+                const walletRs = round2(currentUser.walletRupees || 0);
+                if (walletRs < 200) {
+                    showToast('Withdrawal ke liye Wallet balance kam se kam ₹200 hona chahiye.', 'warning');
                     return;
                 }
                 closeModal('walletModal');
-                initiateWithdrawal('coin');
+                initiateWithdrawal('wallet');
             }
 
             function initiateWithdrawal(type) {
@@ -1629,13 +1742,12 @@
                     }
                     document.getElementById('withdrawModalSubtitle').innerHTML = `Bonus Payout: <strong class="text-emerald-700 font-mono">₹${amount}</strong>`;
                 } else {
-                    const coins = Number(currentUser.balance || 0);
-                    const rupees = coinsToRupees(coins);
-                    if (rupees < 200) {
-                        showToast('Coin exchange & withdrawal ₹200 (40 CR Coin) par unlock hota hai.', 'warning');
+                    const walletRs = round2(currentUser.walletRupees || 0);
+                    if (walletRs < 200) {
+                        showToast('Wallet withdrawal ₹200 par unlock hota hai. Pehle coins exchange karein.', 'warning');
                         return;
                     }
-                    document.getElementById('withdrawModalSubtitle').innerHTML = `Exchanged: <strong class="text-indigo-700 font-mono">${coins} CR Coin</strong> → <strong class="text-emerald-700 font-mono">₹${rupees}</strong>`;
+                    document.getElementById('withdrawModalSubtitle').innerHTML = `Wallet Withdrawal: <strong class="text-emerald-700 font-mono">₹${walletRs}</strong>`;
                 }
 
                 if (currentUser.bankDetails) {
@@ -1676,10 +1788,9 @@
                         currentUser.bonus = 0;
                         reqTypeLabel = 'BONUS';
                     } else {
-                        const coinsExchanged = Number(currentUser.balance || 0);
-                        withdrawRupees = coinsToRupees(coinsExchanged);
-                        currentUser.balance = 0;
-                        reqTypeLabel = `EXCHANGED (${coinsExchanged} CR COIN)`;
+                        withdrawRupees = round2(currentUser.walletRupees || 0);
+                        currentUser.walletRupees = 0;
+                        reqTypeLabel = 'WALLET';
                     }
 
                     const reqId = 'WD' + Math.floor(100000 + Math.random() * 900000);
@@ -1691,6 +1802,7 @@
                                 supabaseClient.from('er_users').update({
                                     bonus: currentUser.bonus,
                                     balance: currentUser.balance,
+                                    wallet_rupees: currentUser.walletRupees,
                                     own_deposit: currentUser.ownDeposit,
                                     bank_details: bankObj
                                 }).eq('mobile', currentUser.mobile),
@@ -2109,7 +2221,8 @@
                     bindClick('brandLogoTrigger', handleOpenAdminModal);
                     bindClick('openWalletBtn', handleOpenWalletModal);
                     bindClick('closeWalletModalBtn', () => closeModal('walletModal'));
-                    bindClick('walletExchangeBtn', handleExchangeCoinsClick);
+                    bindClick('dashboardExchangeCoinBtn', handleExchangeCoinsDirectly);
+                    bindClick('walletExchangeBtn', handleExchangeCoinsInsideWallet);
                     bindClick('walletWithdrawBtn', handleWalletWithdrawClick);
                     bindClick('logoutBtn', handleLogout);
 
