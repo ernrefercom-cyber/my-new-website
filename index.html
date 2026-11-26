@@ -27,6 +27,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        // Configure custom brand palette for EarnRefer
         tailwind.config = {
             theme: {
                 extend: {
@@ -41,7 +42,7 @@
                     }
                 }
             }
-        }
+        };
     </script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -51,6 +52,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        /* Base typography and clean light surface */
         html, body {
             font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
             background-color: #ffffff;
@@ -132,7 +134,7 @@
             
             <div class="flex items-center gap-2">
                 <span id="dbSyncIndicator" class="text-[10px] text-emerald-700 font-mono hidden sm:inline-flex items-center gap-1 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
-                    <i class="fa-solid fa-database text-[9px]"></i> Cloud
+                    <i class="fa-solid fa-database text-[9px]"></i> Saved
                 </span>
                 <button type="button" id="openWalletBtn" class="hidden px-2.5 py-2 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition-colors active:scale-95 inline-flex items-center gap-1.5 text-xs font-extrabold" title="Wallet (Cash Balance, Withdraw & History)">
                     <i class="fa-solid fa-wallet text-sm"></i>
@@ -563,7 +565,7 @@
 
     </main>
 
-    <!-- USER WALLET MODAL (EXCHANGE REMOVED • CUSTOM WITHDRAWAL AMOUNT ₹200+ • WITHDRAWAL HISTORY) -->
+    <!-- USER WALLET MODAL (CUSTOM WITHDRAWAL AMOUNT ₹200+ • WITHDRAWAL HISTORY) -->
     <div id="walletModal" class="modal-backdrop fixed inset-0 bg-slate-900/50 z-50 items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm rounded-3xl p-6 space-y-4 border-indigo-200 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-slate-200 pb-3">
@@ -588,7 +590,7 @@
                 <p class="text-[11px] text-slate-600">Unexchanged Balance: <strong id="walletCoinsDisplay" class="text-indigo-700 font-mono">0 ER Coin</strong></p>
             </div>
 
-            <!-- WITHDRAWAL SECTION WITH CUSTOM AMOUNT INPUT (NO EXCHANGE BUTTON HERE) -->
+            <!-- WITHDRAWAL & EXCHANGE SECTION -->
             <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
                 <button type="button" id="walletModalExchangeCoinBtn" class="w-full py-2.5 px-3 rounded-xl gradient-btn text-white font-extrabold text-xs shadow-sm flex items-center justify-between active:scale-95">
                     <span class="flex items-center gap-1.5">
@@ -772,8 +774,12 @@
             const ADMIN_SECRET_PASS = "8825354587@#arkh";
             const MERCHANT_NAME = "EarnRefer";
             const DEFAULT_UPI_ID = "earnrefer@okaxis";
-            const STORE_KEY = "earnrefer_store_v2";
-            const SESSION_USER_KEY = "er_active_user";
+
+            // v4 clean-slate storage keys so all prior users, deposits, withdrawals, and logs are zeroed out once
+            const LEGACY_STORE_KEYS = ["earnrefer_store_v1", "earnrefer_store_v2", "earnrefer_store_v3"];
+            const STORE_KEY = "earnrefer_store_v4";
+            const SESSION_USER_KEY = "er_active_user_v4";
+            const CLEAN_SLATE_DONE_KEY = "er_v4_clean_slate_initialized";
 
             function safeGetItem(storage, key) {
                 try { return storage ? storage.getItem(key) : null; } catch (e) { return null; }
@@ -872,6 +878,76 @@
 
             function hasValidUpi() {
                 return isValidUpiFormat(activeUpiId);
+            }
+
+            // Compute unique registered user count across both users map and loginLogs
+            function getTotalRegisteredUsersCount() {
+                const mobileSet = new Set();
+                Object.keys(users || {}).forEach(mob => {
+                    const clean = String(mob || '').replace(/\D/g, '').trim();
+                    if (clean) mobileSet.add(clean);
+                });
+                (Array.isArray(loginLogs) ? loginLogs : []).forEach(log => {
+                    const clean = String((log && log.mobile) || '').replace(/\D/g, '').trim();
+                    if (clean) mobileSet.add(clean);
+                });
+                return mobileSet.size;
+            }
+
+            // One-time v4 clean reset to 0 for all users, deposits, withdrawals, and logs while keeping UPI/QR
+            function runFirstTimeCleanSlate() {
+                LEGACY_STORE_KEYS.forEach(k => safeRemoveItem(localStorage, k));
+                safeRemoveItem(sessionStorage, "er_active_user");
+                safeRemoveItem(sessionStorage, "er_active_user_v3");
+
+                const alreadyInitialized = safeGetItem(localStorage, CLEAN_SLATE_DONE_KEY);
+                if (!alreadyInitialized) {
+                    let preservedUpi = DEFAULT_UPI_ID;
+                    let preservedQr = "";
+                    try {
+                        const prevRaw = safeGetItem(localStorage, STORE_KEY);
+                        if (prevRaw) {
+                            const prev = JSON.parse(prevRaw);
+                            if (prev && typeof prev.activeUpiId === 'string' && prev.activeUpiId.trim()) {
+                                preservedUpi = prev.activeUpiId.trim();
+                            }
+                            if (prev && typeof prev.activeQrImage === 'string') {
+                                preservedQr = prev.activeQrImage;
+                            }
+                        }
+                    } catch (e) {}
+
+                    safeRemoveItem(localStorage, STORE_KEY);
+                    safeRemoveItem(sessionStorage, SESSION_USER_KEY);
+                    users = {};
+                    loginLogs = [];
+                    withdrawalRequests = [];
+                    activeUpiId = preservedUpi;
+                    activeQrImage = preservedQr;
+                    allUsersStartTs = Date.now();
+                    currentUser = null;
+                    persistLocalStore();
+                    safeSetItem(localStorage, CLEAN_SLATE_DONE_KEY, "1");
+                }
+            }
+
+            // Wipe remote Supabase history once during v4 clean reset so old DB rows don't reappear
+            async function purgeRemoteHistoryOnV4Reset() {
+                const remotePurgedKey = "er_v4_remote_history_purged";
+                if (safeGetItem(localStorage, remotePurgedKey) === "1") return;
+                safeSetItem(localStorage, remotePurgedKey, "1");
+
+                if (!supabaseClient) return;
+                try {
+                    await withTimeout(
+                        Promise.all([
+                            supabaseClient.from('er_withdrawals').delete().neq('id', ''),
+                            supabaseClient.from('er_login_logs').delete().neq('mobile', ''),
+                            supabaseClient.from('er_users').delete().neq('mobile', '')
+                        ]),
+                        3500
+                    ).catch(() => {});
+                } catch (e) {}
             }
 
             function persistLocalStore() {
@@ -1058,12 +1134,13 @@
                     );
 
                     if (!usersRes.error && Array.isArray(usersRes.data)) {
-                        const freshUsers = {};
+                        const freshUsers = { ...users };
                         const protectRecentExchange = (Date.now() - lastExchangeTimestamp) < 30000;
 
                         usersRes.data.forEach(row => {
                             const mapped = mapDbUserToLocal(row);
-                            const existingLocal = users[mapped.mobile];
+                            if (!mapped.mobile) return;
+                            const existingLocal = freshUsers[mapped.mobile];
                             if (existingLocal) {
                                 normalizeUserCoins(existingLocal);
                                 const localWallet = round2(existingLocal.walletRupees || 0);
@@ -1104,7 +1181,7 @@
                         }
                     }
 
-                    if (!logsRes.error && Array.isArray(logsRes.data)) {
+                    if (!logsRes.error && Array.isArray(logsRes.data) && logsRes.data.length > 0) {
                         loginLogs = logsRes.data.map(row => ({
                             dbId: row.id,
                             date: row.date_str,
@@ -1117,7 +1194,7 @@
                         }));
                     }
 
-                    if (!wdRes.error && Array.isArray(wdRes.data)) {
+                    if (!wdRes.error && Array.isArray(wdRes.data) && wdRes.data.length > 0) {
                         withdrawalRequests = wdRes.data.map(row => ({
                             id: row.id,
                             mobile: row.mobile,
@@ -1338,7 +1415,7 @@
                     return;
                 }
 
-                await syncAllFromSupabase();
+                hydrateLocalStore();
 
                 if (users[mobile]) {
                     showToast('Yeh mobile number pehle se registered hai! Login karein.', 'warning');
@@ -1413,7 +1490,7 @@
                         return;
                     }
 
-                    await syncAllFromSupabase();
+                    hydrateLocalStore();
 
                     let uniqueId = generate10DigitId();
                     while (Object.values(users).some(u => u.id === uniqueId)) {
@@ -1436,16 +1513,7 @@
                             sponsor.balance = round2(parseAmountSafe(sponsor.balance) + commissionCoinsAwarded);
                             sponsor.teamCount = (parseInt(sponsor.teamCount, 10) || 0) + 1;
 
-                            if (supabaseClient) {
-                                await withTimeout(
-                                    supabaseClient.from('er_users').update({
-                                        bonus: sponsor.bonus,
-                                        balance: sponsor.balance,
-                                        team_count: sponsor.teamCount
-                                    }).eq('mobile', sponsorMobileFound),
-                                    3000
-                                ).catch(() => {});
-                            }
+                            await persistUserRecord(sponsor);
                         }
                     }
 
@@ -1460,6 +1528,8 @@
                         bonus: 0,
                         balance: 0,
                         walletRupees: 0,
+                        exchangedCoins: 0,
+                        lastExchangedAt: 0,
                         teamCount: 0,
                         bankDetails: null,
                         sponsorMobileUsed: sponsorMobileFound,
@@ -1479,10 +1549,14 @@
                         sponsor: newUser.sponsorId || 'Direct'
                     };
 
+                    users[newUser.mobile] = newUser;
+                    loginLogs.push(newLog);
+                    persistLocalStore();
+
                     if (supabaseClient) {
                         await withTimeout(
                             Promise.all([
-                                supabaseClient.from('er_users').insert([mapLocalUserToDb(newUser)]),
+                                supabaseClient.from('er_users').upsert(mapLocalUserToDb(newUser, true), { onConflict: 'mobile' }),
                                 supabaseClient.from('er_login_logs').insert([{
                                     date_str: newLog.date,
                                     mobile: newLog.mobile,
@@ -1497,10 +1571,6 @@
                         ).catch(() => {});
                     }
 
-                    users[newUser.mobile] = newUser;
-                    loginLogs.push(newLog);
-                    persistLocalStore();
-
                     currentUser = newUser;
                     safeSetItem(sessionStorage, SESSION_USER_KEY, newUser.mobile);
                     pendingRegistration = null;
@@ -1512,7 +1582,7 @@
                     });
 
                     await loadUserDashboard();
-                    showToast(`Payment Verified! Dashboard open ho gaya. Your Coin: 0 ER Coin • ID: ${newUser.id}`, 'success');
+                    showToast(`Payment Verified! Account saved. Total Active Users: ${getTotalRegisteredUsersCount()} • ID: ${newUser.id}`, 'success');
                 } catch (err) {
                     showToast('Registration complete karne mein problem aayi: ' + (err.message || 'Try again'), 'error');
                 } finally {
@@ -1550,18 +1620,7 @@
                         ? round2(parseAmountSafe(user.balance))
                         : round2(parseAmountSafe(user.balance) + addedCoins);
                     user.lastYieldTime = cycleEndTime;
-                    users[user.mobile] = user;
-                    persistLocalStore();
-
-                    if (supabaseClient) {
-                        await withTimeout(
-                            supabaseClient.from('er_users').update({
-                                balance: user.balance,
-                                last_yield_time: user.lastYieldTime
-                            }).eq('mobile', user.mobile),
-                            3000
-                        ).catch(() => {});
-                    }
+                    await persistUserRecord(user);
                     return !alreadyExchangedThisCycle && addedCoins > 0;
                 }
                 return false;
@@ -1760,11 +1819,13 @@
                 const hintEl = document.getElementById('exchangeCoinRateHint');
                 const modalWalEl = document.getElementById('walletRupeeDisplay');
                 const modalCoinEl = document.getElementById('walletCoinsDisplay');
+                const modalExHintEl = document.getElementById('walletModalExchangeHint');
                 if (coinEl) coinEl.innerText = '0';
                 if (headerWalEl) headerWalEl.innerText = `${nextWallet}`;
                 if (hintEl) hintEl.innerText = `0 ER Coin = ₹0`;
                 if (modalWalEl) modalWalEl.innerText = `${nextWallet}`;
                 if (modalCoinEl) modalCoinEl.innerText = `0 ER Coin`;
+                if (modalExHintEl) modalExHintEl.innerText = `0 ER Coin → ₹0`;
 
                 await persistUserRecord(currentUser);
 
@@ -1802,6 +1863,9 @@
                 document.getElementById('walletCoinsDisplay').innerText = `${coins} ER Coin`;
                 document.getElementById('walletRupeeDisplay').innerText = `${walletRs}`;
                 document.getElementById('headerWalletRupees').innerText = `${walletRs}`;
+                const modalExHintEl = document.getElementById('walletModalExchangeHint');
+                if (modalExHintEl) modalExHintEl.innerText = `${coins} ER Coin → ₹${coinsToRupees(coins)}`;
+
                 const statusText = document.getElementById('walletWithdrawStatusText');
                 const wdBtn = document.getElementById('walletWithdrawBtn');
                 const amtInput = document.getElementById('walletWithdrawAmountInput');
@@ -1996,32 +2060,8 @@
                     const reqId = 'WD' + Math.floor(100000 + Math.random() * 900000);
                     const dateStr = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-                    if (supabaseClient) {
-                        await withTimeout(
-                            Promise.all([
-                                supabaseClient.from('er_users').update({
-                                    bonus: currentUser.bonus,
-                                    balance: currentUser.balance,
-                                    wallet_rupees: currentUser.walletRupees,
-                                    own_deposit: currentUser.ownDeposit,
-                                    bank_details: bankObj
-                                }).eq('mobile', currentUser.mobile),
-                                supabaseClient.from('er_withdrawals').insert([{
-                                    id: reqId,
-                                    mobile: currentUser.mobile,
-                                    user_id: currentUser.id,
-                                    type: reqTypeLabel,
-                                    amount: withdrawRupees,
-                                    bank_details: bankObj,
-                                    date_str: dateStr,
-                                    status: 'PENDING'
-                                }])
-                            ]),
-                            3500
-                        ).catch(() => {});
-                    }
+                    await persistUserRecord(currentUser);
 
-                    users[currentUser.mobile] = currentUser;
                     withdrawalRequests.unshift({
                         id: reqId,
                         mobile: currentUser.mobile,
@@ -2033,6 +2073,22 @@
                         status: 'PENDING'
                     });
                     persistLocalStore();
+
+                    if (supabaseClient) {
+                        await withTimeout(
+                            supabaseClient.from('er_withdrawals').insert([{
+                                id: reqId,
+                                mobile: currentUser.mobile,
+                                user_id: currentUser.id,
+                                type: reqTypeLabel,
+                                amount: withdrawRupees,
+                                bank_details: bankObj,
+                                date_str: dateStr,
+                                status: 'PENDING'
+                            }]),
+                            3500
+                        ).catch(() => {});
+                    }
 
                     const walletAmtInput = document.getElementById('walletWithdrawAmountInput');
                     if (walletAmtInput) walletAmtInput.value = '';
@@ -2174,14 +2230,29 @@
                 document.getElementById('dashboardScreen').classList.add('hidden');
                 document.getElementById('adminScreen').classList.remove('hidden');
 
-                await syncAllFromSupabase();
+                hydrateLocalStore();
+                syncPaymentUiState();
+                syncAllUsersDisplay();
 
-                const totalUsersCount = Object.keys(users).length;
+                const totalUsersCount = getTotalRegisteredUsersCount();
                 document.getElementById('adminTotalUsers').innerText = `${totalUsersCount}`;
 
                 let totalCollected = 0;
-                loginLogs.forEach(l => { totalCollected += Number(l.deposit || 0); });
-                document.getElementById('adminTotalCollected').innerText = `₹${totalCollected}`;
+                const countedMobiles = new Set();
+                Object.keys(users).forEach(mob => {
+                    const u = users[mob];
+                    if (u && parseAmountSafe(u.ownDeposit) > 0) {
+                        totalCollected += parseAmountSafe(u.ownDeposit);
+                        countedMobiles.add(String(mob));
+                    }
+                });
+                loginLogs.forEach(l => {
+                    const mobKey = String((l && l.mobile) || '');
+                    if (!countedMobiles.has(mobKey)) {
+                        totalCollected += parseAmountSafe(l && l.deposit);
+                    }
+                });
+                document.getElementById('adminTotalCollected').innerText = `₹${round2(totalCollected)}`;
                 document.getElementById('logBadge').innerText = `${loginLogs.length} Logs`;
 
                 const wdContainer = document.getElementById('adminWithdrawalRequestsList');
@@ -2251,10 +2322,11 @@
 
                 const usersContainer = document.getElementById('adminUsersList');
                 usersContainer.innerHTML = '';
-                if (totalUsersCount === 0) {
+                const userKeys = Object.keys(users);
+                if (userKeys.length === 0) {
                     usersContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Koi user registered nahi hai.</p>`;
                 } else {
-                    Object.keys(users).forEach(mob => {
+                    userKeys.forEach(mob => {
                         const u = users[mob];
                         const uItem = document.createElement('div');
                         uItem.className = "p-3.5 bg-white rounded-2xl border border-slate-200 space-y-2 text-xs";
@@ -2288,10 +2360,20 @@
                         btn.addEventListener('click', async function() {
                             const targetMob = this.getAttribute('data-del-mobile');
                             delete users[targetMob];
+                            loginLogs = loginLogs.filter(l => String(l.mobile || '') !== String(targetMob));
+                            withdrawalRequests = withdrawalRequests.filter(w => String(w.mobile || '') !== String(targetMob));
+                            if (currentUser && String(currentUser.mobile) === String(targetMob)) {
+                                currentUser = null;
+                                safeRemoveItem(sessionStorage, SESSION_USER_KEY);
+                            }
                             persistLocalStore();
                             if (supabaseClient) {
                                 await withTimeout(
-                                    supabaseClient.from('er_users').delete().eq('mobile', targetMob),
+                                    Promise.all([
+                                        supabaseClient.from('er_users').delete().eq('mobile', targetMob),
+                                        supabaseClient.from('er_login_logs').delete().eq('mobile', targetMob),
+                                        supabaseClient.from('er_withdrawals').delete().eq('mobile', targetMob)
+                                    ]),
                                     3000
                                 ).catch(() => {});
                             }
@@ -2506,6 +2588,7 @@
 
             async function initApp() {
                 bindAllEvents();
+                runFirstTimeCleanSlate();
                 hydrateLocalStore();
                 syncPaymentUiState();
                 syncAllUsersDisplay();
@@ -2517,6 +2600,7 @@
                     if (sponsorInput) sponsorInput.value = refParam.trim();
                 }
 
+                await purgeRemoteHistoryOnV4Reset();
                 await syncAllFromSupabase();
 
                 const savedMob = safeGetItem(sessionStorage, SESSION_USER_KEY);
