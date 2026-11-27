@@ -1,0 +1,3201 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AUREX ER — Wealth &amp; Reward Protocol</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-obsidian: #07080B;
+      --gold-primary: #E6C27A;
+      --gold-deep: #B8862D;
+      --emerald-glow: #10B981;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-obsidian);
+      color: #F1F5F9;
+      overflow-x: hidden;
+    }
+
+    .font-display {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Ambient Neo-Bank Background Mesh */
+    .obsidian-mesh {
+      background-image:
+        radial-gradient(circle at 18% 12%, rgba(230, 194, 122, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 82% 18%, rgba(16, 185, 129, 0.07) 0%, transparent 42%),
+        radial-gradient(circle at 50% 88%, rgba(99, 102, 241, 0.06) 0%, transparent 45%);
+    }
+
+    /* Luxury Glass Cards */
+    .vault-card {
+      background: linear-gradient(160deg, rgba(17, 22, 36, 0.88) 0%, rgba(9, 12, 20, 0.95) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(230, 194, 122, 0.18);
+      box-shadow:
+        0 20px 50px -15px rgba(0, 0, 0, 0.8),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .vault-card-emerald {
+      background: linear-gradient(155deg, rgba(11, 28, 27, 0.92) 0%, rgba(9, 14, 23, 0.96) 100%);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      box-shadow:
+        0 18px 42px -12px rgba(6, 78, 59, 0.35),
+        inset 0 1px 0 0 rgba(52, 211, 153, 0.12);
+    }
+
+    .vault-card-gold {
+      background: linear-gradient(145deg, rgba(35, 26, 12, 0.92) 0%, rgba(12, 16, 26, 0.97) 65%, rgba(10, 22, 20, 0.96) 100%);
+      backdrop-filter: blur(22px);
+      border: 1px solid rgba(230, 194, 122, 0.42);
+      box-shadow:
+        0 22px 55px -12px rgba(217, 158, 43, 0.22),
+        inset 0 1px 0 0 rgba(253, 230, 138, 0.18);
+    }
+
+    /* Gold Metallic CTA Button */
+    .btn-gold {
+      background: linear-gradient(135deg, #F5D589 0%, #D9A13B 50%, #B88022 100%);
+      color: #080A0F;
+      box-shadow: 0 10px 26px -6px rgba(217, 161, 59, 0.45);
+      transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .btn-gold:hover {
+      filter: brightness(1.07);
+      transform: translateY(-1px);
+      box-shadow: 0 14px 32px -6px rgba(230, 194, 122, 0.58);
+    }
+    .btn-gold:active {
+      transform: translateY(0) scale(0.99);
+    }
+
+    /* Dark Sleek Input Styling */
+    .vault-input {
+      background: rgba(7, 9, 15, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: #F8FAFC;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .vault-input:focus {
+      outline: none;
+      border-color: rgba(230, 194, 122, 0.65);
+      box-shadow: 0 0 0 3px rgba(230, 194, 122, 0.14);
+    }
+    .vault-input:disabled {
+      opacity: 0.65;
+      background: rgba(15, 20, 32, 0.65);
+      cursor: not-allowed;
+    }
+
+    /* QR Scanner Laser Sweep */
+    @keyframes scanSweep {
+      0%, 100% { top: 8%; opacity: 0.35; }
+      50% { top: 88%; opacity: 0.95; }
+    }
+    .qr-scan-line {
+      position: absolute;
+      left: 6%;
+      right: 6%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #10B981, #E6C27A, #10B981, transparent);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.9);
+      animation: scanSweep 2.8s ease-in-out infinite;
+    }
+
+    /* Gold Shimmer Text */
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #FFF3C4 0%, #E6C27A 48%, #C9912C 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
+<body class="min-h-screen obsidian-mesh selection:bg-amber-400 selection:text-slate-950 flex flex-col">
+  <!-- TOAST NOTIFICATION BANNER -->
+  <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-md w-[92%] hidden">
+    <div id="toastBox" class="rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 backdrop-blur-xl border shadow-2xl">
+      <span id="toastMessage"></span>
+      <button
+        type="button"
+        id="closeToastBtn"
+        class="text-[11px] font-bold uppercase tracking-wider opacity-75 hover:opacity-100 px-2.5 py-1 rounded-lg bg-white/10 cursor-pointer shrink-0"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       POST-LOGIN HEADER (BRAND LEFT, WALLET ICON ONLY RIGHT)
+       ========================================================================= -->
+  <header id="postLoginHeader" class="hidden sticky top-0 z-40 bg-[#07080B]/90 backdrop-blur-xl border-b border-amber-400/15">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+      <!-- Left: AUREX ER Emblem -->
+      <div id="headerEmblemBtn" class="flex items-center gap-3 select-none cursor-pointer" title="Account">
+        <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
+          <div class="absolute inset-0 rounded-xl bg-amber-400/15 blur-md"></div>
+          <svg
+            viewBox="0 0 64 64"
+            class="w-10 h-10 relative z-10 drop-shadow-[0_4px_12px_rgba(230,194,122,0.35)]"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-label="AUREX ER Emblem"
+          >
+            <defs>
+              <linearGradient id="aurexGoldStrokeHdr" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FFF2B2" />
+                <stop offset="48%" stop-color="#E6C27A" />
+                <stop offset="100%" stop-color="#A87119" />
+              </linearGradient>
+              <linearGradient id="aurexVaultBgHdr" x1="12" y1="8" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#192136" />
+                <stop offset="100%" stop-color="#090D16" />
+              </linearGradient>
+              <linearGradient id="aurexEmeraldAccentHdr" x1="20" y1="44" x2="46" y2="18" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#059669" />
+                <stop offset="55%" stop-color="#34D399" />
+                <stop offset="100%" stop-color="#FDE68A" />
+              </linearGradient>
+            </defs>
+            <polygon points="32,3 57,17.5 57,46.5 32,61 7,46.5 7,17.5" fill="url(#aurexVaultBgHdr)" stroke="url(#aurexGoldStrokeHdr)" stroke-width="2.4" />
+            <polygon points="32,9 51.5,20.2 51.5,43.8 32,55 12.5,43.8 12.5,20.2" stroke="rgba(230,194,122,0.28)" stroke-width="1" />
+            <circle cx="32" cy="32" r="15.5" stroke="rgba(16,185,129,0.25)" stroke-width="1.2" stroke-dasharray="3 3" />
+            <path d="M21 43L32 18L43 43" stroke="url(#aurexGoldStrokeHdr)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M24.5 35.5H39.5" stroke="url(#aurexEmeraldAccentHdr)" stroke-width="2.8" stroke-linecap="round" />
+            <polygon points="32,11 35,14.5 32,18 29,14.5" fill="#FFF2B2" />
+            <circle cx="32" cy="44" r="2.4" fill="#34D399" />
+          </svg>
+        </div>
+        <div>
+          <span class="font-display font-bold text-lg tracking-wider gold-gradient-text block leading-none">
+            AUREX ER
+          </span>
+          <span class="text-[10px] font-semibold tracking-[0.18em] text-slate-400 uppercase block mt-1">
+            Wealth &amp; Reward Protocol
+          </span>
+        </div>
+      </div>
+
+      <!-- Right: ONLY SLEEK WALLET LOGO ICON -->
+      <button
+        type="button"
+        id="headerWalletIconBtn"
+        aria-label="Wallet"
+        title="Wallet"
+        class="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 hover:from-amber-400/30 hover:to-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shadow-[0_0_20px_rgba(230,194,122,0.18)] transition-all cursor-pointer active:scale-95"
+      >
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
+          <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
+        </svg>
+        <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#07080B]"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 flex flex-col justify-center max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <!-- =======================================================================
+         VIEW 1: CLEAN AUTH ENTRY SCREEN (ONLY REGISTER & SIGN IN)
+         ======================================================================= -->
+    <section id="view-auth" class="app-view w-full max-w-md mx-auto">
+      <div class="flex flex-col items-center text-center mb-6">
+        <button
+          type="button"
+          id="authEmblemTapBtn"
+          class="relative w-16 h-16 flex items-center justify-center mb-3 focus:outline-none group cursor-pointer"
+        >
+          <div class="absolute inset-0 rounded-3xl bg-amber-400/20 blur-xl group-hover:bg-amber-400/30 transition-all"></div>
+          <svg
+            viewBox="0 0 64 64"
+            class="w-16 h-16 relative z-10 drop-shadow-[0_6px_18px_rgba(230,194,122,0.4)] transition-transform duration-300 group-hover:scale-105"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-label="AUREX ER Emblem"
+          >
+            <defs>
+              <linearGradient id="aurexGoldStrokeAuth" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FFF2B2" />
+                <stop offset="48%" stop-color="#E6C27A" />
+                <stop offset="100%" stop-color="#A87119" />
+              </linearGradient>
+              <linearGradient id="aurexVaultBgAuth" x1="12" y1="8" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#192136" />
+                <stop offset="100%" stop-color="#090D16" />
+              </linearGradient>
+              <linearGradient id="aurexEmeraldAccentAuth" x1="20" y1="44" x2="46" y2="18" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#059669" />
+                <stop offset="55%" stop-color="#34D399" />
+                <stop offset="100%" stop-color="#FDE68A" />
+              </linearGradient>
+            </defs>
+            <polygon points="32,3 57,17.5 57,46.5 32,61 7,46.5 7,17.5" fill="url(#aurexVaultBgAuth)" stroke="url(#aurexGoldStrokeAuth)" stroke-width="2.4" />
+            <polygon points="32,9 51.5,20.2 51.5,43.8 32,55 12.5,43.8 12.5,20.2" stroke="rgba(230,194,122,0.28)" stroke-width="1" />
+            <circle cx="32" cy="32" r="15.5" stroke="rgba(16,185,129,0.25)" stroke-width="1.2" stroke-dasharray="3 3" />
+            <path d="M21 43L32 18L43 43" stroke="url(#aurexGoldStrokeAuth)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M24.5 35.5H39.5" stroke="url(#aurexEmeraldAccentAuth)" stroke-width="2.8" stroke-linecap="round" />
+            <polygon points="32,11 35,14.5 32,18 29,14.5" fill="#FFF2B2" />
+            <circle cx="32" cy="44" r="2.4" fill="#34D399" />
+          </svg>
+        </button>
+        <h1 class="font-display text-2xl sm:text-3xl font-bold tracking-wider gold-gradient-text">
+          AUREX ER
+        </h1>
+        <p class="text-[11px] font-semibold tracking-[0.2em] text-slate-400 uppercase mt-1">
+          Wealth &amp; Reward Protocol
+        </p>
+      </div>
+
+      <div class="vault-card rounded-3xl p-5 sm:p-7 relative overflow-hidden">
+        <!-- Segmented Tab Switcher: Register | Sign In -->
+        <div class="grid grid-cols-2 gap-1.5 bg-slate-950/90 p-1.5 rounded-2xl border border-slate-800/90 mb-6">
+          <button
+            type="button"
+            id="tabRegisterBtn"
+            class="py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer bg-amber-400 text-slate-950 shadow-md"
+          >
+            Register
+          </button>
+          <button
+            type="button"
+            id="tabSignInBtn"
+            class="py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-400 hover:text-amber-300"
+          >
+            Sign In
+          </button>
+        </div>
+
+        <!-- REGISTER FORM PANEL -->
+        <div id="authRegisterPanel">
+          <form id="registerForm" class="space-y-4" novalidate>
+            <div id="reg-step-details" class="space-y-4">
+              <div>
+                <label for="regName" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Full Name <span class="text-rose-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="regName"
+                  placeholder="Enter your name"
+                  class="vault-input w-full px-4 py-3.5 rounded-xl text-sm font-semibold"
+                />
+                <p id="errName" class="text-xs text-rose-400 font-semibold mt-1 hidden"></p>
+              </div>
+
+              <div>
+                <label for="regMobile" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Mobile Number <span class="text-rose-400">*</span>
+                </label>
+                <div class="relative">
+                  <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-300/90 font-bold text-sm select-none">
+                    +91
+                  </span>
+                  <input
+                    type="tel"
+                    id="regMobile"
+                    maxlength="10"
+                    placeholder="9876543210"
+                    class="vault-input w-full pl-12 pr-4 py-3.5 rounded-xl text-sm font-semibold tabular-nums"
+                  />
+                </div>
+                <p id="errMobile" class="text-xs text-rose-400 font-semibold mt-1 hidden"></p>
+              </div>
+
+              <div>
+                <label for="regPassword" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Password <span class="text-rose-400">*</span>
+                </label>
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="regPassword"
+                    placeholder="Create password (min 4 chars)"
+                    class="vault-input w-full px-4 py-3.5 rounded-xl text-sm font-medium pr-16"
+                  />
+                  <button
+                    type="button"
+                    id="toggleRegPassBtn"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-amber-300 hover:text-amber-200 px-2.5 py-1 rounded-lg bg-white/5 cursor-pointer"
+                  >
+                    Show
+                  </button>
+                </div>
+                <p id="errPassword" class="text-xs text-rose-400 font-semibold mt-1 hidden"></p>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-1.5">
+                  <label for="regInvite" class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Invite Code <span class="text-[11px] font-normal normal-case text-slate-400">(Optional)</span>
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  id="regInvite"
+                  placeholder="Enter invite code (or leave blank)"
+                  class="vault-input w-full px-4 py-3.5 rounded-xl uppercase text-sm font-bold tracking-widest text-amber-300 placeholder-slate-500"
+                />
+              </div>
+
+              <div>
+                <label for="regAmount" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Deposit Amount (INR) <span class="text-rose-400">*</span>
+                  <span class="text-[11px] font-normal normal-case text-amber-300/90 ml-1">(Min ₹500)</span>
+                </label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 text-amber-300 font-extrabold text-base select-none">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    id="regAmount"
+                    min="500"
+                    step="1"
+                    value="1000"
+                    placeholder="1000"
+                    class="vault-input w-full pl-9 pr-4 py-3.5 rounded-xl text-base font-extrabold text-white tabular-nums"
+                  />
+                </div>
+                <p id="errAmount" class="text-xs text-rose-400 font-semibold mt-1 hidden"></p>
+
+                <div id="quickAmountChips" class="grid grid-cols-4 gap-2 mt-2.5">
+                  <button type="button" data-amt="500" class="amt-chip py-2 px-2 rounded-xl text-xs font-bold bg-slate-900/90 text-slate-300 border border-slate-800 transition cursor-pointer tabular-nums">
+                    ₹500
+                  </button>
+                  <button type="button" data-amt="1000" class="amt-chip py-2 px-2 rounded-xl text-xs font-bold bg-amber-400/20 text-amber-300 border border-amber-400/50 transition cursor-pointer tabular-nums">
+                    ₹1,000
+                  </button>
+                  <button type="button" data-amt="2500" class="amt-chip py-2 px-2 rounded-xl text-xs font-bold bg-slate-900/90 text-slate-300 border border-slate-800 transition cursor-pointer tabular-nums">
+                    ₹2,500
+                  </button>
+                  <button type="button" data-amt="5000" class="amt-chip py-2 px-2 rounded-xl text-xs font-bold bg-slate-900/90 text-slate-300 border border-slate-800 transition cursor-pointer tabular-nums">
+                    ₹5,000
+                  </button>
+                </div>
+              </div>
+
+              <div class="rounded-2xl bg-slate-950/90 border border-amber-400/20 p-3.5 space-y-1.5 text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">Initial ER Coin on Deposit:</span>
+                  <span class="font-bold text-slate-200 tabular-nums">0 ER Coins</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">Level 1 (24h Yield • 1% of Deposit):</span>
+                  <span id="previewDailyCoins" class="font-bold text-emerald-400 tabular-nums">+2 ER Coins / 24h</span>
+                </div>
+              </div>
+
+              <p id="reg-error" class="text-xs text-rose-400 font-semibold hidden"></p>
+
+              <button
+                type="submit"
+                id="proceedToPaymentBtn"
+                class="btn-gold w-full py-3.5 px-5 rounded-xl font-extrabold text-sm sm:text-base tracking-wide cursor-pointer"
+              >
+                Proceed to Payment →
+              </button>
+            </div>
+
+            <div id="reg-step-payment" class="hidden space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-300">GPay / QR Payment</span>
+                <button
+                  type="button"
+                  id="backToRegDetailsBtn"
+                  class="text-xs font-bold text-amber-300 hover:underline cursor-pointer"
+                >
+                  ← Edit Details
+                </button>
+              </div>
+              <p class="text-xs text-slate-400">
+                Complete payment in the payment screen and enter your 12-digit UTR number to finish registration.
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <!-- SIGN IN FORM PANEL -->
+        <div id="authSignInPanel" class="hidden">
+          <form id="signinForm" class="space-y-4" novalidate>
+            <div>
+              <label for="loginId" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                Mobile Number
+              </label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-300/90 font-bold text-sm select-none">
+                  +91
+                </span>
+                <input
+                  type="tel"
+                  id="loginId"
+                  maxlength="10"
+                  placeholder="9876543210"
+                  class="vault-input w-full pl-12 pr-4 py-3.5 rounded-xl text-sm font-semibold tabular-nums"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="loginPassword" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                Password
+              </label>
+              <input
+                type="password"
+                id="loginPassword"
+                placeholder="Enter your password"
+                class="vault-input w-full px-4 py-3.5 rounded-xl text-sm font-medium"
+              />
+            </div>
+
+            <p id="errSignin" class="text-xs text-rose-400 font-semibold hidden"></p>
+
+            <button
+              type="submit"
+              class="btn-gold w-full py-3.5 px-5 rounded-xl font-extrabold text-sm sm:text-base cursor-pointer"
+            >
+              Sign In →
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         VIEW 2: GOOGLE PAY, ILLUMINATED QR & 12-DIGIT UTR GATEWAY
+         ======================================================================= -->
+    <section id="view-payment" class="app-view hidden w-full max-w-2xl mx-auto">
+      <div class="vault-card rounded-3xl p-5 sm:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-400/30 mb-2">
+              Encrypted UPI Payment
+            </span>
+            <h2 class="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Pay via Google Pay or QR
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+              Complete payment to the configured UPI / QR and submit your 12-digit UTR number.
+            </p>
+          </div>
+          <button
+            type="button"
+            id="backToAuthBtn"
+            class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition cursor-pointer"
+          >
+            ← Back
+          </button>
+        </div>
+
+        <div class="rounded-2xl bg-slate-950/90 border border-amber-400/25 p-4 sm:p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="text-[11px] text-slate-400 uppercase tracking-wider font-bold">Payable Deposit</div>
+            <div id="paySummaryAmount" class="font-display text-3xl sm:text-4xl font-bold gold-gradient-text tabular-nums mt-0.5">
+              ₹1,000
+            </div>
+          </div>
+          <div class="text-left sm:text-right">
+            <div id="paySummaryName" class="text-xs font-bold text-slate-200">Member</div>
+            <div id="paySummaryMobile" class="text-sm font-bold text-white tabular-nums">+91 9876543210</div>
+            <div id="paySummaryInvite" class="text-xs text-emerald-400 font-semibold mt-0.5"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center mb-6">
+          <div class="flex flex-col items-center justify-center rounded-2xl bg-slate-950/90 border border-amber-400/25 p-5">
+            <div class="relative w-52 h-52 rounded-2xl bg-white p-3 shadow-[0_0_35px_rgba(230,194,122,0.2)] overflow-hidden">
+              <span class="absolute top-1.5 left-1.5 w-4 h-4 border-t-2 border-l-2 border-emerald-500 rounded-tl"></span>
+              <span class="absolute top-1.5 right-1.5 w-4 h-4 border-t-2 border-r-2 border-emerald-500 rounded-tr"></span>
+              <span class="absolute bottom-1.5 left-1.5 w-4 h-4 border-b-2 border-l-2 border-emerald-500 rounded-bl"></span>
+              <span class="absolute bottom-1.5 right-1.5 w-4 h-4 border-b-2 border-r-2 border-emerald-500 rounded-br"></span>
+              <div class="qr-scan-line"></div>
+              <div id="qrCodeContainer" class="w-full h-full flex items-center justify-center"></div>
+            </div>
+            <span id="qrModeBadge" class="mt-3 text-[11px] font-bold px-3 py-1 rounded-full bg-amber-400/15 text-amber-300 border border-amber-400/30">
+              Dynamic UPI QR
+            </span>
+          </div>
+
+          <div class="space-y-4">
+            <div class="rounded-2xl bg-slate-900/90 border border-slate-800 p-4 space-y-3">
+              <div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">UPI ID / Number</div>
+                <div class="flex items-center justify-between gap-2 mt-1">
+                  <code id="displayUpiId" class="text-xs sm:text-sm font-bold text-amber-300 bg-amber-400/10 border border-amber-400/25 px-3 py-1.5 rounded-xl break-all">
+                    aurex.vault@okicici
+                  </code>
+                  <button
+                    type="button"
+                    id="copyUpiBtn"
+                    class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-amber-400/20 border border-slate-700 text-xs font-bold text-slate-200 hover:text-amber-300 transition cursor-pointer"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <a
+              id="gpayDeepLink"
+              href="#"
+              class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2.5 shadow-lg transition-all"
+            >
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.7 13.7c-.6.6-1.4.9-2.3.9-1.8 0-3.2-1.4-3.2-3.2 0-1.8 1.4-3.2 3.2-3.2.9 0 1.7.3 2.3.9l-.9.9c-.4-.4-.9-.6-1.4-.6-1.1 0-2 .9-2 2s.9 2 2 2c.6 0 1.1-.2 1.5-.6l.8.9zm2.3-.2h-1.2V9.8h1.2v5.7zm-.6-6.6c-.4 0-.7-.3-.7-.7s.3-.7.7-.7.7.3.7.7-.3.7-.7.7z"/>
+              </svg>
+              <span>Pay via Google Pay (GPay)</span>
+            </a>
+
+            <button
+              type="button"
+              id="quickPaidSimBtn"
+              class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-amber-300 transition cursor-pointer"
+            >
+              ⚡ Generate Sample 12-Digit UTR
+            </button>
+          </div>
+        </div>
+
+        <form id="utrForm" class="rounded-2xl bg-slate-950/90 border border-amber-400/25 p-4 sm:p-5 space-y-3.5" novalidate>
+          <div>
+            <label for="utrInput" class="block text-xs font-bold uppercase tracking-wider text-amber-300">
+              Enter 12-Digit UTR Number <span class="text-rose-400">*</span>
+            </label>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Payment receipt se 12-digit UTR reference number darj karein.
+            </p>
+          </div>
+          <input
+            type="text"
+            id="utrInput"
+            maxlength="18"
+            placeholder="e.g. 433198274510"
+            class="vault-input w-full px-4 py-3.5 rounded-xl text-sm font-bold tracking-widest tabular-nums text-emerald-300"
+          />
+          <p id="errUtr" class="text-xs text-rose-400 font-semibold hidden"></p>
+          <button
+            type="submit"
+            class="btn-gold w-full py-3.5 px-5 rounded-xl font-extrabold text-sm sm:text-base cursor-pointer"
+          >
+            Submit UTR &amp; Continue to Sign In ✓
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         VIEW 3: POST-LOGIN ACCOUNT VIEW
+         ======================================================================= -->
+    <section id="view-account" class="app-view hidden w-full">
+      <div class="space-y-5">
+        <!-- Account Identity & Invite Code Bar -->
+        <div class="vault-card rounded-3xl p-5 sm:p-7 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-400/30">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                Active Member
+              </span>
+              <span id="accUserIdBadge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-700">
+                ID: AVX1001
+              </span>
+              <span id="accUtrBadge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-400/15 text-amber-300 border border-amber-400/25 tabular-nums">
+                UTR: 409911223344
+              </span>
+            </div>
+            <h2 id="accMemberNameTitle" class="font-display text-xl sm:text-2xl font-bold text-amber-300 mt-2">
+              Member
+            </h2>
+            <div id="accMobileTitle" class="font-display text-2xl sm:text-3xl font-bold text-white mt-0.5 tabular-nums">
+              +91 9876543210
+            </div>
+            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+              1 ER Coin = ₹5 • Referral Bonus = ₹100 / Invite
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <div class="rounded-2xl bg-slate-950/90 border border-amber-400/30 px-4 py-2.5">
+              <div class="text-[10px] font-bold uppercase tracking-widest text-slate-400">My Invite Code</div>
+              <div class="flex items-center gap-2.5 mt-0.5">
+                <span id="accMyInviteCode" class="font-display text-base font-bold text-amber-300 tracking-widest">AUREX100</span>
+                <button
+                  type="button"
+                  id="copyInviteBtn"
+                  class="px-2.5 py-1 rounded-lg bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 text-xs font-bold transition cursor-pointer"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              id="logoutBtn"
+              class="px-4 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold transition cursor-pointer"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        <!-- TOP BALANCE BOXES: YOUR DEPOSIT, YOUR BONUS, ER COIN -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <!-- BOX 1: YOUR DEPOSIT -->
+          <div class="vault-card-emerald rounded-3xl p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-widest text-emerald-300 bg-emerald-500/15 px-3 py-1 rounded-full border border-emerald-400/30">
+                  Your Deposit
+                </span>
+                <span class="text-xs font-bold text-emerald-400">Verified</span>
+              </div>
+
+              <div id="accDepositAmount" class="font-display text-3xl sm:text-4xl font-bold text-emerald-400 mt-5 tabular-nums">
+                ₹1,000
+              </div>
+              <p class="text-xs text-slate-400 mt-1">Principal deposited balance</p>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-emerald-500/20 text-xs flex items-center justify-between text-slate-300">
+              <span>Current 24h Rate:</span>
+              <span id="accCurrentRateLabel" class="font-bold text-emerald-300 tabular-nums">1% (+2 ER Coins / 24h)</span>
+            </div>
+          </div>
+
+          <!-- BOX 2: YOUR BONUS -->
+          <div class="vault-card rounded-3xl p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-widest text-amber-300 bg-amber-400/15 px-3 py-1 rounded-full border border-amber-400/30">
+                  Your Bonus
+                </span>
+                <span class="text-xs font-bold text-amber-300">₹100 / User</span>
+              </div>
+
+              <div id="accBonusAmount" class="font-display text-3xl sm:text-4xl font-bold text-white mt-5 tabular-nums">
+                ₹0
+              </div>
+              <p id="accReferralCountText" class="text-xs text-slate-400 mt-1">
+                0 users joined via your invite code
+              </p>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-400">
+              Earn <span class="text-amber-300 font-bold">₹100</span> bonus for each friend who registers using your invite code.
+            </div>
+          </div>
+
+          <!-- BOX 3: ER COIN (0 INITIALLY, UPDATES AFTER 24H BY LEVEL % OF DEPOSIT) -->
+          <div id="erCoinBoxCard" class="vault-card-gold rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute -right-12 -top-12 w-36 h-36 rounded-full bg-amber-400/15 blur-2xl pointer-events-none"></div>
+
+            <div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11px] font-bold uppercase tracking-widest text-amber-200 bg-amber-400/20 px-3 py-1 rounded-full border border-amber-300/40">
+                  ER Coin
+                </span>
+                <span class="text-xs font-extrabold text-amber-300">1 ER Coin = ₹5</span>
+              </div>
+
+              <div class="flex items-baseline gap-2 mt-5">
+                <span id="accErCoins" class="font-display text-4xl sm:text-5xl font-bold gold-gradient-text tabular-nums">
+                  0
+                </span>
+                <span class="text-sm font-bold text-amber-200">ER</span>
+              </div>
+              <div id="accErCoinRupeeVal" class="text-xs font-bold text-emerald-400 mt-1 tabular-nums">
+                Value: ₹0.00 (at ₹5 / coin)
+              </div>
+
+              <button
+                type="button"
+                id="coinExchangeBtn"
+                class="btn-gold mt-4 w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-extrabold tracking-wide cursor-pointer"
+              >
+                Coin Exchange
+              </button>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-amber-400/25 space-y-1.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-300">Next 24h Yield in:</span>
+                <span id="accCountdownTimer" class="font-mono font-bold text-amber-300 tabular-nums">23:59:59</span>
+              </div>
+              <div id="accCyclesCreditedLabel" class="text-[11px] text-slate-400">
+                Completed 24h Cycles: 0 (Updates every 24h)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOX BELOW ER COIN: LEVEL BOX -->
+        <div class="vault-card rounded-3xl p-6">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-widest text-amber-300 bg-amber-400/15 px-3 py-1 rounded-full border border-amber-400/30">
+                Level
+              </span>
+              <div class="flex items-baseline gap-3 mt-3">
+                <h3 id="accLevelTitle" class="font-display text-2xl sm:text-3xl font-bold text-white">
+                  Level 1
+                </h3>
+                <span id="accLevelRateBadge" class="text-xs sm:text-sm font-extrabold text-emerald-400 tabular-nums">
+                  1% 24h Deposit ER Coin Rate
+                </span>
+              </div>
+            </div>
+
+            <div class="text-left sm:text-right">
+              <div id="accLevelProgressText" class="text-sm font-extrabold text-amber-300 tabular-nums">
+                0 / 10 Users to Level 2
+              </div>
+              <div id="accTotalInvitesSubtext" class="text-xs text-slate-400 mt-0.5 tabular-nums">
+                Total Invite Code Joins: 0
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full h-3.5 rounded-full bg-slate-950 border border-slate-800 overflow-hidden p-0.5">
+            <div
+              id="accLevelProgressBar"
+              class="h-full rounded-full bg-gradient-to-r from-emerald-500 via-amber-400 to-yellow-300 transition-all duration-500"
+              style="width: 0%;"
+            ></div>
+          </div>
+
+          <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+            <span>0–9 users = Level 1 (1%/24h) • 10 users = Level 2 (2%/24h) • 20 users = Level 3 (3%/24h)</span>
+            <span id="accNextTierRewardPreview" class="text-amber-300 font-semibold tabular-nums">
+              Current 24h Yield: +2 ER Coins
+            </span>
+          </div>
+        </div>
+
+        <!-- BOX BELOW LEVEL: ALL USER -->
+        <div class="vault-card rounded-3xl p-6">
+          <span class="text-[11px] font-bold uppercase tracking-widest text-emerald-300 bg-emerald-500/15 px-3 py-1 rounded-full border border-emerald-400/30">
+            All User
+          </span>
+          <div id="allUserCountDisplay" class="font-display text-3xl sm:text-4xl font-bold gold-gradient-text mt-3 tabular-nums">
+            3.5M
+          </div>
+        </div>
+
+        <!-- WHATSAPP SHARE BOX BELOW ALL USER -->
+        <div class="vault-card rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="space-y-1">
+            <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-emerald-300 bg-emerald-500/15 px-3 py-1 rounded-full border border-emerald-400/30">
+              WhatsApp Share
+            </span>
+            <h3 class="font-display text-lg sm:text-xl font-bold text-white pt-1">
+              Invite Friends on WhatsApp
+            </h3>
+            <p id="whatsappSharePreviewText" class="text-xs sm:text-sm text-slate-400">
+              Invite Code: AUREX100 • ₹100 bonus per friend
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+            <a
+              id="whatsappShareLinkBtn"
+              href="https://wa.me/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-slate-950 font-extrabold text-xs sm:text-sm inline-flex items-center justify-center gap-2 shadow-lg transition cursor-pointer"
+            >
+              <span>Share on WhatsApp</span>
+            </a>
+            <button
+              type="button"
+              id="copyShareMsgBtn"
+              class="py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-400/35 text-amber-300 font-bold text-xs sm:text-sm transition cursor-pointer"
+            >
+              Copy Invite
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         VIEW 4: DEDICATED WALLET (BANK DETAILS ONLY WITH EDIT PENCIL + WITHDRAWAL)
+         ======================================================================= -->
+    <section id="view-wallet" class="app-view hidden w-full max-w-3xl mx-auto">
+      <div class="space-y-6">
+        <!-- BANK DETAILS CARD (SAVES & LOCKS WITH PENCIL EDIT ICON) -->
+        <div class="vault-card rounded-3xl p-5 sm:p-7">
+          <div class="flex items-center justify-between gap-3 mb-5">
+            <div class="flex items-center gap-2.5">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-300 bg-emerald-500/15 px-3 py-1 rounded-full border border-emerald-400/30">
+                  Bank Account
+                </span>
+                <div class="flex items-center gap-2 mt-2">
+                  <h3 class="font-display text-lg sm:text-xl font-bold text-white">
+                    Bank Details
+                  </h3>
+                  <button
+                    type="button"
+                    id="editBankPencilBtn"
+                    aria-label="Edit Bank Details"
+                    title="Edit Bank Details"
+                    class="hidden w-8 h-8 rounded-xl bg-amber-400/15 hover:bg-amber-400/25 border border-amber-400/40 text-amber-300 flex items-center justify-center transition cursor-pointer"
+                  >
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                      <path d="m15 5 4 4" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span id="bankSavedStatusBadge" class="text-xs font-bold text-slate-400">
+                Not Saved Yet
+              </span>
+              <button
+                type="button"
+                id="backFromWalletBtn"
+                class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-bold transition cursor-pointer"
+              >
+                ← Back
+              </button>
+            </div>
+          </div>
+
+          <form id="bankDetailsForm" class="space-y-4" novalidate>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label for="bankAccountNameInput" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Bank Account Name
+                </label>
+                <input
+                  type="text"
+                  id="bankAccountNameInput"
+                  placeholder="e.g. HDFC Savings"
+                  class="vault-input w-full px-4 py-3 rounded-xl text-sm font-semibold text-amber-100"
+                />
+              </div>
+
+              <div>
+                <label for="bankHolderInput" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Account Holder Name
+                </label>
+                <input
+                  type="text"
+                  id="bankHolderInput"
+                  placeholder="Holder Name"
+                  class="vault-input w-full px-4 py-3 rounded-xl text-sm font-semibold"
+                />
+              </div>
+
+              <div>
+                <label for="bankAccountInput" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  Bank Account Number
+                </label>
+                <input
+                  type="text"
+                  id="bankAccountInput"
+                  placeholder="Account Number"
+                  class="vault-input w-full px-4 py-3 rounded-xl text-sm font-semibold tabular-nums text-amber-200"
+                />
+              </div>
+
+              <div>
+                <label for="bankIfscInput" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                  IFSC Code
+                </label>
+                <input
+                  type="text"
+                  id="bankIfscInput"
+                  maxlength="11"
+                  placeholder="SBIN0001234"
+                  class="vault-input w-full px-4 py-3 rounded-xl text-sm font-bold uppercase tracking-wider text-emerald-300"
+                />
+              </div>
+            </div>
+
+            <p id="errBankDetails" class="text-xs text-rose-400 font-semibold hidden"></p>
+
+            <button
+              type="submit"
+              id="saveBankDetailsBtn"
+              class="btn-gold px-6 py-3 rounded-xl font-extrabold text-xs sm:text-sm cursor-pointer"
+            >
+              Save Bank Details
+            </button>
+          </form>
+        </div>
+
+        <!-- WITHDRAW FUNDS CARD (STRICTLY > ₹200 TO SAVED BANK ACCOUNT) -->
+        <div class="vault-card rounded-3xl p-5 sm:p-7">
+          <div class="mb-5">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-400/15 text-amber-300 border border-amber-400/30 mb-1.5">
+              Wallet &amp; Payout
+            </span>
+            <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">
+              Withdraw Funds
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+              Withdraw above ₹200 directly to your saved bank account.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-5">
+            <div class="rounded-2xl bg-slate-950/90 border border-emerald-400/30 p-4">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-300">Exchanged Wallet</div>
+              <div id="walExchangedBalanceVal" class="font-display text-xl font-bold text-emerald-400 mt-1 tabular-nums">₹0.00</div>
+            </div>
+            <div class="rounded-2xl bg-slate-950/90 border border-amber-400/25 p-4">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Your Bonus</div>
+              <div id="walBonusVal" class="font-display text-xl font-bold text-amber-300 mt-1 tabular-nums">₹0</div>
+            </div>
+            <div class="rounded-2xl bg-slate-950/90 border border-amber-400/35 p-4">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">ER Coin Value (₹5/Coin)</div>
+              <div id="walCoinRupeeVal" class="font-display text-xl font-bold text-white mt-1 tabular-nums">₹0.00</div>
+            </div>
+          </div>
+
+          <div id="withdrawBankTargetBanner" class="rounded-2xl bg-slate-950/85 border border-slate-800 px-4 py-3 mb-4 text-xs text-slate-300">
+            Payout Bank: <span id="withdrawBankTargetText" class="text-amber-300 font-bold">Save Bank Details above first</span>
+          </div>
+
+          <form id="withdrawalForm" class="space-y-4" novalidate>
+            <div>
+              <label for="withdrawAmountInput" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                Withdrawal Amount (INR) <span class="text-amber-300">(Must be &gt; ₹200)</span>
+              </label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-amber-300 font-extrabold text-base select-none">
+                  ₹
+                </span>
+                <input
+                  type="number"
+                  id="withdrawAmountInput"
+                  min="201"
+                  step="1"
+                  placeholder="Enter amount above 200"
+                  class="vault-input w-full pl-9 pr-4 py-3.5 rounded-xl text-base font-extrabold text-white tabular-nums"
+                />
+              </div>
+            </div>
+
+            <p id="errWithdraw" class="text-xs text-rose-400 font-semibold hidden"></p>
+
+            <button
+              type="submit"
+              class="btn-gold w-full py-3.5 px-5 rounded-xl font-extrabold text-sm sm:text-base cursor-pointer"
+            >
+              Submit Withdrawal Request
+            </button>
+          </form>
+        </div>
+
+        <!-- SAVED WITHDRAWAL HISTORY -->
+        <div class="vault-card rounded-3xl p-5 sm:p-7">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-display text-lg font-bold text-white">
+              Withdrawal History
+            </h3>
+            <span id="withdrawHistoryCount" class="text-xs font-bold text-amber-300 bg-amber-400/15 px-3 py-1 rounded-full border border-amber-400/30">
+              0 Records
+            </span>
+          </div>
+          <div id="withdrawalHistoryList" class="space-y-2.5"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         VIEW 5: DEDICATED CONTROL PANEL USER DETAILS VIEW (WITH DELETE ACCOUNT)
+         ======================================================================= -->
+    <section id="view-admin-users" class="app-view hidden w-full">
+      <div class="vault-card rounded-3xl p-5 sm:p-7 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-300 bg-amber-400/15 px-3 py-1 rounded-full border border-amber-400/30">
+              Control Panel • User Records
+            </span>
+            <h2 class="font-display text-2xl sm:text-3xl font-bold text-white mt-2">
+              Registered User Details
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+              Deleting an account also removes ₹100 bonus and 10% ER coin reward given to its referrer.
+            </p>
+          </div>
+          <button
+            type="button"
+            id="backToControlPanelFromUsersBtn"
+            class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-bold transition cursor-pointer"
+          >
+            ← Back to Control Panel
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[1080px]">
+            <thead>
+              <tr class="border-b border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <th class="py-3 px-2.5">Name</th>
+                <th class="py-3 px-2.5">Mobile</th>
+                <th class="py-3 px-2.5">Password</th>
+                <th class="py-3 px-2.5">UTR Number</th>
+                <th class="py-3 px-2.5">Paid Amount</th>
+                <th class="py-3 px-2.5">Deposit</th>
+                <th class="py-3 px-2.5">Bonus</th>
+                <th class="py-3 px-2.5">ER Coin</th>
+                <th class="py-3 px-2.5">Wallet</th>
+                <th class="py-3 px-2.5">Payment &amp; Register Time</th>
+                <th class="py-3 px-2.5 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="cpFullUsersTableBody" class="divide-y divide-slate-800/80 text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         VIEW 6: DEDICATED CONTROL PANEL WITHDRAWAL NOTIFICATIONS VIEW
+         ======================================================================= -->
+    <section id="view-admin-withdrawals" class="app-view hidden w-full max-w-4xl mx-auto">
+      <div class="vault-card rounded-3xl p-5 sm:p-7 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-300 bg-emerald-500/15 px-3 py-1 rounded-full border border-emerald-400/30">
+              Control Panel • Notifications
+            </span>
+            <h2 class="font-display text-2xl sm:text-3xl font-bold text-white mt-2">
+              Withdrawal Notifications
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+              Live log of every withdrawal made by users, with amount, user details, bank target &amp; time.
+            </p>
+          </div>
+          <button
+            type="button"
+            id="backToControlPanelFromWithdrawalsBtn"
+            class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-bold transition cursor-pointer"
+          >
+            ← Back to Control Panel
+          </button>
+        </div>
+
+        <div id="cpWithdrawalNotificationsList" class="space-y-3"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========================================================================
+       DISCREET FOOTER WITH DIRECT CONTROL PANEL TRIGGER ON AUREX ER
+       ========================================================================= -->
+  <footer class="border-t border-slate-800/70 bg-[#06070A] py-3.5 px-4 text-center text-[11px] text-slate-500 flex items-center justify-center gap-2">
+    <span>
+      <button
+        type="button"
+        id="footerAurexBrandBtn"
+        class="text-amber-300/90 hover:text-amber-200 font-semibold underline-offset-2 hover:underline cursor-pointer"
+      >
+        AUREX ER
+      </button>
+      • Wealth &amp; Reward Protocol
+    </span>
+    <button
+      type="button"
+      id="footerAdminTriggerBtn"
+      title="Settings"
+      aria-label="Admin Control Panel"
+      class="text-slate-600 hover:text-amber-300/80 transition p-1 rounded-lg cursor-pointer"
+    >
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+      </svg>
+    </button>
+  </footer>
+
+  <!-- =========================================================================
+       DIRECT PASSWORD PROMPT MODAL (ONLY PASSWORD INPUT + CONTINUE BUTTON)
+       ========================================================================= -->
+  <div id="aurexPasswordModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-sm vault-card rounded-3xl p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-display text-lg font-bold gold-gradient-text">AUREX ER</h3>
+        <button
+          type="button"
+          id="closePasswordModalBtn"
+          aria-label="Close"
+          class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 text-xs font-bold cursor-pointer"
+        >
+          ✕
+        </button>
+      </div>
+
+      <form id="aurexPasswordForm" class="space-y-4" novalidate>
+        <div>
+          <label for="aurexAccessPasswordInput" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+            Password
+          </label>
+          <input
+            type="password"
+            id="aurexAccessPasswordInput"
+            autocomplete="off"
+            placeholder="Enter password"
+            class="vault-input w-full px-4 py-3 rounded-xl text-sm font-semibold"
+          />
+          <p id="errAurexPassword" class="text-xs text-rose-400 font-semibold mt-1 hidden"></p>
+        </div>
+
+        <button
+          type="submit"
+          class="btn-gold w-full py-3 rounded-xl font-extrabold text-sm cursor-pointer"
+        >
+          Continue
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       CONTROL PANEL MODAL (ALL USER, ALL DEPOSIT, USER, WITHDRAWAL NOTIFICATION, UPI + QR)
+       ========================================================================= -->
+  <div id="adminModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden overflow-y-auto p-3 sm:p-6">
+    <div class="max-w-4xl mx-auto vault-card rounded-3xl p-5 sm:p-7 my-4 space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-widest text-amber-300">
+            Admin Control Panel
+          </span>
+          <h2 class="font-display text-xl sm:text-2xl font-bold text-white">
+            AUREX ER Control Panel
+          </h2>
+        </div>
+        <button
+          type="button"
+          id="closeAdminModalBtn"
+          class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold cursor-pointer"
+        >
+          Close ✕
+        </button>
+      </div>
+
+      <!-- SUMMARY & NAVIGATION BOXES: ALL USER, ALL DEPOSIT, USER, WITHDRAWAL NOTIFICATION -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="rounded-2xl bg-slate-950/90 border border-amber-400/25 p-4">
+          <div class="text-[10px] font-bold uppercase tracking-widest text-amber-300">All User</div>
+          <div id="cpAllUserStat" class="font-display text-2xl font-bold text-white mt-1.5 tabular-nums">3.5M</div>
+          <div id="cpRegisteredUsersSub" class="text-[11px] text-slate-400 mt-1 tabular-nums">0 Registered</div>
+        </div>
+
+        <div class="vault-card-emerald rounded-2xl p-4">
+          <div class="text-[10px] font-bold uppercase tracking-widest text-emerald-300">All Deposit</div>
+          <div id="cpAllDepositStat" class="font-display text-2xl font-bold text-emerald-400 mt-1.5 tabular-nums">₹0</div>
+          <div class="text-[11px] text-slate-400 mt-1">Total user deposits</div>
+        </div>
+
+        <button
+          type="button"
+          id="cpOpenUsersPageBtn"
+          class="text-left rounded-2xl bg-gradient-to-br from-amber-400/15 to-slate-950/95 hover:from-amber-400/25 border border-amber-400/40 p-4 transition cursor-pointer group"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-300">User</span>
+            <span class="text-xs font-bold text-amber-300 group-hover:translate-x-0.5 transition-transform">Open →</span>
+          </div>
+          <div id="cpUserBoxCount" class="font-display text-2xl font-bold text-white mt-1.5 tabular-nums">0</div>
+          <div class="text-[11px] text-slate-300 mt-1">View full user records</div>
+        </button>
+
+        <button
+          type="button"
+          id="cpOpenWithdrawalsPageBtn"
+          class="text-left rounded-2xl bg-gradient-to-br from-emerald-500/15 to-slate-950/95 hover:from-emerald-500/25 border border-emerald-400/40 p-4 transition cursor-pointer group"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Withdrawal Notification</span>
+            <span class="text-xs font-bold text-emerald-300 group-hover:translate-x-0.5 transition-transform">Open →</span>
+          </div>
+          <div id="cpWithdrawalNotifCount" class="font-display text-2xl font-bold text-white mt-1.5 tabular-nums">0</div>
+          <div class="text-[11px] text-slate-300 mt-1">View withdrawal alerts</div>
+        </button>
+      </div>
+
+      <!-- ONLY UPI ID (SAVE / CHANGE) & UPLOAD QR CODE -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+        <div class="space-y-4">
+          <form id="adminUpiForm" class="space-y-3" novalidate>
+            <label for="adminUpiId" class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+              UPI ID / Number
+            </label>
+            <input
+              type="text"
+              id="adminUpiId"
+              placeholder="Enter UPI ID or number"
+              class="vault-input w-full px-4 py-3 rounded-xl text-sm font-bold text-amber-300"
+            />
+            <div class="flex items-center gap-2.5">
+              <button
+                type="submit"
+                id="saveUpiBtn"
+                class="btn-gold px-5 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm cursor-pointer"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                id="changeUpiBtn"
+                class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-400/40 text-amber-300 font-bold text-xs sm:text-sm transition cursor-pointer"
+              >
+                Change
+              </button>
+            </div>
+          </form>
+
+          <div class="pt-2">
+            <label for="adminQrUpload" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+              Upload QR Code
+            </label>
+            <input
+              type="file"
+              id="adminQrUpload"
+              accept="image/*"
+              class="block w-full text-xs text-slate-400 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border file:border-amber-400/35 file:text-xs file:font-bold file:bg-amber-400/15 file:text-amber-300 hover:file:bg-amber-400/25 cursor-pointer"
+            />
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-slate-950/90 border border-amber-400/25 p-5 flex flex-col items-center justify-center">
+          <div class="text-[11px] font-bold uppercase tracking-widest text-amber-300 mb-3">
+            Active Payment QR Preview
+          </div>
+          <div id="adminQrPreviewBox" class="w-44 h-44 rounded-2xl bg-white p-2.5 flex items-center justify-center"></div>
+          <div id="adminPreviewUpiLabel" class="mt-3 text-sm font-bold text-amber-300 break-all text-center"></div>
+        </div>
+      </div>
+
+      <!-- SUPABASE CLOUD PERSISTENCE CONFIGURATION -->
+      <div class="rounded-2xl bg-slate-950/90 border border-emerald-400/30 p-4 sm:p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+              Supabase Database Sync
+            </span>
+            <h3 class="font-display text-base sm:text-lg font-bold text-white mt-0.5">
+              Connect Supabase for All-User Cloud Storage
+            </h3>
+          </div>
+          <span id="supabaseStatusBadge" class="px-3 py-1 rounded-full text-[11px] font-bold bg-amber-400/15 text-amber-300 border border-amber-400/35">
+            Local Cache Only
+          </span>
+        </div>
+
+        <form id="supabaseConfigForm" class="grid grid-cols-1 md:grid-cols-2 gap-3.5" novalidate>
+          <div>
+            <label for="sbProjectUrlInput" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+              Supabase Project URL
+            </label>
+            <input
+              type="url"
+              id="sbProjectUrlInput"
+              placeholder="https://ydtunnamitppdkuzbkln.supabase.co"
+              class="vault-input w-full px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-emerald-200"
+            />
+          </div>
+          <div>
+            <label for="sbAnonKeyInput" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+              Supabase API / Anon Key
+            </label>
+            <input
+              type="password"
+              id="sbAnonKeyInput"
+              placeholder="sb_publishable_..."
+              class="vault-input w-full px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-amber-200"
+            />
+          </div>
+          <div class="md:col-span-2 flex flex-wrap items-center justify-between gap-2.5 pt-1">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <button
+                type="submit"
+                id="saveSupabaseBtn"
+                class="btn-gold px-5 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm cursor-pointer"
+              >
+                Save &amp; Connect Supabase
+              </button>
+              <button
+                type="button"
+                id="syncNowSupabaseBtn"
+                class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-400/40 text-emerald-300 font-bold text-xs sm:text-sm transition cursor-pointer"
+              >
+                Sync Now
+              </button>
+              <button
+                type="button"
+                id="clearSupabaseBtn"
+                class="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold text-xs transition cursor-pointer"
+              >
+                Clear Keys
+              </button>
+            </div>
+            <button
+              type="button"
+              id="copySupabaseSqlBtn"
+              class="px-3.5 py-2 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 text-amber-300 font-bold text-xs transition cursor-pointer"
+            >
+              Copy Table SQL
+            </button>
+          </div>
+        </form>
+
+        <pre id="supabaseSqlSnippet" class="text-[11px] text-slate-400 bg-black/70 border border-slate-800 rounded-xl p-3 overflow-x-auto select-all">create table if not exists public.aurex_protocol (
+  id text primary key,
+  payload jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+alter table public.aurex_protocol enable row level security;
+create policy "Allow public read write aurex_protocol"
+on public.aurex_protocol for all using (true) with check (true);</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * AUREX ER — Wealth & Reward Protocol
+     */
+    (function () {
+      const STORAGE_KEY = 'aurex_er_protocol_v6';
+      const SB_CONFIG_KEY = 'aurex_supabase_config';
+      const SUPABASE_PROJECT_ID = 'ydtunnamitppdkuzbkln';
+      const SUPABASE_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co`;
+      const SUPABASE_ANON_KEY = 'sb_publishable_TrKa5VaNgl-_w6QTcKuAgA_SDcRj7_B';
+      const CONTROL_PANEL_PASSWORD = '8825354587@#arkh';
+      const COIN_RATE_INR = 5;
+      const REFERRAL_BONUS_INR = 100;
+      const MIN_WITHDRAWAL_EXCLUSIVE = 200;
+      const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+      const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
+
+      function normalizeSupabaseUrl(rawUrl) {
+        const trimmed = String(rawUrl || '').trim();
+        if (!trimmed) return SUPABASE_URL;
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+          return trimmed.replace(/\/+$/, '');
+        }
+        return `https://${trimmed}.supabase.co`;
+      }
+
+      function loadSupabaseCredentials() {
+        try {
+          const raw = localStorage.getItem(SB_CONFIG_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            return {
+              url: normalizeSupabaseUrl(parsed.url || SUPABASE_URL),
+              anonKey: String(parsed.anonKey || SUPABASE_ANON_KEY || '').trim()
+            };
+          }
+        } catch (err) {
+          console.warn('Supabase config read error:', err);
+        }
+        return {
+          url: SUPABASE_URL,
+          anonKey: SUPABASE_ANON_KEY
+        };
+      }
+
+      function saveSupabaseCredentials(url, anonKey) {
+        try {
+          localStorage.setItem(
+            SB_CONFIG_KEY,
+            JSON.stringify({
+              url: normalizeSupabaseUrl(url),
+              anonKey: String(anonKey || '').trim()
+            })
+          );
+        } catch (err) {
+          console.warn('Supabase config save error:', err);
+        }
+      }
+
+      let supabaseClient = null;
+      let supabaseChannel = null;
+      let supabaseConnected = false;
+      let isApplyingRemoteState = false;
+      let remoteSyncTimer = null;
+
+      function initSupabaseClient() {
+        const creds = loadSupabaseCredentials();
+        if (supabaseChannel && supabaseClient) {
+          try {
+            supabaseClient.removeChannel(supabaseChannel);
+          } catch (_) {}
+          supabaseChannel = null;
+        }
+        supabaseClient = null;
+        supabaseConnected = false;
+
+        if (!creds.url || !creds.anonKey || !window.supabase || typeof window.supabase.createClient !== 'function') {
+          updateSupabaseBadge('Local Cache Only', 'amber');
+          return null;
+        }
+
+        try {
+          supabaseClient = window.supabase.createClient(creds.url, creds.anonKey);
+          subscribeToSupabaseRealtime();
+          return supabaseClient;
+        } catch (err) {
+          console.error('Supabase init error:', err);
+          updateSupabaseBadge('Config Error', 'rose');
+          return null;
+        }
+      }
+
+      function updateSupabaseBadge(label, tone = 'amber') {
+        const badge = document.getElementById('supabaseStatusBadge');
+        if (!badge) return;
+        badge.textContent = label;
+        if (tone === 'emerald') {
+          badge.className =
+            'px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-400/35';
+        } else if (tone === 'rose') {
+          badge.className =
+            'px-3 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/40';
+        } else {
+          badge.className =
+            'px-3 py-1 rounded-full text-[11px] font-bold bg-amber-400/15 text-amber-300 border border-amber-400/35';
+        }
+      }
+
+      function buildCloudPayload(targetState = state) {
+        const withdrawals = [];
+        (Array.isArray(targetState.users) ? targetState.users : []).forEach((u) => {
+          (Array.isArray(u.withdrawals) ? u.withdrawals : []).forEach((w) => {
+            withdrawals.push({
+              ...w,
+              userId: u.id,
+              userName: u.name || 'Member',
+              userMobile: u.mobile
+            });
+          });
+        });
+
+        return {
+          communityBaseTimestamp: Number(targetState.communityBaseTimestamp) || Date.now(),
+          adminSettings: {
+            upiId: targetState.adminSettings.upiId || 'aurex.vault@okicici',
+            payeeName: targetState.adminSettings.payeeName || 'AUREX ER',
+            customQrDataUrl:
+              targetState.adminSettings.customQrDataUrl &&
+              targetState.adminSettings.customQrDataUrl.length < 350000
+                ? targetState.adminSettings.customQrDataUrl
+                : null
+          },
+          users: Array.isArray(targetState.users) ? targetState.users : [],
+          withdrawals
+        };
+      }
+
+      async function pushStateToSupabase(targetState = state, showSuccessToast = false) {
+        if (isApplyingRemoteState || !supabaseClient) return false;
+        try {
+          const payload = buildCloudPayload(targetState);
+          const { error } = await supabaseClient
+            .from('aurex_protocol')
+            .upsert(
+              {
+                id: 'main',
+                payload,
+                updated_at: new Date().toISOString()
+              },
+              { onConflict: 'id' }
+            );
+          if (error) throw error;
+          supabaseConnected = true;
+          updateSupabaseBadge('Supabase Connected', 'emerald');
+          if (showSuccessToast) {
+            showToast('Synced all users & withdrawals to Supabase!', 'success');
+          }
+          return true;
+        } catch (err) {
+          console.error('Supabase upsert error:', err);
+          supabaseConnected = false;
+          updateSupabaseBadge('Sync Retry Pending', 'rose');
+          if (showSuccessToast) {
+            showToast('Supabase sync failed. Run the aurex_protocol SQL in Supabase SQL Editor.', 'error');
+          }
+          return false;
+        }
+      }
+
+      function applyRemotePayload(remotePayload) {
+        if (!remotePayload || typeof remotePayload !== 'object') return;
+        isApplyingRemoteState = true;
+        try {
+          const remoteUsers = Array.isArray(remotePayload.users) ? remotePayload.users : null;
+          if (remoteUsers) {
+            state.users = remoteUsers;
+          } else if (Array.isArray(remotePayload.withdrawals) && Array.isArray(state.users)) {
+            remotePayload.withdrawals.forEach((w) => {
+              const owner = state.users.find((u) => u.id === w.userId);
+              if (owner) {
+                owner.withdrawals = Array.isArray(owner.withdrawals) ? owner.withdrawals : [];
+                const existingIdx = owner.withdrawals.findIndex((item) => item.id === w.id);
+                if (existingIdx >= 0) {
+                  owner.withdrawals[existingIdx] = { ...owner.withdrawals[existingIdx], ...w };
+                }
+              }
+            });
+          }
+
+          if (remotePayload.communityBaseTimestamp) {
+            state.communityBaseTimestamp = Number(remotePayload.communityBaseTimestamp) || state.communityBaseTimestamp;
+          }
+
+          if (remotePayload.adminSettings && typeof remotePayload.adminSettings === 'object') {
+            state.adminSettings = {
+              ...state.adminSettings,
+              ...remotePayload.adminSettings
+            };
+          }
+
+          if (state.loggedInUserId && !state.users.some((u) => u.id === state.loggedInUserId)) {
+            state.loggedInUserId = null;
+            state.currentView = 'auth';
+            state.authTab = 'signin';
+          }
+
+          saveState(state, false);
+          renderAll();
+          if (!document.getElementById('adminModal').classList.contains('hidden')) {
+            renderAdminModal();
+          }
+        } finally {
+          isApplyingRemoteState = false;
+        }
+      }
+
+      async function pullStateFromSupabase(showToastOnResult = false) {
+        if (!supabaseClient) {
+          if (showToastOnResult) {
+            showToast('Enter Supabase Project URL & API Key first.', 'warning');
+          }
+          return false;
+        }
+        try {
+          const { data, error } = await supabaseClient
+            .from('aurex_protocol')
+            .select('payload')
+            .eq('id', 'main')
+            .maybeSingle();
+
+          if (error) throw error;
+          supabaseConnected = true;
+          updateSupabaseBadge('Supabase Connected', 'emerald');
+
+          if (data && data.payload) {
+            applyRemotePayload(data.payload);
+            if (showToastOnResult) {
+              showToast('Loaded latest data from Supabase!', 'success');
+            }
+          } else {
+            await pushStateToSupabase(state, showToastOnResult);
+          }
+          return true;
+        } catch (err) {
+          console.error('Supabase fetch error:', err);
+          supabaseConnected = false;
+          updateSupabaseBadge('Table / Key Error', 'rose');
+          if (showToastOnResult) {
+            showToast('Could not access aurex_protocol table. Run the table SQL in Supabase.', 'error');
+          }
+          return false;
+        }
+      }
+
+      function subscribeToSupabaseRealtime() {
+        if (!supabaseClient || typeof supabaseClient.channel !== 'function') return;
+        try {
+          supabaseChannel = supabaseClient
+            .channel('aurex-protocol-realtime')
+            .on(
+              'postgres_changes',
+              { event: '*', schema: 'public', table: 'aurex_protocol', filter: 'id=eq.main' },
+              (payload) => {
+                const nextRow = payload && payload.new ? payload.new : null;
+                if (nextRow && nextRow.payload) {
+                  clearTimeout(remoteSyncTimer);
+                  remoteSyncTimer = setTimeout(() => {
+                    applyRemotePayload(nextRow.payload);
+                  }, 120);
+                }
+              }
+            )
+            .subscribe((status) => {
+              if (status === 'SUBSCRIBED') {
+                supabaseConnected = true;
+                updateSupabaseBadge('Supabase Live Sync', 'emerald');
+              }
+            });
+        } catch (err) {
+          console.warn('Realtime subscription warning:', err);
+        }
+      }
+
+      function createInitialState() {
+        return {
+          currentView: 'auth', // 'auth' | 'payment' | 'account' | 'wallet' | 'admin-users' | 'admin-withdrawals'
+          authTab: 'register', // 'register' | 'signin'
+          loggedInUserId: null,
+          pendingRegistration: null,
+          communityBaseTimestamp: Date.now(),
+          adminSettings: {
+            upiId: 'aurex.vault@okicici',
+            payeeName: 'AUREX ER',
+            customQrDataUrl: null
+          },
+          users: []
+        };
+      }
+
+      let state = loadState();
+      let toastTimer = null;
+      let adminAuthenticated = false;
+      let isUpiInputLocked = true;
+      let isBankFormLocked = false;
+      let logoTapCount = 0;
+      let logoTapResetTimer = null;
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            const init = createInitialState();
+            saveState(init, false);
+            return init;
+          }
+          const parsed = JSON.parse(raw);
+          return {
+            ...createInitialState(),
+            ...parsed,
+            communityBaseTimestamp: Number(parsed.communityBaseTimestamp) || Date.now(),
+            adminSettings: {
+              ...createInitialState().adminSettings,
+              ...(parsed.adminSettings || {})
+            },
+            users: Array.isArray(parsed.users) ? parsed.users : []
+          };
+        } catch (err) {
+          console.error('State load error:', err);
+          return createInitialState();
+        }
+      }
+
+      function saveState(nextState = state, syncCloud = true) {
+        try {
+          const safeState = {
+            ...nextState,
+            adminSettings: {
+              upiId: nextState.adminSettings.upiId,
+              payeeName: nextState.adminSettings.payeeName || 'AUREX ER',
+              customQrDataUrl:
+                nextState.adminSettings.customQrDataUrl &&
+                nextState.adminSettings.customQrDataUrl.length < 350000
+                  ? nextState.adminSettings.customQrDataUrl
+                  : null
+            }
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(safeState));
+          if (syncCloud && supabaseClient && !isApplyingRemoteState) {
+            pushStateToSupabase(safeState, false);
+          }
+        } catch (err) {
+          console.warn('localStorage save warning:', err);
+        }
+      }
+
+      function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const box = document.getElementById('toastBox');
+        const msgEl = document.getElementById('toastMessage');
+
+        msgEl.textContent = message;
+        box.className =
+          'rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 backdrop-blur-xl border shadow-2xl ';
+
+        if (type === 'success') {
+          box.className += 'bg-emerald-950/95 text-emerald-200 border-emerald-400/40';
+        } else if (type === 'error') {
+          box.className += 'bg-rose-950/95 text-rose-200 border-rose-400/40';
+        } else if (type === 'warning') {
+          box.className += 'bg-amber-950/95 text-amber-200 border-amber-400/40';
+        } else {
+          box.className += 'bg-slate-900/95 text-amber-200 border-amber-400/35';
+        }
+
+        container.classList.remove('hidden');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          container.classList.add('hidden');
+        }, 4800);
+      }
+
+      function copyToClipboard(text, label = 'Copied') {
+        if (!text) return;
+        try {
+          const temp = document.createElement('input');
+          temp.value = text;
+          document.body.appendChild(temp);
+          temp.select();
+          temp.setSelectionRange(0, text.length);
+          document.execCommand('copy');
+          document.body.removeChild(temp);
+          showToast(`${label}: ${text}`, 'success');
+        } catch (err) {
+          showToast(`Copy manually: ${text}`, 'warning');
+        }
+      }
+
+      function formatINR(val) {
+        const num = Number(val) || 0;
+        const hasDecimals = Math.abs(num % 1) > 0.001;
+        return '₹' + num.toLocaleString('en-IN', {
+          minimumFractionDigits: hasDecimals ? 2 : 0,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function formatMillionLabel(tenthsAbove35) {
+        const millions = Number((3.5 + tenthsAbove35 * 0.1).toFixed(1));
+        return Number.isInteger(millions) ? `${millions}M` : `${millions.toFixed(1)}M`;
+      }
+
+      function getCommunityStats() {
+        const elapsed = Math.max(0, Date.now() - (Number(state.communityBaseTimestamp) || Date.now()));
+        const intervals = Math.floor(elapsed / TEN_DAYS_MS);
+        const currentLabel = formatMillionLabel(intervals);
+        return { currentLabel, intervals };
+      }
+
+      function buildInviteShareMessage(user) {
+        const code = user && user.inviteCode ? user.inviteCode : 'AUREX100';
+        const siteUrl = window.location && window.location.href && window.location.href.startsWith('http')
+          ? window.location.href
+          : 'https://aurex-er.app';
+        return `Join AUREX ER using my Invite Code: ${code} and earn ₹100 referral bonus! ${siteUrl}`;
+      }
+
+      function getUserLevelInfo(user) {
+        const invites = Math.max(0, Number(user && user.referralCount) || 0);
+        const tierIndex = Math.floor(invites / 10);
+        const level = 1 + tierIndex;
+        const ratePercent = 1 + tierIndex;
+        const progressInLevel = invites % 10;
+        const progressPercent = (progressInLevel / 10) * 100;
+        const usersToNext = 10 - progressInLevel;
+        return {
+          invites,
+          level,
+          ratePercent,
+          progressInLevel,
+          progressPercent,
+          usersToNext
+        };
+      }
+
+      function calc24hCoinsForUser(user, overrideRatePercent = null) {
+        const deposit = Number(user && user.depositAmount) || 0;
+        const rate = overrideRatePercent !== null ? overrideRatePercent : getUserLevelInfo(user).ratePercent;
+        const yieldRupees = deposit * (rate / 100);
+        return Number((yieldRupees / COIN_RATE_INR).toFixed(2));
+      }
+
+      function calcTenPercentCoinsFromDeposit(depositAmount) {
+        const dep = Number(depositAmount) || 0;
+        const tenPercentInr = dep * 0.10;
+        return Number((tenPercentInr / COIN_RATE_INR).toFixed(2));
+      }
+
+      function syncUser24hYield(user) {
+        if (!user) return false;
+        const depositTs = Number(user.depositTimestamp) || Date.now();
+        const completedCycles = Math.floor((Date.now() - depositTs) / TWENTY_FOUR_HOURS_MS);
+        const alreadyCredited = Number(user.claimedCycles) || 0;
+
+        if (completedCycles > alreadyCredited) {
+          const newCycles = completedCycles - alreadyCredited;
+          const coinsPerCycle = calc24hCoinsForUser(user);
+          const earned = Number((newCycles * coinsPerCycle).toFixed(2));
+
+          user.erCoins = Number(((Number(user.erCoins) || 0) + earned).toFixed(2));
+          user.claimedCycles = completedCycles;
+          return true;
+        }
+        return false;
+      }
+
+      function getLoggedInUser() {
+        if (!state.loggedInUserId) return null;
+        const user = state.users.find((u) => u.id === state.loggedInUserId) || null;
+        if (user && syncUser24hYield(user)) {
+          saveState();
+        }
+        return user;
+      }
+
+      function getWalletBalance(user) {
+        if (!user) return 0;
+        const wBal = Number(user.walletBalance) || 0;
+        const dep = Number(user.depositAmount) || 0;
+        const bon = Number(user.bonusAmount) || 0;
+        const coinInr = (Number(user.erCoins) || 0) * COIN_RATE_INR;
+        return Number((wBal + dep + bon + coinInr).toFixed(2));
+      }
+
+      function deductFromUserBalance(user, amount) {
+        let remaining = Number(amount);
+
+        const wBal = Number(user.walletBalance) || 0;
+        if (wBal >= remaining) {
+          user.walletBalance = Number((wBal - remaining).toFixed(2));
+          return;
+        }
+        remaining = Number((remaining - wBal).toFixed(2));
+        user.walletBalance = 0;
+
+        const bon = Number(user.bonusAmount) || 0;
+        if (bon >= remaining) {
+          user.bonusAmount = Number((bon - remaining).toFixed(2));
+          return;
+        }
+        remaining = Number((remaining - bon).toFixed(2));
+        user.bonusAmount = 0;
+
+        const coinInr = (Number(user.erCoins) || 0) * COIN_RATE_INR;
+        if (coinInr >= remaining) {
+          const nextCoinInr = Number((coinInr - remaining).toFixed(2));
+          user.erCoins = Number((nextCoinInr / COIN_RATE_INR).toFixed(2));
+          return;
+        }
+        remaining = Number((remaining - coinInr).toFixed(2));
+        user.erCoins = 0;
+
+        const dep = Number(user.depositAmount) || 0;
+        user.depositAmount = Math.max(0, Number((dep - remaining).toFixed(2)));
+      }
+
+      function getAllDepositTotal() {
+        return state.users.reduce((sum, u) => sum + (Number(u.depositAmount) || 0), 0);
+      }
+
+      function getAllWithdrawalNotifications() {
+        const list = [];
+        state.users.forEach((u) => {
+          const wds = Array.isArray(u.withdrawals) ? u.withdrawals : [];
+          wds.forEach((w) => {
+            list.push({
+              ...w,
+              userId: u.id,
+              userName: u.name || 'Member',
+              userMobile: u.mobile
+            });
+          });
+        });
+        list.sort((a, b) => (Number(b.timestamp) || 0) - (Number(a.timestamp) || 0));
+        return list;
+      }
+
+      function buildUpiUri(upiId, payeeName, amount) {
+        const pa = encodeURIComponent((upiId || 'aurex.vault@okicici').trim());
+        const pn = encodeURIComponent((payeeName || 'AUREX ER').trim());
+        const am = encodeURIComponent(String(Number(amount) || 500));
+        return `upi://pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR`;
+      }
+
+      function renderQrVisual(containerEl, payloadText, customQrDataUrl) {
+        if (!containerEl) return;
+        containerEl.innerHTML = '';
+
+        if (customQrDataUrl) {
+          const img = document.createElement('img');
+          img.src = customQrDataUrl;
+          img.alt = 'Merchant QR';
+          img.className = 'w-full h-full object-contain rounded-lg';
+          img.onerror = function () {
+            renderQrVisual(containerEl, payloadText, null);
+          };
+          containerEl.appendChild(img);
+          return;
+        }
+
+        const size = 21;
+        let hash = 2166136261;
+        for (let i = 0; i < payloadText.length; i++) {
+          hash ^= payloadText.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+
+        const isFinder = (r, c) =>
+          (r < 7 && c < 7) || (r < 7 && c >= size - 7) || (r >= size - 7 && c < 7);
+
+        const isFinderDark = (r, c) => {
+          const lr = r < 7 ? r : r - (size - 7);
+          const lc = c < 7 ? c : c - (size - 7);
+          return lr === 0 || lr === 6 || lc === 0 || lc === 6 || (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4);
+        };
+
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNS, 'svg');
+        svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+        svg.setAttribute('class', 'w-full h-full');
+        svg.setAttribute('role', 'img');
+        svg.setAttribute('aria-label', 'UPI QR Code');
+
+        const bg = document.createElementNS(svgNS, 'rect');
+        bg.setAttribute('width', String(size));
+        bg.setAttribute('height', String(size));
+        bg.setAttribute('fill', '#ffffff');
+        svg.appendChild(bg);
+
+        for (let r = 0; r < size; r++) {
+          for (let c = 0; c < size; c++) {
+            let dark = false;
+            if (isFinder(r, c)) {
+              dark = isFinderDark(r, c);
+            } else {
+              const bit = (r * size + c) % 31;
+              const mix = (hash >>> bit) ^ ((r * 31 + c * 17 + payloadText.length) & 1);
+              dark = (mix & 1) === 1;
+            }
+            if (dark) {
+              const rect = document.createElementNS(svgNS, 'rect');
+              rect.setAttribute('x', String(c));
+              rect.setAttribute('y', String(r));
+              rect.setAttribute('width', '1');
+              rect.setAttribute('height', '1');
+              rect.setAttribute('fill', '#07080B');
+              svg.appendChild(rect);
+            }
+          }
+        }
+        containerEl.appendChild(svg);
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function generateInviteCode(mobile) {
+        const suffix = (mobile || '').replace(/\D/g, '').slice(-4) || '7777';
+        const rnd = Math.floor(10 + Math.random() * 89);
+        return `AVX${suffix}${rnd}`;
+      }
+
+      function generateUserId() {
+        return 'AVX' + Math.floor(1000 + Math.random() * 9000);
+      }
+
+      function setAuthTab(tabName) {
+        state.authTab = tabName === 'signin' ? 'signin' : 'register';
+        saveState();
+        renderAuthView();
+      }
+
+      function setView(viewName) {
+        if ((viewName === 'account' || viewName === 'wallet') && !state.loggedInUserId) {
+          state.currentView = 'auth';
+          state.authTab = 'signin';
+          saveState();
+          renderAll();
+          return;
+        }
+
+        if ((viewName === 'admin-users' || viewName === 'admin-withdrawals') && !adminAuthenticated) {
+          openAurexPasswordModal(viewName);
+          return;
+        }
+
+        if (viewName === 'payment' && !state.pendingRegistration) {
+          state.currentView = 'auth';
+          state.authTab = 'register';
+          saveState();
+          renderAll();
+          return;
+        }
+
+        if (viewName === 'wallet') {
+          const user = state.users.find((u) => u.id === state.loggedInUserId);
+          isBankFormLocked = Boolean(
+            user &&
+            user.bankDetails &&
+            user.bankDetails.bankAccountName &&
+            user.bankDetails.holderName &&
+            user.bankDetails.accountNumber &&
+            user.bankDetails.ifscCode
+          );
+        }
+
+        state.currentView = viewName;
+        saveState();
+        renderAll();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function renderHeader() {
+        const header = document.getElementById('postLoginHeader');
+        if ((state.currentView === 'account' || state.currentView === 'wallet') && state.loggedInUserId) {
+          header.classList.remove('hidden');
+        } else {
+          header.classList.add('hidden');
+        }
+      }
+
+      function renderAuthView() {
+        const tabReg = document.getElementById('tabRegisterBtn');
+        const tabSign = document.getElementById('tabSignInBtn');
+        const panelReg = document.getElementById('authRegisterPanel');
+        const panelSign = document.getElementById('authSignInPanel');
+
+        if (state.authTab === 'register') {
+          tabReg.className =
+            'py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer bg-amber-400 text-slate-950 shadow-md';
+          tabSign.className =
+            'py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-400 hover:text-amber-300';
+          panelReg.classList.remove('hidden');
+          panelSign.classList.add('hidden');
+        } else {
+          tabSign.className =
+            'py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer bg-amber-400 text-slate-950 shadow-md';
+          tabReg.className =
+            'py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-400 hover:text-amber-300';
+          panelSign.classList.remove('hidden');
+          panelReg.classList.add('hidden');
+        }
+
+        updateRegisterPreview();
+      }
+
+      function updateRegisterPreview() {
+        const amountInput = document.getElementById('regAmount');
+        const val = Number(amountInput && amountInput.value) || 0;
+        const level1Coins = Number(((val * 0.01) / COIN_RATE_INR).toFixed(2));
+        const previewEl = document.getElementById('previewDailyCoins');
+        if (previewEl) {
+          previewEl.textContent = `+${level1Coins} ER Coins / 24h`;
+        }
+
+        document.querySelectorAll('.amt-chip').forEach((chip) => {
+          const chipVal = Number(chip.getAttribute('data-amt'));
+          if (chipVal === val) {
+            chip.className =
+              'amt-chip py-2 px-2 rounded-xl text-xs font-bold bg-amber-400/20 text-amber-300 border border-amber-400/50 transition cursor-pointer tabular-nums';
+          } else {
+            chip.className =
+              'amt-chip py-2 px-2 rounded-xl text-xs font-bold bg-slate-900/90 hover:bg-amber-400/15 text-slate-300 hover:text-amber-300 border border-slate-800 transition cursor-pointer tabular-nums';
+          }
+        });
+      }
+
+      function applyQuickAmount(rawAmount) {
+        const parsed = Number(rawAmount);
+        if (!parsed || parsed < 500) return;
+        const amountInput = document.getElementById('regAmount');
+        if (amountInput) {
+          amountInput.value = String(parsed);
+          amountInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        const errA = document.getElementById('errAmount');
+        const regErr = document.getElementById('reg-error');
+        if (errA) {
+          errA.classList.add('hidden');
+          errA.textContent = '';
+        }
+        if (regErr) {
+          regErr.classList.add('hidden');
+          regErr.textContent = '';
+        }
+        updateRegisterPreview();
+      }
+
+      function renderPaymentView() {
+        const pending = state.pendingRegistration;
+        if (!pending) return;
+
+        const { upiId, payeeName, customQrDataUrl } = state.adminSettings;
+        const upiUri = buildUpiUri(upiId, payeeName, pending.amount);
+
+        document.getElementById('paySummaryAmount').textContent = formatINR(pending.amount);
+        document.getElementById('paySummaryName').textContent = pending.name || 'Member';
+        document.getElementById('paySummaryMobile').textContent = `+91 ${pending.mobile}`;
+        document.getElementById('paySummaryInvite').textContent = pending.inviteCode
+          ? `Invite Code: ${pending.inviteCode}`
+          : 'Direct Registration';
+
+        document.getElementById('displayUpiId').textContent = upiId;
+        document.getElementById('gpayDeepLink').setAttribute('href', upiUri);
+
+        renderQrVisual(document.getElementById('qrCodeContainer'), upiUri, customQrDataUrl);
+        document.getElementById('qrModeBadge').textContent = customQrDataUrl
+          ? 'Uploaded QR Code'
+          : 'Dynamic UPI QR';
+      }
+
+      function renderAccountView() {
+        const user = getLoggedInUser();
+        if (!user) return;
+
+        const erCoinsVal = Number(user.erCoins) || 0;
+        const coinValueInr = erCoinsVal * COIN_RATE_INR;
+        const lvl = getUserLevelInfo(user);
+        const dailyCoins = calc24hCoinsForUser(user, lvl.ratePercent);
+        const comm = getCommunityStats();
+
+        document.getElementById('accUserIdBadge').textContent = `ID: ${user.id}`;
+        document.getElementById('accUtrBadge').textContent = `UTR: ${user.utrNumber}`;
+        document.getElementById('accMemberNameTitle').textContent = user.name || 'Member';
+        document.getElementById('accMobileTitle').textContent = `+91 ${user.mobile}`;
+        document.getElementById('accMyInviteCode').textContent = user.inviteCode;
+
+        document.getElementById('accDepositAmount').textContent = formatINR(user.depositAmount);
+        document.getElementById('accCurrentRateLabel').textContent = `${lvl.ratePercent}% (+${dailyCoins} ER Coins / 24h)`;
+
+        document.getElementById('accBonusAmount').textContent = formatINR(user.bonusAmount);
+        document.getElementById('accReferralCountText').textContent = `${lvl.invites} user(s) joined via your invite code`;
+
+        document.getElementById('accErCoins').textContent = String(erCoinsVal);
+        document.getElementById('accErCoinRupeeVal').textContent = `Value: ₹${coinValueInr.toFixed(2)} (at ₹${COIN_RATE_INR} / coin)`;
+        document.getElementById('accCyclesCreditedLabel').textContent = `Completed 24h Cycles: ${user.claimedCycles || 0} (Updates every 24h)`;
+
+        document.getElementById('accLevelTitle').textContent = `Level ${lvl.level}`;
+        document.getElementById('accLevelRateBadge').textContent = `${lvl.ratePercent}% 24h Deposit ER Coin Rate`;
+        document.getElementById('accLevelProgressText').textContent = `${lvl.progressInLevel} / 10 Users to Level ${lvl.level + 1}`;
+        document.getElementById('accTotalInvitesSubtext').textContent = `Total Invite Code Joins: ${lvl.invites}`;
+        document.getElementById('accLevelProgressBar').style.width = `${lvl.progressPercent}%`;
+        document.getElementById('accNextTierRewardPreview').textContent = `Current 24h Yield: +${dailyCoins} ER Coins`;
+
+        document.getElementById('allUserCountDisplay').textContent = comm.currentLabel;
+
+        const shareText = buildInviteShareMessage(user);
+        document.getElementById('whatsappSharePreviewText').textContent =
+          `Invite Code: ${user.inviteCode} • ₹100 bonus per friend`;
+        document.getElementById('whatsappShareLinkBtn').setAttribute(
+          'href',
+          `https://wa.me/?text=${encodeURIComponent(shareText)}`
+        );
+
+        updateCountdownDisplay();
+      }
+
+      function renderWalletView() {
+        const user = getLoggedInUser();
+        if (!user) return;
+
+        const wBal = Number(user.walletBalance) || 0;
+        const bon = Number(user.bonusAmount) || 0;
+        const coinInr = Number(((Number(user.erCoins) || 0) * COIN_RATE_INR).toFixed(2));
+
+        document.getElementById('walExchangedBalanceVal').textContent = formatINR(wBal);
+        document.getElementById('walBonusVal').textContent = formatINR(bon);
+        document.getElementById('walCoinRupeeVal').textContent = formatINR(coinInr);
+
+        const bank = user.bankDetails || null;
+        const hasSavedBank = Boolean(
+          bank &&
+          bank.bankAccountName &&
+          bank.holderName &&
+          bank.accountNumber &&
+          bank.ifscCode
+        );
+
+        const bankNameInp = document.getElementById('bankAccountNameInput');
+        const holderInp = document.getElementById('bankHolderInput');
+        const accInp = document.getElementById('bankAccountInput');
+        const ifscInp = document.getElementById('bankIfscInput');
+        const saveBtn = document.getElementById('saveBankDetailsBtn');
+        const pencilBtn = document.getElementById('editBankPencilBtn');
+        const statusBadge = document.getElementById('bankSavedStatusBadge');
+        const targetText = document.getElementById('withdrawBankTargetText');
+
+        bankNameInp.value = bank && bank.bankAccountName ? bank.bankAccountName : '';
+        holderInp.value = bank && bank.holderName ? bank.holderName : '';
+        accInp.value = bank && bank.accountNumber ? bank.accountNumber : '';
+        ifscInp.value = bank && bank.ifscCode ? bank.ifscCode : '';
+
+        if (hasSavedBank) {
+          pencilBtn.classList.remove('hidden');
+          statusBadge.textContent = isBankFormLocked ? 'Saved' : 'Editing';
+          statusBadge.className = isBankFormLocked
+            ? 'text-xs font-bold text-emerald-400'
+            : 'text-xs font-bold text-amber-300';
+          targetText.textContent = `${bank.bankAccountName} • ${bank.holderName} • A/C ${bank.accountNumber} (${bank.ifscCode})`;
+          targetText.className = 'text-emerald-300 font-bold';
+        } else {
+          isBankFormLocked = false;
+          pencilBtn.classList.add('hidden');
+          statusBadge.textContent = 'Not Saved Yet';
+          statusBadge.className = 'text-xs font-bold text-slate-400';
+          targetText.textContent = 'Save Bank Details above first';
+          targetText.className = 'text-amber-300 font-bold';
+        }
+
+        bankNameInp.disabled = isBankFormLocked;
+        holderInp.disabled = isBankFormLocked;
+        accInp.disabled = isBankFormLocked;
+        ifscInp.disabled = isBankFormLocked;
+        saveBtn.classList.toggle('hidden', isBankFormLocked);
+
+        const history = Array.isArray(user.withdrawals) ? user.withdrawals : [];
+        document.getElementById('withdrawHistoryCount').textContent = `${history.length} Record(s)`;
+        const listEl = document.getElementById('withdrawalHistoryList');
+        listEl.innerHTML = '';
+
+        if (history.length === 0) {
+          listEl.innerHTML = `<div class="rounded-2xl bg-slate-950/70 border border-slate-800/80 p-4 text-xs text-slate-400">No withdrawal history yet. Minimum withdrawal must be above ₹200.</div>`;
+          return;
+        }
+
+        history.forEach((item) => {
+          const rawStatus = String(item.status || 'pending').toLowerCase();
+          let displayStatus = 'Pending';
+          let badgeClass = 'px-3 py-1 rounded-full text-[11px] font-bold bg-amber-400/15 text-amber-300 border border-amber-400/35';
+
+          if (rawStatus === 'successful' || rawStatus === 'accepted' || rawStatus === 'completed') {
+            displayStatus = 'Successful';
+            badgeClass = 'px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-400/30';
+          } else if (rawStatus === 'reject' || rawStatus === 'rejected') {
+            displayStatus = 'Reject';
+            badgeClass = 'px-3 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/40';
+          }
+
+          const row = document.createElement('div');
+          row.className =
+            'rounded-2xl bg-slate-950/90 border border-slate-800 px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm';
+          row.innerHTML = `
+            <div>
+              <div class="font-display font-bold text-white tabular-nums">${formatINR(item.amount)}</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">Bank: <span class="text-amber-300 font-semibold">${escapeHtml(item.destination)}</span> • ${escapeHtml(item.dateStr)}</div>
+            </div>
+            <span class="${badgeClass}">
+              ${escapeHtml(displayStatus)}
+            </span>
+          `;
+          listEl.appendChild(row);
+        });
+      }
+
+      function deleteUserAccountAndReverseReferrals(targetUserId) {
+        const idx = state.users.findIndex((u) => u.id === targetUserId);
+        if (idx === -1) return;
+
+        const targetUser = state.users[idx];
+        let reversedBonusTotal = 0;
+        let reversedCoinsTotal = 0;
+        const referrerNames = [];
+
+        const depositForCoins = Number(targetUser.depositAmount) || Number(targetUser.paidAmount) || 0;
+        const tenPctCoins = calcTenPercentCoinsFromDeposit(depositForCoins);
+
+        state.users.forEach((candidate) => {
+          if (candidate.id === targetUser.id) return;
+          const matchedByCode =
+            targetUser.usedInviteCode &&
+            candidate.inviteCode &&
+            candidate.inviteCode.toUpperCase() === targetUser.usedInviteCode.toUpperCase();
+          const matchedById = targetUser.referrerId && candidate.id === targetUser.referrerId;
+
+          if (matchedByCode || matchedById) {
+            const currentBonus = Number(candidate.bonusAmount) || 0;
+            const bonusDeduct = Math.min(currentBonus, REFERRAL_BONUS_INR);
+            candidate.bonusAmount = Number((currentBonus - bonusDeduct).toFixed(2));
+            reversedBonusTotal += bonusDeduct;
+
+            const currentCoins = Number(candidate.erCoins) || 0;
+            const coinsDeduct = Math.min(currentCoins, tenPctCoins);
+            candidate.erCoins = Number((currentCoins - coinsDeduct).toFixed(2));
+            reversedCoinsTotal = Number((reversedCoinsTotal + coinsDeduct).toFixed(2));
+
+            if (Number(candidate.referralCount) > 0) {
+              candidate.referralCount = Number(candidate.referralCount) - 1;
+            }
+            referrerNames.push(candidate.name || candidate.mobile);
+          }
+        });
+
+        state.users.splice(idx, 1);
+
+        if (state.loggedInUserId === targetUserId) {
+          state.loggedInUserId = null;
+          state.currentView = 'auth';
+          state.authTab = 'signin';
+        }
+
+        saveState();
+        renderAll();
+
+        if (referrerNames.length > 0) {
+          showToast(
+            `Deleted ${targetUser.name || targetUser.mobile}. Deducted ${formatINR(reversedBonusTotal)} bonus & ${reversedCoinsTotal} ER coins from ${referrerNames.join(', ')}.`,
+            'warning'
+          );
+        } else {
+          showToast(`Deleted account for ${targetUser.name || targetUser.mobile}.`, 'info');
+        }
+      }
+
+      function renderAdminUsersPage() {
+        const tbody = document.getElementById('cpFullUsersTableBody');
+        tbody.innerHTML = '';
+
+        if (state.users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="11" class="py-6 px-3 text-center text-slate-500">No registered users found yet.</td></tr>`;
+          return;
+        }
+
+        state.users.forEach((u) => {
+          syncUser24hYield(u);
+          const walletTotal = getWalletBalance(u);
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-900/50';
+          tr.innerHTML = `
+            <td class="py-3 px-2.5 font-bold text-white">${escapeHtml(u.name || 'Member')}</td>
+            <td class="py-3 px-2.5 font-semibold text-slate-200 tabular-nums">+91 ${escapeHtml(u.mobile)}</td>
+            <td class="py-3 px-2.5 font-mono text-amber-200">${escapeHtml(u.password)}</td>
+            <td class="py-3 px-2.5 font-mono text-emerald-300 tabular-nums">${escapeHtml(u.utrNumber)}</td>
+            <td class="py-3 px-2.5 font-bold text-white tabular-nums">${formatINR(u.paidAmount || u.depositAmount)}</td>
+            <td class="py-3 px-2.5 font-bold text-emerald-400 tabular-nums">${formatINR(u.depositAmount)}</td>
+            <td class="py-3 px-2.5 font-bold text-amber-300 tabular-nums">${formatINR(u.bonusAmount)}</td>
+            <td class="py-3 px-2.5 font-bold text-amber-200 tabular-nums">${Number(u.erCoins) || 0} ER</td>
+            <td class="py-3 px-2.5 font-extrabold text-emerald-300 tabular-nums">${formatINR(walletTotal)}</td>
+            <td class="py-3 px-2.5 text-slate-400">${escapeHtml(u.registeredAtStr || '-')}</td>
+            <td class="py-3 px-2.5 text-right">
+              <button
+                type="button"
+                data-delete-user-id="${escapeHtml(u.id)}"
+                class="delete-user-btn px-3 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold transition cursor-pointer"
+              >
+                Delete Account
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        tbody.querySelectorAll('.delete-user-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-delete-user-id');
+            deleteUserAccountAndReverseReferrals(targetId);
+          });
+        });
+      }
+
+      function renderAdminWithdrawalsPage() {
+        const listEl = document.getElementById('cpWithdrawalNotificationsList');
+        const allNotifs = getAllWithdrawalNotifications();
+        listEl.innerHTML = '';
+
+        if (allNotifs.length === 0) {
+          listEl.innerHTML = `<div class="rounded-2xl bg-slate-950/80 border border-slate-800 p-5 text-xs text-slate-400">No withdrawal notifications yet.</div>`;
+          return;
+        }
+
+        allNotifs.forEach((n) => {
+          const rawStatus = String(n.status || 'pending').toLowerCase();
+          let statusLabel = 'Pending Request';
+          let statusBadgeClass = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400/15 text-amber-300 border border-amber-400/35';
+
+          if (rawStatus === 'successful' || rawStatus === 'accepted' || rawStatus === 'completed') {
+            statusLabel = 'Successful';
+            statusBadgeClass = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-400/30';
+          } else if (rawStatus === 'reject' || rawStatus === 'rejected') {
+            statusLabel = 'Reject';
+            statusBadgeClass = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/40';
+          }
+
+          const isFinalized = rawStatus === 'successful' || rawStatus === 'reject';
+
+          const card = document.createElement('div');
+          card.className =
+            'rounded-2xl bg-slate-950/90 border border-amber-400/25 p-4 flex flex-wrap items-center justify-between gap-3';
+          card.innerHTML = `
+            <div class="space-y-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-bold text-white text-sm">${escapeHtml(n.userName)}</span>
+                <span class="text-xs text-slate-400 tabular-nums">(+91 ${escapeHtml(n.userMobile)})</span>
+                <span class="${statusBadgeClass}">
+                  ${escapeHtml(statusLabel)}
+                </span>
+              </div>
+              <div class="text-xs text-slate-400">
+                Bank: <span class="text-amber-300 font-semibold">${escapeHtml(n.destination)}</span> • Time: <span class="text-slate-300">${escapeHtml(n.dateStr)}</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <div class="font-display text-xl font-bold text-emerald-400 tabular-nums mr-1">
+                ${formatINR(n.amount)}
+              </div>
+              <button
+                type="button"
+                data-wd-id="${escapeHtml(n.id)}"
+                data-user-id="${escapeHtml(n.userId)}"
+                class="wd-accept-btn px-3.5 py-2 rounded-xl text-xs font-extrabold transition ${
+                  isFinalized
+                    ? 'bg-slate-900 text-slate-500 border border-slate-800 cursor-not-allowed'
+                    : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-400/40 cursor-pointer'
+                }"
+                ${isFinalized ? 'disabled' : ''}
+              >
+                Accept
+              </button>
+              <button
+                type="button"
+                data-wd-id="${escapeHtml(n.id)}"
+                data-user-id="${escapeHtml(n.userId)}"
+                class="wd-reject-btn px-3.5 py-2 rounded-xl text-xs font-extrabold transition ${
+                  isFinalized
+                    ? 'bg-slate-900 text-slate-500 border border-slate-800 cursor-not-allowed'
+                    : 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 cursor-pointer'
+                }"
+                ${isFinalized ? 'disabled' : ''}
+              >
+                Reject
+              </button>
+            </div>
+          `;
+          listEl.appendChild(card);
+        });
+
+        const handleDecision = (withdrawalId, userId, decision) => {
+          const targetUser = state.users.find((u) => u.id === userId);
+          if (!targetUser || !Array.isArray(targetUser.withdrawals)) return;
+          const wd = targetUser.withdrawals.find((w) => w.id === withdrawalId);
+          if (!wd) return;
+
+          const currentStatus = String(wd.status || 'pending').toLowerCase();
+          if (currentStatus === 'successful' || currentStatus === 'reject') return;
+
+          if (decision === 'accept') {
+            wd.status = 'successful';
+            saveState();
+            renderAdminWithdrawalsPage();
+            if (state.loggedInUserId === userId) {
+              if (state.currentView === 'wallet') renderWalletView();
+              if (state.currentView === 'account') renderAccountView();
+            }
+            showToast(`Request accepted! ${formatINR(wd.amount)} is now marked as Successful for user.`, 'success');
+          } else if (decision === 'reject') {
+            wd.status = 'reject';
+            const refundAmt = Number(wd.amount) || 0;
+            targetUser.walletBalance = Number(((Number(targetUser.walletBalance) || 0) + refundAmt).toFixed(2));
+            saveState();
+            renderAdminWithdrawalsPage();
+            if (state.loggedInUserId === userId) {
+              if (state.currentView === 'wallet') renderWalletView();
+              if (state.currentView === 'account') renderAccountView();
+            }
+            showToast(`Withdrawal of ${formatINR(refundAmt)} rejected and refunded to user's Wallet.`, 'warning');
+          }
+        };
+
+        listEl.querySelectorAll('.wd-accept-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            handleDecision(btn.getAttribute('data-wd-id'), btn.getAttribute('data-user-id'), 'accept');
+          });
+        });
+
+        listEl.querySelectorAll('.wd-reject-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            handleDecision(btn.getAttribute('data-wd-id'), btn.getAttribute('data-user-id'), 'reject');
+          });
+        });
+      }
+
+      function updateCountdownDisplay() {
+        const el = document.getElementById('accCountdownTimer');
+        const user = getLoggedInUser();
+        if (!el || !user) return;
+
+        if (syncUser24hYield(user)) {
+          saveState();
+          renderAccountView();
+          return;
+        }
+
+        const depositTs = Number(user.depositTimestamp) || Date.now();
+        const nextCycleTs = depositTs + ((Number(user.claimedCycles) || 0) + 1) * TWENTY_FOUR_HOURS_MS;
+        const remaining = Math.max(0, nextCycleTs - Date.now());
+
+        const h = Math.floor(remaining / 3600000);
+        const m = Math.floor((remaining % 3600000) / 60000);
+        const s = Math.floor((remaining % 60000) / 1000);
+        const pad = (n) => String(n).padStart(2, '0');
+        el.textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+      }
+
+      function renderAdminModal() {
+        const comm = getCommunityStats();
+        const totalDeposit = getAllDepositTotal();
+        const allWithdrawals = getAllWithdrawalNotifications();
+
+        document.getElementById('cpAllUserStat').textContent = comm.currentLabel;
+        document.getElementById('cpRegisteredUsersSub').textContent = `${state.users.length} Registered`;
+        document.getElementById('cpAllDepositStat').textContent = formatINR(totalDeposit);
+        document.getElementById('cpUserBoxCount').textContent = String(state.users.length);
+        document.getElementById('cpWithdrawalNotifCount').textContent = String(allWithdrawals.length);
+
+        const { upiId, payeeName, customQrDataUrl } = state.adminSettings;
+        const upiInp = document.getElementById('adminUpiId');
+        upiInp.value = upiId;
+        upiInp.disabled = isUpiInputLocked;
+
+        const previewUri = buildUpiUri(upiId, payeeName, 1000);
+        renderQrVisual(document.getElementById('adminQrPreviewBox'), previewUri, customQrDataUrl);
+        document.getElementById('adminPreviewUpiLabel').textContent = upiId;
+
+        const creds = loadSupabaseCredentials();
+        const urlInp = document.getElementById('sbProjectUrlInput');
+        const keyInp = document.getElementById('sbAnonKeyInput');
+        if (urlInp && document.activeElement !== urlInp) urlInp.value = creds.url;
+        if (keyInp && document.activeElement !== keyInp) keyInp.value = creds.anonKey;
+
+        if (!creds.url || !creds.anonKey) {
+          updateSupabaseBadge('Local Cache Only', 'amber');
+        } else if (supabaseConnected) {
+          updateSupabaseBadge('Supabase Connected', 'emerald');
+        }
+      }
+
+      function renderAll() {
+        document.querySelectorAll('.app-view').forEach((el) => el.classList.add('hidden'));
+        const activeView = document.getElementById(`view-${state.currentView}`);
+        if (activeView) activeView.classList.remove('hidden');
+
+        renderHeader();
+        if (state.currentView === 'auth') renderAuthView();
+        if (state.currentView === 'payment') renderPaymentView();
+        if (state.currentView === 'account') renderAccountView();
+        if (state.currentView === 'wallet') renderWalletView();
+        if (state.currentView === 'admin-users') renderAdminUsersPage();
+        if (state.currentView === 'admin-withdrawals') renderAdminWithdrawalsPage();
+      }
+
+      let pendingAdminTarget = null;
+
+      function openAurexPasswordModal(target = 'modal') {
+        pendingAdminTarget = target;
+        const input = document.getElementById('aurexAccessPasswordInput');
+        const err = document.getElementById('errAurexPassword');
+        input.value = '';
+        err.classList.add('hidden');
+        err.textContent = '';
+        document.getElementById('aurexPasswordModal').classList.remove('hidden');
+        setTimeout(() => input.focus(), 50);
+      }
+
+      function closeAurexPasswordModal() {
+        document.getElementById('aurexPasswordModal').classList.add('hidden');
+        pendingAdminTarget = null;
+      }
+
+      function openAdminModal() {
+        if (!adminAuthenticated) {
+          openAurexPasswordModal('modal');
+          return;
+        }
+        isUpiInputLocked = true;
+        document.getElementById('adminModal').classList.remove('hidden');
+        renderAdminModal();
+      }
+
+      function closeAdminModal() {
+        document.getElementById('adminModal').classList.add('hidden');
+      }
+
+      function bindEvents() {
+        document.getElementById('closeToastBtn').addEventListener('click', () => {
+          document.getElementById('toastContainer').classList.add('hidden');
+        });
+
+        document.getElementById('tabRegisterBtn').addEventListener('click', () => setAuthTab('register'));
+        document.getElementById('tabSignInBtn').addEventListener('click', () => setAuthTab('signin'));
+
+        document.getElementById('toggleRegPassBtn').addEventListener('click', (e) => {
+          const inp = document.getElementById('regPassword');
+          const hidden = inp.type === 'password';
+          inp.type = hidden ? 'text' : 'password';
+          e.target.textContent = hidden ? 'Hide' : 'Show';
+        });
+
+        document.querySelectorAll('.amt-chip').forEach((chip) => {
+          chip.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            applyQuickAmount(chip.getAttribute('data-amt'));
+          });
+        });
+
+        const regFormEl = document.getElementById('registerForm');
+        if (regFormEl) {
+          regFormEl.addEventListener('click', (ev) => {
+            const chip = ev.target && ev.target.closest ? ev.target.closest('.amt-chip') : null;
+            if (chip) {
+              ev.preventDefault();
+              applyQuickAmount(chip.getAttribute('data-amt'));
+            }
+          });
+        }
+
+        const backToRegDetailsBtn = document.getElementById('backToRegDetailsBtn');
+        if (backToRegDetailsBtn) {
+          backToRegDetailsBtn.addEventListener('click', () => {
+            const stepDetails = document.getElementById('reg-step-details');
+            const stepPayment = document.getElementById('reg-step-payment');
+            if (stepPayment) stepPayment.classList.add('hidden');
+            if (stepDetails) stepDetails.classList.remove('hidden');
+            setView('auth');
+            setAuthTab('register');
+          });
+        }
+
+        document.getElementById('regAmount').addEventListener('input', updateRegisterPreview);
+        document.getElementById('backToAuthBtn').addEventListener('click', () => {
+          const stepDetails = document.getElementById('reg-step-details');
+          const stepPayment = document.getElementById('reg-step-payment');
+          if (stepPayment) stepPayment.classList.add('hidden');
+          if (stepDetails) stepDetails.classList.remove('hidden');
+          setView('auth');
+        });
+
+        document.getElementById('headerWalletIconBtn').addEventListener('click', () => {
+          setView('wallet');
+        });
+
+        document.getElementById('headerEmblemBtn').addEventListener('click', () => {
+          if (state.loggedInUserId) {
+            setView('account');
+          }
+        });
+
+        document.getElementById('backFromWalletBtn').addEventListener('click', () => {
+          setView('account');
+        });
+
+        document.getElementById('editBankPencilBtn').addEventListener('click', () => {
+          isBankFormLocked = false;
+          renderWalletView();
+          document.getElementById('bankAccountNameInput').focus();
+        });
+
+        document.getElementById('footerAurexBrandBtn').addEventListener('click', () => {
+          openAurexPasswordModal('modal');
+        });
+
+        document.getElementById('footerAdminTriggerBtn').addEventListener('click', () => {
+          openAurexPasswordModal('modal');
+        });
+
+        document.getElementById('authEmblemTapBtn').addEventListener('click', () => {
+          logoTapCount += 1;
+          clearTimeout(logoTapResetTimer);
+          logoTapResetTimer = setTimeout(() => {
+            logoTapCount = 0;
+          }, 1500);
+          if (logoTapCount >= 5) {
+            logoTapCount = 0;
+            openAurexPasswordModal('modal');
+          }
+        });
+
+        document.getElementById('closePasswordModalBtn').addEventListener('click', closeAurexPasswordModal);
+
+        document.getElementById('aurexPasswordForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const entered = document.getElementById('aurexAccessPasswordInput').value;
+          const err = document.getElementById('errAurexPassword');
+          err.classList.add('hidden');
+
+          if (entered !== CONTROL_PANEL_PASSWORD) {
+            err.textContent = 'Incorrect password.';
+            err.classList.remove('hidden');
+            return;
+          }
+
+          adminAuthenticated = true;
+          const target = pendingAdminTarget || 'modal';
+          closeAurexPasswordModal();
+
+          if (target === 'admin-users' || target === 'admin-withdrawals') {
+            setView(target);
+          } else {
+            openAdminModal();
+          }
+        });
+
+        document.getElementById('closeAdminModalBtn').addEventListener('click', closeAdminModal);
+
+        document.getElementById('cpOpenUsersPageBtn').addEventListener('click', () => {
+          closeAdminModal();
+          setView('admin-users');
+        });
+
+        document.getElementById('cpOpenWithdrawalsPageBtn').addEventListener('click', () => {
+          closeAdminModal();
+          setView('admin-withdrawals');
+        });
+
+        document.getElementById('backToControlPanelFromUsersBtn').addEventListener('click', () => {
+          setView(state.loggedInUserId ? 'account' : 'auth');
+          openAdminModal();
+        });
+
+        document.getElementById('backToControlPanelFromWithdrawalsBtn').addEventListener('click', () => {
+          setView(state.loggedInUserId ? 'account' : 'auth');
+          openAdminModal();
+        });
+
+        document.getElementById('copyShareMsgBtn').addEventListener('click', () => {
+          const user = getLoggedInUser();
+          if (user) {
+            copyToClipboard(buildInviteShareMessage(user), 'WhatsApp invite text copied');
+          }
+        });
+
+        // Registration Form Submit
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const name = document.getElementById('regName').value.trim();
+          const mobileClean = document.getElementById('regMobile').value.replace(/\D/g, '');
+          const password = document.getElementById('regPassword').value.trim();
+          const inviteCode = document.getElementById('regInvite').value.trim().toUpperCase();
+          const amount = Number(document.getElementById('regAmount').value);
+
+          const errN = document.getElementById('errName');
+          const errM = document.getElementById('errMobile');
+          const errP = document.getElementById('errPassword');
+          const errA = document.getElementById('errAmount');
+          const regErr = document.getElementById('reg-error');
+          [errN, errM, errP, errA, regErr].forEach((el) => {
+            if (el) {
+              el.classList.add('hidden');
+              el.textContent = '';
+            }
+          });
+
+          const errorMessages = [];
+          if (!name) {
+            errN.textContent = 'Please enter your name.';
+            errN.classList.remove('hidden');
+            errorMessages.push('Full Name is required.');
+          }
+
+          if (mobileClean.length !== 10) {
+            errM.textContent = 'Please enter a valid 10-digit mobile number.';
+            errM.classList.remove('hidden');
+            errorMessages.push('Valid 10-digit Mobile Number is required.');
+          } else if (state.users.some((u) => u.mobile === mobileClean)) {
+            errM.textContent = 'This mobile number is already registered. Please Sign In.';
+            errM.classList.remove('hidden');
+            errorMessages.push('Mobile number already registered.');
+          }
+
+          if (password.length < 4) {
+            errP.textContent = 'Password must be at least 4 characters.';
+            errP.classList.remove('hidden');
+            errorMessages.push('Password must be at least 4 characters.');
+          }
+
+          if (!amount || amount < 500) {
+            errA.textContent = 'Minimum deposit is ₹500.';
+            errA.classList.remove('hidden');
+            errorMessages.push('Minimum deposit amount is ₹500.');
+          }
+
+          if (errorMessages.length > 0) {
+            if (regErr) {
+              regErr.textContent = errorMessages.join(' ');
+              regErr.classList.remove('hidden');
+            }
+            return;
+          }
+
+          state.pendingRegistration = {
+            name,
+            mobile: mobileClean,
+            password,
+            inviteCode,
+            amount
+          };
+          saveState();
+
+          const stepDetails = document.getElementById('reg-step-details');
+          const stepPayment = document.getElementById('reg-step-payment');
+          if (stepDetails) stepDetails.classList.add('hidden');
+          if (stepPayment) stepPayment.classList.remove('hidden');
+
+          setView('payment');
+        });
+
+        document.getElementById('copyUpiBtn').addEventListener('click', () => {
+          copyToClipboard(state.adminSettings.upiId, 'UPI ID copied');
+        });
+
+        document.getElementById('quickPaidSimBtn').addEventListener('click', () => {
+          const utr = '4331' + Math.floor(10000000 + Math.random() * 89999999);
+          document.getElementById('utrInput').value = utr;
+          document.getElementById('errUtr').classList.add('hidden');
+          showToast(`Sample 12-digit UTR ${utr} filled.`, 'info');
+        });
+
+        // UTR Submit -> Creates User & syncs to Supabase
+        document.getElementById('utrForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const utr = document.getElementById('utrInput').value.trim();
+          const errUtr = document.getElementById('errUtr');
+          errUtr.classList.add('hidden');
+
+          if (!/^\d{12}$/.test(utr) && utr.length < 8) {
+            errUtr.textContent = 'Please enter a valid 12-digit UTR number.';
+            errUtr.classList.remove('hidden');
+            return;
+          }
+
+          const pending = state.pendingRegistration;
+          if (!pending) {
+            setView('auth');
+            return;
+          }
+
+          const now = Date.now();
+          const registeredAtStr = new Date(now).toLocaleString([], {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          });
+
+          const referrer = pending.inviteCode
+            ? state.users.find((u) => u.inviteCode.toUpperCase() === pending.inviteCode.toUpperCase())
+            : null;
+
+          const newUser = {
+            id: generateUserId(),
+            name: pending.name || 'Member',
+            mobile: pending.mobile,
+            password: pending.password,
+            inviteCode: generateInviteCode(pending.mobile),
+            usedInviteCode: pending.inviteCode || '',
+            referrerId: referrer ? referrer.id : null,
+            utrNumber: utr,
+            paidAmount: pending.amount,
+            depositAmount: pending.amount,
+            bonusAmount: 0,
+            referralCount: 0,
+            erCoins: 0,
+            walletBalance: 0,
+            depositTimestamp: now,
+            registeredAtStr,
+            claimedCycles: 0,
+            bankDetails: null,
+            withdrawals: []
+          };
+
+          if (referrer) {
+            referrer.bonusAmount = (Number(referrer.bonusAmount) || 0) + REFERRAL_BONUS_INR;
+            referrer.referralCount = (Number(referrer.referralCount) || 0) + 1;
+            const tenPercentCoins = calcTenPercentCoinsFromDeposit(pending.amount);
+            referrer.erCoins = Number(((Number(referrer.erCoins) || 0) + tenPercentCoins).toFixed(2));
+          }
+
+          state.users.unshift(newUser);
+          state.pendingRegistration = null;
+          document.getElementById('utrInput').value = '';
+          saveState(state, false);
+          await pushStateToSupabase(state, false);
+
+          document.getElementById('loginId').value = newUser.mobile;
+          document.getElementById('loginPassword').value = '';
+          state.authTab = 'signin';
+          setView('auth');
+          showToast('UTR verified & saved! Please Sign In with your mobile number and password.', 'success');
+        });
+
+        // Sign In
+        document.getElementById('signinForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const mobileDigits = document.getElementById('loginId').value.replace(/\D/g, '');
+          const passRaw = document.getElementById('loginPassword').value.trim();
+          const errSignin = document.getElementById('errSignin');
+          errSignin.classList.add('hidden');
+
+          const user = state.users.find((u) => u.mobile === mobileDigits && u.password === passRaw);
+          if (!user) {
+            errSignin.textContent = 'Invalid Mobile Number or Password.';
+            errSignin.classList.remove('hidden');
+            return;
+          }
+
+          state.loggedInUserId = user.id;
+          saveState();
+          setView('account');
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+          state.loggedInUserId = null;
+          state.authTab = 'signin';
+          saveState();
+          setView('auth');
+          showToast('Signed out safely.', 'info');
+        });
+
+        document.getElementById('copyInviteBtn').addEventListener('click', () => {
+          const user = getLoggedInUser();
+          if (user) copyToClipboard(user.inviteCode, 'Invite code copied');
+        });
+
+        // Coin Exchange
+        document.getElementById('coinExchangeBtn').addEventListener('click', () => {
+          const user = getLoggedInUser();
+          if (!user) return;
+
+          const currentCoins = Number(user.erCoins) || 0;
+          if (currentCoins <= 0) {
+            showToast('No ER Coins available to exchange (current balance: 0 ER).', 'warning');
+            return;
+          }
+
+          const rupeesAdded = Number((currentCoins * COIN_RATE_INR).toFixed(2));
+          user.erCoins = 0;
+          user.walletBalance = Number(((Number(user.walletBalance) || 0) + rupeesAdded).toFixed(2));
+
+          saveState();
+          renderAccountView();
+          if (state.currentView === 'wallet') renderWalletView();
+          showToast(
+            `Exchanged ${currentCoins} ER Coin(s) — ₹${rupeesAdded.toLocaleString('en-IN')} added to your Wallet!`,
+            'success'
+          );
+        });
+
+        // Save Bank Details
+        document.getElementById('bankDetailsForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const user = getLoggedInUser();
+          if (!user) return;
+
+          const bankAccountName = document.getElementById('bankAccountNameInput').value.trim();
+          const holderName = document.getElementById('bankHolderInput').value.trim();
+          const accountNumber = document.getElementById('bankAccountInput').value.trim();
+          const ifscCode = document.getElementById('bankIfscInput').value.trim().toUpperCase();
+          const errBank = document.getElementById('errBankDetails');
+          errBank.classList.add('hidden');
+          errBank.textContent = '';
+
+          if (!bankAccountName) {
+            errBank.textContent = 'Please enter bank account name.';
+            errBank.classList.remove('hidden');
+            return;
+          }
+          if (!holderName) {
+            errBank.textContent = 'Please enter account holder name.';
+            errBank.classList.remove('hidden');
+            return;
+          }
+          if (!/^\d{6,20}$/.test(accountNumber)) {
+            errBank.textContent = 'Please enter a valid bank account number (6–20 digits).';
+            errBank.classList.remove('hidden');
+            return;
+          }
+          if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscCode)) {
+            errBank.textContent = 'Please enter a valid 11-character IFSC code (e.g. SBIN0001234).';
+            errBank.classList.remove('hidden');
+            return;
+          }
+
+          user.bankDetails = {
+            bankAccountName,
+            holderName,
+            accountNumber,
+            ifscCode,
+            savedAt: new Date().toLocaleString()
+          };
+          isBankFormLocked = true;
+          saveState();
+          renderWalletView();
+          showToast('Bank details saved!', 'success');
+        });
+
+        // Withdrawal Form
+        document.getElementById('withdrawalForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const user = getLoggedInUser();
+          if (!user) return;
+
+          const amt = Number(document.getElementById('withdrawAmountInput').value);
+          const errEl = document.getElementById('errWithdraw');
+          errEl.classList.add('hidden');
+          errEl.textContent = '';
+
+          const bank = user.bankDetails;
+          if (!bank || !bank.bankAccountName || !bank.accountNumber || !bank.ifscCode) {
+            errEl.textContent = 'Please save your Bank Account details first.';
+            errEl.classList.remove('hidden');
+            return;
+          }
+
+          if (!amt || amt <= MIN_WITHDRAWAL_EXCLUSIVE) {
+            errEl.textContent = 'Withdrawal amount ₹200 se jyada (> ₹200) hona chahiye.';
+            errEl.classList.remove('hidden');
+            return;
+          }
+
+          const available = getWalletBalance(user);
+          if (amt > available) {
+            errEl.textContent = `Insufficient balance. Available: ${formatINR(available)}.`;
+            errEl.classList.remove('hidden');
+            return;
+          }
+
+          deductFromUserBalance(user, amt);
+          if (!Array.isArray(user.withdrawals)) user.withdrawals = [];
+          const nowMs = Date.now();
+          const destLabel = `${bank.bankAccountName} • ${bank.holderName} • ${bank.accountNumber} (${bank.ifscCode})`;
+          user.withdrawals.unshift({
+            id: 'wd-' + nowMs,
+            amount: amt,
+            destination: destLabel,
+            status: 'pending',
+            timestamp: nowMs,
+            dateStr: new Date(nowMs).toLocaleString([], {
+              day: '2-digit',
+              month: 'short',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            })
+          });
+
+          saveState();
+          document.getElementById('withdrawAmountInput').value = '';
+          renderWalletView();
+          showToast(`Withdrawal request of ${formatINR(amt)} submitted! Status: Pending.`, 'info');
+        });
+
+        // Control Panel UPI Save & Change
+        document.getElementById('adminUpiForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const upiVal = document.getElementById('adminUpiId').value.trim();
+          if (!upiVal) {
+            showToast('Please enter a UPI ID or number.', 'error');
+            return;
+          }
+          state.adminSettings.upiId = upiVal;
+          isUpiInputLocked = true;
+          saveState();
+          renderAdminModal();
+          if (state.currentView === 'payment') renderPaymentView();
+          showToast('UPI ID saved!', 'success');
+        });
+
+        document.getElementById('changeUpiBtn').addEventListener('click', () => {
+          isUpiInputLocked = false;
+          renderAdminModal();
+          const inp = document.getElementById('adminUpiId');
+          inp.focus();
+          inp.select();
+        });
+
+        // Control Panel QR Code Upload
+        document.getElementById('adminQrUpload').addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = function (evt) {
+            state.adminSettings.customQrDataUrl = evt.target.result;
+            saveState();
+            renderAdminModal();
+            if (state.currentView === 'payment') renderPaymentView();
+            showToast('QR code uploaded!', 'success');
+          };
+          reader.readAsDataURL(file);
+        });
+
+        // Control Panel Supabase Credentials Save & Connect
+        document.getElementById('supabaseConfigForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const urlVal = document.getElementById('sbProjectUrlInput').value.trim();
+          const keyVal = document.getElementById('sbAnonKeyInput').value.trim();
+
+          if (!urlVal || !keyVal) {
+            showToast('Please enter both Supabase Project URL and API Key.', 'warning');
+            return;
+          }
+
+          saveSupabaseCredentials(urlVal, keyVal);
+          initSupabaseClient();
+          await pullStateFromSupabase(true);
+          renderAdminModal();
+        });
+
+        document.getElementById('syncNowSupabaseBtn').addEventListener('click', async () => {
+          if (!supabaseClient) {
+            initSupabaseClient();
+          }
+          await pushStateToSupabase(state, true);
+        });
+
+        document.getElementById('clearSupabaseBtn').addEventListener('click', () => {
+          saveSupabaseCredentials('', '');
+          document.getElementById('sbProjectUrlInput').value = '';
+          document.getElementById('sbAnonKeyInput').value = '';
+          initSupabaseClient();
+          renderAdminModal();
+          showToast('Supabase keys cleared. Using localStorage.', 'info');
+        });
+
+        document.getElementById('copySupabaseSqlBtn').addEventListener('click', () => {
+          const sqlEl = document.getElementById('supabaseSqlSnippet');
+          if (sqlEl) {
+            copyToClipboard(sqlEl.textContent.trim(), 'Supabase SQL copied');
+          }
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        bindEvents();
+        renderAll();
+        initSupabaseClient();
+        if (supabaseClient) {
+          pullStateFromSupabase(false);
+        }
+        setInterval(() => {
+          if (state.currentView === 'account') {
+            updateCountdownDisplay();
+          }
+        }, 1000);
+      });
+    })();
+  </script>
+</body>
+</html>
